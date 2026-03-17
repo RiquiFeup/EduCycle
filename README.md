@@ -84,126 +84,20 @@ Below is a concise summary of all user stories for EduCycle, grouped by area. Ea
 
 ---
 
-#### 👤 Authentication & Profile
+* **User Registration (Account)**
+  > **As a** student, **I want to** create an account using my email, **so that** I can have a verified identity on the platform.
 
-| ID    | User Story                                                                                                                             |
-| ----- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| US-01 | As a new user, I want to register with email or Google, so that I can access the platform quickly.                                     |
-| US-02 | As a user, I want to set up my profile with name, photo, school level and institution, so that others can identify and trust me.       |
-| US-03 | As a user, I want to view my transaction history (purchases, sales, trades), so that I have full visibility over my activity.          |
-| US-04 | As a buyer, I want to view another user's public profile with ratings and active listings, so that I can decide whether to trust them. |
+* **Publishing a Listing (Issuing)**
+  > **As a** seller, **I want to** create a listing with a photo, title, and price, **so that** I can put my school materials up for sale or swap.
 
----
+* **Browsing Materials (Discovery)**
+  > **As a** buyer, **I want to** browse a feed of recently added items, **so that** I can discover school materials I might need.
 
-#### 🛍️ Listing & Publishing
+* **Advanced Search & Filters (Discovery)**
+  > **As a** buyer, **I want to** search for specific keywords and filter by academic year, **so that** I can quickly find the exact study materials I need.
 
-| ID    | User Story                                                                                                                              |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| US-05 | As a seller, I want to create a listing with title, photos, description, condition and price, so that I can present my item clearly.    |
-| US-06 | As a seller, I want to choose whether my listing is for sale, trade or loan, so that it appears in the correct section of the platform. |
-| US-07 | As a seller, I want to select the school level and subject of my item, so that it reaches the right audience.                           |
-| US-08 | As a seller, I want to create a pack bundling several items together, so that I can sell multiple things at once at a discounted price. |
-| US-09 | As a seller, I want to apply a percentage discount to a listing, so that I attract more buyers and sell faster.                         |
-| US-10 | As a seller, I want to edit or remove a listing at any time, so that I keep my listings accurate and up to date.                        |
-| US-11 | As a seller, I want to be notified when someone shows interest in my item, so that I can respond quickly and not miss the sale.         |
-
----
-
-#### 🔍 Search & Discovery
-
-| ID    | User Story                                                                                                                                |
-| ----- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| US-12 | As a buyer, I want to search for items by title, ISBN, author or subject, so that I find exactly what I need quickly.                     |
-| US-13 | As a buyer, I want to filter results by school level, year, subject, condition, price and location, so that I only see relevant listings. |
-| US-14 | As a buyer, I want to filter by transaction mode (sale, trade or loan), so that I only see the type of offer I am looking for.            |
-| US-15 | As a user, I want to sort results by price, recency or popularity, so that I can prioritise results according to my needs.                |
-| US-16 | As a user, I want a personalised feed based on my profile and history, so that I discover relevant items without having to search.        |
-
----
-
-#### ❤️ Wishlist & Alerts
-
-| ID    | User Story                                                                                                                                |
-| ----- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| US-17 | As a buyer, I want to add items to my wishlist, so that I can save them for later.                                                        |
-| US-18 | As a buyer, I want to be automatically notified when an item matching my wishlist becomes available, so that I never miss an opportunity. |
-| US-19 | As a user, I want to follow a specific seller, so that I am notified whenever they publish a new listing.                                 |
-
----
-
-#### 🔁 Trade & Loan
-
-| ID    | User Story                                                                                                             |
-| ----- | ---------------------------------------------------------------------------------------------------------------------- |
-| US-20 | As a user, I want to propose a trade directly to another user via chat, so that we can exchange items without money.   |
-| US-21 | As a user, I want to list an item for loan with a defined return date, so that another student can use it temporarily. |
-| US-22 | As a borrower, I want to receive a reminder before the return date, so that I remember to return the item on time.     |
-
----
-
-#### 💬 Communication
-
-| ID    | User Story                                                                                                                                             |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| US-23 | As a buyer, I want to send a direct message to the seller before purchasing, so that I can clarify details about the item's condition or availability. |
-| US-24 | As a user, I want to send images in the chat, so that I can share additional details or evidence about an item.                                        |
-| US-25 | As a user, I want to receive real-time notifications for new messages, so that the conversation flows without delays.                                  |
-| US-26 | As a user with a problem, I want to contact EduCycle support via chat, so that I can resolve issues without leaving the app.                           |
-
----
-
-#### 💰 Payments & Transactions
-
-| ID    | User Story                                                                                                                                            |
-| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| US-27 | As a buyer, I want to pay securely by card, MB Way or Multibanco reference, so that I have flexibility in my payment method.                          |
-| US-28 | As a buyer, I want my payment held in escrow until I confirm receipt, so that I am protected if something goes wrong.                                 |
-| US-29 | As a seller, I want to receive the payment in my EduCycle wallet after delivery confirmation, so that I have assurance the transaction is complete.   |
-| US-30 | As a seller, I want to withdraw my wallet balance to my bank account, so that I can access the money from my sales.                                   |
-| US-31 | As a buyer, I want to use my EduCycle wallet credits to pay for purchases, so that I can spend earnings from previous sales directly on the platform. |
-
----
-
-#### 📦 Logistics & Shipping
-
-| ID    | User Story                                                                                                                                   |
-| ----- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| US-32 | As a seller, I want to generate a pre-paid shipping label from within the app, so that I don't have to handle shipping logistics manually.   |
-| US-33 | As a buyer, I want to track my shipment directly in the app, so that I know exactly where my order is.                                       |
-| US-34 | As a user, I want to arrange in-person handover via chat, so that I avoid shipping costs when both parties are nearby or at the same school. |
-
----
-
-#### ⭐ Ratings & Trust
-
-| ID    | User Story                                                                                                                                    |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| US-35 | As a buyer, I want to rate the seller and leave a review after receiving the item, so that other buyers know what to expect.                  |
-| US-36 | As a seller, I want to rate the buyer after the transaction, so that the community knows they are a trustworthy user.                         |
-| US-37 | As a user, I want to see the average rating and comments on another user's profile, so that I can make informed decisions before transacting. |
-| US-38 | As a user, I want to verify my identity to receive a verified badge, so that others trust my listings and profile more.                       |
-
----
-
-#### 🏫 Organisations & Communities
-
-| ID    | User Story                                                                                                                                                        |
-| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| US-39 | As a school administrator, I want to create a private community for my school on EduCycle, so that students can exchange materials in a safe and organised space. |
-| US-40 | As a student, I want to join my school's community using an invite code, so that I can access listings from my peers.                                             |
-| US-41 | As a community member, I want to publish a listing visible only within my organisation, so that I trade with people I know.                                       |
-| US-42 | As an organisation manager, I want to moderate and remove inappropriate listings in my community, so that the space remains safe and relevant.                    |
-| US-43 | As an organisation manager, I want to view activity metrics for my community, so that I understand how students are using the platform.                           |
-
----
-
-#### 🛡️ Safety & Moderation
-
-| ID    | User Story                                                                                                                                             |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| US-44 | As a user, I want to report a suspicious or fraudulent listing, so that the EduCycle team can investigate and protect the community.                   |
-| US-45 | As a user, I want to block another user, so that I no longer receive unwanted messages or proposals from them.                                         |
-| US-46 | As a buyer, I want to open a dispute if an item does not match its description, so that support can review the case and issue a refund if appropriate. |
+* **Chat & Negotiation (Transactions)**
+  > **As a** user, **I want to** send direct messages to other users, **so that** I can easily negotiate prices and arrange safe deliveries.
 
 ---
 
