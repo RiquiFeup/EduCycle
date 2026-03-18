@@ -44,8 +44,12 @@ Thank you!
 
 > _"To make access to school supplies fairer, more affordable, and sustainable for all students."_
 
+<<<<<<< HEAD
 **For students, families and educators who need affordable school and academic materials. EduCycle is a peer-to-peer marketplace that allows users to buy, sell, trade and lend used educational items. 
 Unlike general second-hand platforms, EduCycle is built exclusively for the academic journey, organised by school level, discipline and institution.**
+=======
+**For students, families and educators who need affordable school and academic materials, EduCycle is a peer-to-peer marketplace that allows users to buy, sell, trade and lend used educational items — unlike general second-hand platforms, EduCycle is built exclusively for the academic journey, organised by school level, discipline and institution.**
+>>>>>>> 4c94945 (chore: setup jest and project structure)
 
 ---
 
