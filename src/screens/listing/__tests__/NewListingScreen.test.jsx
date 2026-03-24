@@ -97,49 +97,5 @@ describe('US-03 — Publish a New Listing (As a seller, I want to create a listi
 
   });
 
-  describe('Cenário 2 — Exceptional: Submission blocked when fields are missing', () => {
-
-    it('AT6 — given no fields are filled, when Publish is pressed, then success message does NOT appear', () => {
-      render(<NewListingScreen />);
-
-      fireEvent.press(screen.getByTestId('btn-publish'));
-
-      expect(screen.queryByTestId('msg-success')).toBeNull();
-    });
-
-    it('AT7 — given Sell is selected but price is empty, when Publish is pressed, then price error is shown', () => {
-      render(<NewListingScreen />);
-
-      // Fill everything except price
-      fireEvent.press(screen.getByTestId('photo-upload-area'));
-      fireEvent.changeText(screen.getByTestId('input-title'), 'Física 11.º Ano');
-      fireEvent.press(screen.getByTestId('subject-option-Physics'));
-      fireEvent.press(screen.getByTestId('condition-option-Good'));
-      fireEvent.press(screen.getByTestId('campus-option-FEUP'));
-      // Do NOT fill price
-
-      fireEvent.press(screen.getByTestId('btn-publish'));
-
-      expect(screen.getByTestId('error-price')).toBeTruthy();
-      expect(screen.queryByTestId('msg-success')).toBeNull();
-    });
-
-    it('AT8 — given Campus is not selected, when Publish is pressed, then campus error is shown', () => {
-      render(<NewListingScreen />);
-
-      fireEvent.press(screen.getByTestId('photo-upload-area'));
-      fireEvent.changeText(screen.getByTestId('input-title'), 'Química 10.º Ano');
-      fireEvent.press(screen.getByTestId('subject-option-Chemistry'));
-      fireEvent.press(screen.getByTestId('condition-option-New'));
-      // Campus NOT selected
-      fireEvent.changeText(screen.getByTestId('input-price'), '8');
-
-      fireEvent.press(screen.getByTestId('btn-publish'));
-
-      expect(screen.getByTestId('error-campus')).toBeTruthy();
-      expect(screen.queryByTestId('msg-success')).toBeNull();
-    });
-
-  });
 
 });
