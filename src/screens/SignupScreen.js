@@ -8,7 +8,7 @@ import {
   StyleSheet,
 } from 'react-native';
 
-export default function SignupScreen({ navigation }) {
+export default function SignupScreen({ onSignupSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -30,9 +30,10 @@ export default function SignupScreen({ navigation }) {
 
     setError('');
     setLoading(true);
+
     try {
       await fakeSignUp();
-      navigation.replace('Home');
+      onSignupSuccess();
     } catch (e) {
       setError('Não foi possível criar a conta.');
     } finally {
@@ -42,7 +43,6 @@ export default function SignupScreen({ navigation }) {
 
   return (
     <View style={styles.container} testID="signup-screen">
-
       <Text style={styles.title}>Criar conta</Text>
 
       <TextInput
@@ -69,6 +69,7 @@ export default function SignupScreen({ navigation }) {
           {error}
         </Text>
       ) : null}
+
       <Pressable
         testID="signup-submit-button"
         style={[styles.button, !canSubmit && styles.buttonDisabled]}
@@ -91,28 +92,36 @@ const styles = StyleSheet.create({
     padding: 24,
     justifyContent: 'center',
     backgroundColor: '#fff',
-  },title: {
+  },
+  title: {
     fontSize: 28,
     fontWeight: '700',
     marginBottom: 24,
-  },input: {
+    textAlign: 'center',
+  },
+  input: {
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 10,
     padding: 12,
     marginBottom: 14,
-  },button: {
+  },
+  button: {
     backgroundColor: '#1f6feb',
     padding: 14,
     borderRadius: 10,
     alignItems: 'center',
-  },buttonDisabled: {
+  },
+  buttonDisabled: {
     opacity: 0.5,
-  },buttonText: {
+  },
+  buttonText: {
     color: '#fff',
     fontWeight: '700',
-  },error: {
+  },
+  error: {
     color: 'red',
     marginBottom: 12,
+    textAlign: 'center',
   },
 });
