@@ -10,29 +10,27 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:listing": "jest src/screens/listing",
     "e2e": "maestro test .maestro/flows/"
   },
   "dependencies": {
     "expo": "~55.0.7",
     "expo-status-bar": "~55.0.4",
-    "jest": "~29.7.0",
-    "jest-expo": "~55.0.11",
     "react": "19.2.0",
     "react-native": "0.83.2"
   },
   "devDependencies": {
-    "@testing-library/jest-native": "^5.4.3",
     "@testing-library/react-native": "^13.3.3",
     "@types/jest": "^29.5.14",
     "@types/react": "~19.2.2",
-    "babel-preset-expo": "^55.0.12",
     "jest": "~29.7.0",
-    "jest-expo": "^55.0.11",
+    "jest-expo": "^55.0.10",
     "typescript": "~5.9.2"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "transformIgnorePatterns": [
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|react-navigation|@react-navigation/.*)"
+    ]
   },
   "private": true
 }
