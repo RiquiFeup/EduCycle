@@ -24,9 +24,9 @@ export default function HomeScreen() {
 
   const filtered = query.trim()
     ? listings.filter(
-        (l) =>
-          l.title.toLowerCase().includes(query.toLowerCase()) ||
-          l.institution.toLowerCase().includes(query.toLowerCase()),
+        (listing) =>
+          listing.title.toLowerCase().includes(query.toLowerCase()) ||
+          listing.institution.toLowerCase().includes(query.toLowerCase()),
       )
     : listings.slice(0, page * PAGE_SIZE);
 
@@ -34,22 +34,30 @@ export default function HomeScreen() {
 
   const handleToggleFavourite = (id) => {
     setListings((prev) =>
-      prev.map((l) => (l.id === id ? { ...l, isFavourited: !l.isFavourited } : l)),
+      prev.map((listing) =>
+        listing.id === id
+          ? { ...listing, isFavourited: !listing.isFavourited }
+          : listing,
+      ),
     );
   };
 
   const loadMore = useCallback(() => {
-    if (isLoadingMore || !hasMore) return;
+    if (isLoadingMore || !hasMore) {
+      return;
+    }
+
     setIsLoadingMore(true);
+
     setTimeout(() => {
       setPage((prev) => prev + 1);
       setIsLoadingMore(false);
     }, 600);
-  }, [isLoadingMore, hasMore]);
+  }, [hasMore, isLoadingMore]);
 
   const rows = [];
-  for (let i = 0; i < filtered.length; i += 2) {
-    rows.push(filtered.slice(i, i + 2));
+  for (let index = 0; index < filtered.length; index += 2) {
+    rows.push(filtered.slice(index, index + 2));
   }
 
   const renderFooter = () => {
@@ -61,6 +69,7 @@ export default function HomeScreen() {
         </View>
       );
     }
+
     if (!hasMore && listings.length > 0 && !query.trim()) {
       return (
         <View style={styles.endFooter}>
@@ -68,16 +77,17 @@ export default function HomeScreen() {
         </View>
       );
     }
+
     return null;
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} testID="home-feed-screen">
       <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
 
       <View style={styles.header}>
         <Text style={styles.logo}>EduCycle</Text>
-        <TouchableOpacity style={styles.notifBtn}>
+        <TouchableOpacity style={styles.notifBtn} testID="home-notifications-button">
           <Text style={styles.notifIcon}>🔔</Text>
           <View style={styles.notifBadge}>
             <Text style={styles.notifBadgeText}>2</Text>
@@ -103,10 +113,10 @@ export default function HomeScreen() {
                 testID="search-bar"
               />
             </View>
-            <SectionHeader 
-              title="Recently Added" 
-              actionText="See all" 
-              onActionPress={() => console.log('See all pressed')} 
+            <SectionHeader
+              title="Recently Added"
+              actionText="See all"
+              onActionPress={() => {}}
             />
           </>
         }
@@ -119,12 +129,14 @@ export default function HomeScreen() {
                 onToggleFavourite={handleToggleFavourite}
               />
             ))}
-            {row.length === 1 && <View style={styles.emptySlot} />}
+            {row.length === 1 ? <View style={styles.emptySlot} /> : null}
           </View>
         )}
         ListEmptyComponent={
           <View style={styles.empty} testID="empty-state">
-            <Text style={styles.emptyText} testID="empty-state-text">No listings found.</Text>
+            <Text style={styles.emptyText} testID="empty-state-text">
+              No listings found.
+            </Text>
           </View>
         }
       />

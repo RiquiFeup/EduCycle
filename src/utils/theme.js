@@ -1,17 +1,23 @@
 export const COLORS = {
-  primary: '#2E8B57', // Teal
+  primary: '#2F7657',
+  primarySoft: '#E5EFE9',
+  primaryBorder: '#8EBAA4',
   background: '#FFFFFF',
-  text: '#1A1A1A',
-  textSecondary: '#555555',
-  textMuted: '#888888',
-  border: '#F0F0F0',
-  borderDark: '#E8E8E8',
+  page: '#ECE8E3',
+  surface: '#F8F6F3',
+  cardInput: '#FFFEFC',
+  text: '#274936',
+  textSecondary: '#63756A',
+  textMuted: '#919B95',
+  border: '#E7E3DE',
+  borderSoft: '#EBE7E1',
+  borderDark: '#D8DDD9',
   badgeBackground: '#F5F5F5',
-  danger: '#E53E3E',
+  danger: '#C54B45',
   dangerBackground: '#FFF5F5',
-  dangerBorder: '#FED7D7',
+  dangerBorder: '#F2C4C1',
   toggleActive: '#A8D5BA',
-  toggleInactive: '#f4f3f4',
+  toggleInactive: '#F4F3F1',
   buttonGray: '#F9F9F9',
 };
 
@@ -22,4 +28,10 @@ export const SPACING = {
   md: 16,
   lg: 24,
   xl: 32,
+};
+
+export const RADIUS = {
+  input: 14,
+  button: 14,
+  panel: 24,
 };

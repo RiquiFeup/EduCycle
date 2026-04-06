@@ -1,30 +1,50 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useEffect, useMemo, useState } from 'react';
 
 export const UserContext = createContext();
 
-export const UserProvider = ({ children }) => {
-  // This state now acts as our temporary "database" for the logged-in user
-  const [currentUser, setCurrentUser] = useState({
-    id: 'u999',
-    name: 'João Silva',
-    photo: 'https://i.pravatar.cc/150?u=joao',
-    communities: ['FEUP'],
-    course: 'Informatics Engineering',
-    phone: '+351 912 345 678',
-    isPhonePublic: false,
-    email: 'joao.silva@fe.up.pt',
-    rating: 4.8,
-    reviewsCount: 14,
-    joinedDate: 'Sep 2024',
-    totalListings: 5,
-  });
+const DEFAULT_USER = {
+  id: 'u999',
+  name: 'João Silva',
+  photo: 'https://i.pravatar.cc/150?u=joao',
+  communities: ['FEUP'],
+  course: 'Informatics Engineering',
+  phone: '+351 912 345 678',
+  isPhonePublic: false,
+  email: 'joao.silva@fe.up.pt',
+  rating: 4.8,
+  reviewsCount: 14,
+  joinedDate: 'Sep 2024',
+  totalListings: 5,
+};
+
+export const UserProvider = ({ children, initialUser, onUserUpdate, onLogout }) => {
+  const [currentUser, setCurrentUser] = useState({ ...DEFAULT_USER, ...(initialUser ?? {}) });
+
+  useEffect(() => {
+    if (initialUser) {
+      setCurrentUser((prev) => ({ ...prev, ...initialUser }));
+    }
+  }, [initialUser]);
 
   const updateUser = (newData) => {
-    setCurrentUser((prev) => ({ ...prev, ...newData }));
+    setCurrentUser((prev) => {
+      const updated = { ...prev, ...newData };
+      onUserUpdate?.(updated);
+      return updated;
+    });
   };
 
+  const contextValue = useMemo(
+    () => ({
+      currentUser,
+      updateUser,
+      logout: onLogout,
+    }),
+    [currentUser, onLogout],
+  );
+
   return (
-    <UserContext.Provider value={{ currentUser, updateUser }}>
+    <UserContext.Provider value={contextValue}>
       {children}
     </UserContext.Provider>
   );

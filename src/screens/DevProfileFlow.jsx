@@ -6,7 +6,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import PublicProfileScreen from './src/screens/PublicProfileScreen';
 import PrivateProfileScreen from './src/screens/PrivateProfileScreen';
 
-export default function App() {
+export default function DevProfileFlow() {
   // Upgraded router state to hold parameters
   const [navState, setNavState] = useState({ screen: 'Menu', params: {} });
 
