@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform, StatusBar } from 'react-native';
-import React, { useState } from 'react';
 import {
   View,
   Text,

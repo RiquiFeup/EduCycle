@@ -8,6 +8,7 @@ import {
   StatusBar,
   Platform,
 } from 'react-native';
+import NewListingScreen from './listing/NewListingScreen';
 import HomeScreen from './HomeScreen.jsx';
 import PrivateProfileScreen from './PrivateProfileScreen';
 import PublicProfileScreen from './PublicProfileScreen';
@@ -101,12 +102,12 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
 
       case 'Sell':
         return (
-          <PlaceholderTabScreen
-            title="Sell"
-            badge="Create listing"
-            description="This is a placeholder for the publish flow. Hook your future form here for selling, lending, or swapping materials without rewriting the shell again."
-            primaryActionLabel="New listing"
-            secondaryActionLabel="Drafts soon"
+          <NewListingScreen
+            onPublish={(newListing) => {
+              console.log('Published listing:', newListing);
+              setActiveScreen('Home');
+              setScreenParams({});
+            }}
           />
         );
 
