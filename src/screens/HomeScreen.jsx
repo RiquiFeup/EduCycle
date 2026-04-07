@@ -16,7 +16,7 @@ import SectionHeader from '../components/SectionHeader';
 import { COLORS, SPACING } from '../utils/theme';
 import { LISTINGS, PAGE_SIZE } from '../data/listings';
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigate }) {
   const [query, setQuery] = useState('');
   const [listings, setListings] = useState(LISTINGS);
   const [page, setPage] = useState(1);
@@ -127,6 +127,7 @@ export default function HomeScreen() {
                 key={listing.id}
                 listing={listing}
                 onToggleFavourite={handleToggleFavourite}
+                onPress={() => navigate?.('PublicProfile')}
               />
             ))}
             {row.length === 1 ? <View style={styles.emptySlot} /> : null}
