@@ -220,7 +220,21 @@ _Functional prototype to be added after the initial implementation sprint._
   <img src="docs/imgs/Sprint0_ScrumBoard.png" alt="Sprint 0 Scrum Board" width="900"/>
 </p>
 
-_Sprint 0 retrospective to be added._
+#### Retrospective
+
+**What went well**
+The team successfully set up the project repository, aligned on the product vision, and produced a first draft of the backlog with core user stories. Communication and task distribution were smooth throughout the sprint.
+
+**What to do differently**
+User stories should be drafted and refined earlier in the sprint to leave room for discussion before the deadline.
+
+**Open questions**
+The expected scope of the functional prototype for Sprint 1 still needs clarification from the teaching staff.
+
+**Improvements for next sprint**
+- Discuss requirements and design decisions earlier in the sprint to avoid last-minute blockers
+- Set up a shared document for meeting notes so decisions are not lost after calls
+- Review each other's pull requests within 24 hours to avoid merge delays
 
 ---
 
