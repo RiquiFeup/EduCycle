@@ -4,7 +4,7 @@ import {
   validateSignupForm,
   validateLoginForm,
   normalizeEmail,
-} from '../src/utils/validation';
+} from '../../src/utils/validation';
 
 describe('validation helpers', () => {
   test('normalizes emails consistently', () => {

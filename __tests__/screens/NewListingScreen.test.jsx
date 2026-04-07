@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react-native';
-import NewListingScreen from '../NewListingScreen';
+import NewListingScreen from '../../src/screens/listing/NewListingScreen';
 
 
 function fillValidSellListing() {
