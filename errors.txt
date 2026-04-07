@@ -1,0 +1,94 @@
+C:\Users\User\Documents\ESOF\Projeto\T3\__tests__\screens\PrivateProfileScreen.test.jsx
+  [1m● [22mTest suite failed to run
+
+    Cannot find module 'expo-image-picker' from 'src/screens/PrivateProfileScreen.jsx'
+
+    Require stack:
+      src/screens/PrivateProfileScreen.jsx
+      __tests__/screens/PrivateProfileScreen.test.jsx
+
+    [0m [90m 15 |[39m   [33mAlert[39m[33m,[39m
+     [90m 16 |[39m } [36mfrom[39m [32m'react-native'[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 17 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mImagePicker[39m [36mfrom[39m [32m'expo-image-picker'[39m[33m;[39m
+     [90m    |[39m [31m[1m^[22m[39m
+     [90m 18 |[39m [36mimport[39m [33mListingCard[39m [36mfrom[39m [32m'../components/ListingCard'[39m[33m;[39m
+     [90m 19 |[39m [36mimport[39m [33mCommunityBadge[39m [36mfrom[39m [32m'../components/CommunityBadge'[39m[33m;[39m
+     [90m 20 |[39m [36mimport[39m [33mSectionHeader[39m [36mfrom[39m [32m'../components/SectionHeader'[39m[33m;[39m[0m
+
+      [2mat Resolver._throwModNotFoundError ([22mnode_modules/jest-resolve/build/resolver.js[2m:427:11)[22m
+      [2mat Object.require ([22msrc/screens/PrivateProfileScreen.jsx[2m:17:1)[22m
+      [2mat Object.require ([22m[0m[36m__tests__/screens/PrivateProfileScreen.test.jsx[39m[0m[2m:3:1)[22m
+
+---
+C:\Users\User\Documents\ESOF\Projeto\T3\__tests__\screens\MainAppScreen.test.jsx
+  [1m● [22mTest suite failed to run
+
+    Cannot find module 'expo-image-picker' from 'src/screens/PrivateProfileScreen.jsx'
+
+    Require stack:
+      src/screens/PrivateProfileScreen.jsx
+      src/screens/MainAppScreen.jsx
+      __tests__/screens/MainAppScreen.test.jsx
+
+    [0m [90m 15 |[39m   [33mAlert[39m[33m,[39m
+     [90m 16 |[39m } [36mfrom[39m [32m'react-native'[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 17 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mImagePicker[39m [36mfrom[39m [32m'expo-image-picker'[39m[33m;[39m
+     [90m    |[39m [31m[1m^[22m[39m
+     [90m 18 |[39m [36mimport[39m [33mListingCard[39m [36mfrom[39m [32m'../components/ListingCard'[39m[33m;[39m
+     [90m 19 |[39m [36mimport[39m [33mCommunityBadge[39m [36mfrom[39m [32m'../components/CommunityBadge'[39m[33m;[39m
+     [90m 20 |[39m [36mimport[39m [33mSectionHeader[39m [36mfrom[39m [32m'../components/SectionHeader'[39m[33m;[39m[0m
+
+      [2mat Resolver._throwModNotFoundError ([22mnode_modules/jest-resolve/build/resolver.js[2m:427:11)[22m
+      [2mat Object.require ([22msrc/screens/PrivateProfileScreen.jsx[2m:17:1)[22m
+      [2mat Object.require ([22msrc/screens/MainAppScreen.jsx[2m:13:1)[22m
+      [2mat Object.require ([22m[0m[36m__tests__/screens/MainAppScreen.test.jsx[39m[0m[2m:3:1)[22m
+
+---
+C:\Users\User\Documents\ESOF\Projeto\T3\__tests__\screens\DevProfileFlow.test.jsx
+  [1m● [22mTest suite failed to run
+
+    Cannot find module 'expo-image-picker' from 'src/screens/PrivateProfileScreen.jsx'
+
+    Require stack:
+      src/screens/PrivateProfileScreen.jsx
+      src/screens/DevProfileFlow.jsx
+      __tests__/screens/DevProfileFlow.test.jsx
+
+    [0m [90m 15 |[39m   [33mAlert[39m[33m,[39m
+     [90m 16 |[39m } [36mfrom[39m [32m'react-native'[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 17 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mImagePicker[39m [36mfrom[39m [32m'expo-image-picker'[39m[33m;[39m
+     [90m    |[39m [31m[1m^[22m[39m
+     [90m 18 |[39m [36mimport[39m [33mListingCard[39m [36mfrom[39m [32m'../components/ListingCard'[39m[33m;[39m
+     [90m 19 |[39m [36mimport[39m [33mCommunityBadge[39m [36mfrom[39m [32m'../components/CommunityBadge'[39m[33m;[39m
+     [90m 20 |[39m [36mimport[39m [33mSectionHeader[39m [36mfrom[39m [32m'../components/SectionHeader'[39m[33m;[39m[0m
+
+      [2mat Resolver._throwModNotFoundError ([22mnode_modules/jest-resolve/build/resolver.js[2m:427:11)[22m
+      [2mat Object.require ([22msrc/screens/PrivateProfileScreen.jsx[2m:17:1)[22m
+      [2mat Object.require ([22msrc/screens/DevProfileFlow.jsx[2m:14:1)[22m
+      [2mat Object.require ([22m[0m[36m__tests__/screens/DevProfileFlow.test.jsx[39m[0m[2m:3:1)[22m
+
+---
+C:\Users\User\Documents\ESOF\Projeto\T3\__tests__\uat.test.js
+  [1m● [22mTest suite failed to run
+
+    Cannot find module 'expo-image-picker' from 'src/screens/PrivateProfileScreen.jsx'
+
+    Require stack:
+      src/screens/PrivateProfileScreen.jsx
+      src/screens/MainAppScreen.jsx
+      App.js
+      __tests__/uat.test.js
+
+    [0m [90m 15 |[39m   [33mAlert[39m[33m,[39m
+     [90m 16 |[39m } [36mfrom[39m [32m'react-native'[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 17 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mImagePicker[39m [36mfrom[39m [32m'expo-image-picker'[39m[33m;[39m
+     [90m    |[39m [31m[1m^[22m[39m
+     [90m 18 |[39m [36mimport[39m [33mListingCard[39m [36mfrom[39m [32m'../components/ListingCard'[39m[33m;[39m
+     [90m 19 |[39m [36mimport[39m [33mCommunityBadge[39m [36mfrom[39m [32m'../components/CommunityBadge'[39m[33m;[39m
+     [90m 20 |[39m [36mimport[39m [33mSectionHeader[39m [36mfrom[39m [32m'../components/SectionHeader'[39m[33m;[39m[0m
+
+      [2mat Resolver._throwModNotFoundError ([22mnode_modules/jest-resolve/build/resolver.js[2m:427:11)[22m
+      [2mat Object.require ([22msrc/screens/PrivateProfileScreen.jsx[2m:17:1)[22m
+      [2mat Object.require ([22msrc/screens/MainAppScreen.jsx[2m:13:1)[22m
+      [2mat Object.require ([22mApp.js[2m:5:1)[22m
+      [2mat Object.require ([22m[0m[36m__tests__/uat.test.js[39m[0m[2m:4:1)[22m

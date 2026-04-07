@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x] # Podes ajustar a versão do Node.js conforme a vossa necessidade
+        node-version: [18.x] 
 
     steps:
     - name: Checkout repository
