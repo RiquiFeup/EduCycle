@@ -220,6 +220,13 @@ _Functional prototype to be added after the initial implementation sprint._
   <img src="docs/imgs/Sprint0_ScrumBoard.png" alt="Sprint 0 Scrum Board" width="900"/>
 </p>
 
+#### Product Backlog Prioritization (User Survey)
+A user survey (12 responses) to validate and prioritize Sprint 1 requirements.
+
+- [View Full Survey Results and Backlog Order](docs/report_survey_results.md)
+- [Download Raw Survey Data (CSV)](docs/survey_results.csv)
+- [Link to Google Form](https://forms.gle/iXGvBxd6eWcE436r8)
+
 #### Retrospective
 
 **What went well**
