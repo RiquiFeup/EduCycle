@@ -25,7 +25,7 @@ const MODE_COLORS = {
   lend: '#1565C0',
 };
 
-export default function ListingCard({ listing, onToggleFavourite }) {
+export default function ListingCard({ listing, onToggleFavourite, onPress }) {
   const [fav, setFav] = useState(listing.isFavourited);
 
   const handleFav = () => {
@@ -37,7 +37,12 @@ export default function ListingCard({ listing, onToggleFavourite }) {
   const badgeColor = MODE_COLORS[listing.mode];
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={onPress ? 0.8 : 1}
+      onPress={onPress}
+      disabled={!onPress}
+    >
       {/* Image */}
       <View style={styles.imageContainer}>
         {listing.image ? (
@@ -79,7 +84,7 @@ export default function ListingCard({ listing, onToggleFavourite }) {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 

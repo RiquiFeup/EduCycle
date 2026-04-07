@@ -9,7 +9,24 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function App() {
   const [screen, setScreen] = useState('welcome');
-  const [registeredUsers, setRegisteredUsers] = useState([]);
+  const [registeredUsers, setRegisteredUsers] = useState([
+    {
+      id: 'test-user-1',
+      email: 'test@fe.up.pt',
+      password: 'password123',
+      name: 'João Silva',
+      memberSince: 'April 2026',
+      joinedDate: 'Apr 2026',
+      photo: 'https://i.pravatar.cc/150?u=joao',
+      communities: ['FEUP'],
+      course: 'Informatics Engineering',
+      phone: '+351 912 345 678',
+      isPhonePublic: false,
+      rating: 5.0,
+      reviewsCount: 1,
+      totalListings: 2,
+    },
+  ]);
   const [currentUser, setCurrentUser] = useState(null);
 
   const handleSignupSuccess = async ({ email, password }) => {

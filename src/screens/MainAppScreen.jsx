@@ -12,6 +12,8 @@ import NewListingScreen from './listing/NewListingScreen';
 import HomeScreen from './HomeScreen.jsx';
 import PrivateProfileScreen from './PrivateProfileScreen';
 import PublicProfileScreen from './PublicProfileScreen';
+import InboxScreen from './InboxScreen';
+import ChatScreen from './ChatScreen';
 import { UserProvider } from '../contexts/UserContext';
 import { COLORS, SPACING, RADIUS } from '../utils/theme';
 
@@ -83,6 +85,12 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
       return;
     }
 
+    if (screen === 'Chat') {
+      setActiveScreen('Chat');
+      setScreenParams(params);
+      return;
+    }
+
     setActiveScreen(screen);
     setScreenParams(params);
   };
@@ -112,13 +120,13 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
         );
 
       case 'Messages':
+        return <InboxScreen navigate={navigate} />;
+
+      case 'Chat':
         return (
-          <PlaceholderTabScreen
-            title="Messages"
-            badge="Inbox"
-            description="Dummy inbox tab. Later this can hold buyer and seller chats, because apparently every marketplace eventually becomes a messaging app by accident."
-            primaryActionLabel="Recent chats"
-            secondaryActionLabel="Requests soon"
+          <ChatScreen
+            conversationId={screenParams?.conversationId}
+            navigate={navigate}
           />
         );
 
@@ -135,11 +143,16 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
 
       case 'Home':
       default:
-        return <HomeScreen />;
+        return <HomeScreen navigate={navigate} />;
     }
   };
 
-  const selectedTabKey = activeScreen === 'PublicProfile' ? 'Profile' : activeScreen;
+  const selectedTabKey =
+    activeScreen === 'PublicProfile'
+      ? 'Profile'
+      : activeScreen === 'Chat'
+        ? 'Messages'
+        : activeScreen;
 
   return (
     <UserProvider

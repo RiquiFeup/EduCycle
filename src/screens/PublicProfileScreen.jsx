@@ -92,7 +92,7 @@ export default function PublicProfileScreen({ isPreview, navigate }) {
             <View style={styles.actionsContainer}>
               <TouchableOpacity
                 style={[styles.actionButton, styles.primaryButton]}
-                onPress={() => Alert.alert('Messages', 'Messaging flow coming soon!')}
+                onPress={() => navigate('Chat', { conversationId: 'conv-1' })}
               >
                 <Text style={styles.primaryButtonText}>💬 Message</Text>
               </TouchableOpacity>
