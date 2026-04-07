@@ -1,40 +1,45 @@
-# EduCycle Development Report
+# EduCycle — Development Report
 
 Welcome to the documentation of **EduCycle**!
 
-This Software Development Report, tailored for LEIC-ES-2025-26, provides comprehensive details about EduCycle, starting from a high-level vision and going into low-level implementation decisions.
+This Software Development Report, tailored for **LEIC-ES-2025-26 (Group T3)**, covers the full lifecycle of EduCycle — from high-level product vision down to low-level implementation decisions, sprint management, and architecture.
 
 It is organised by the following activities:
 
-- [Business Modelling](#Business-Modelling)
-  - [Product Vision](#Product-Vision)
-  - [Features and Assumptions](#Features-and-Assumptions)
-- [Requirements](#Requirements)
-  - [User Stories](#User-Stories)
-  - [Domain Model](#Domain-Model)
-  - [User Interfaces](#User-Interfaces)
-- [Architecture and Design](#Architecture-and-Design)
-  - [Logical Architecture](#Logical-Architecture)
-  - [Physical Architecture](#Physical-Architecture)
-  - [Functional Prototype](#Functional-Prototype)
-- [Project Management](#Project-Management)
-  - [Sprint 0](#Sprint-0)
-  - [Sprint 1](#Sprint-1)
-  - [Sprint 2](#Sprint-2)
-  - [Sprint 3](#Sprint-3)
-  - [Final Release](#Final-Release)
+- [Team](#team)
+- [Business Modelling](#business-modelling)
+  - [Product Vision](#product-vision)
+  - [Features and Assumptions](#features-and-assumptions)
+- [Requirements](#requirements)
+  - [User Stories](#user-stories)
+  - [Domain Model](#domain-model)
+  - [User Interfaces](#user-interfaces)
+- [Architecture and Design](#architecture-and-design)
+  - [Logical Architecture](#logical-architecture)
+  - [Physical Architecture](#physical-architecture)
+  - [Functional Prototype](#functional-prototype)
+- [Project Management](#project-management)
+  - [Sprint 0](#sprint-0)
+  - [Sprint 1](#sprint-1)
+  - [Sprint 2](#sprint-2)
+  - [Sprint 3](#sprint-3)
+  - [Final Release](#final-release)
 
-Contributions are expected to be made exclusively by the initial team, but we may open them to the community, after the course, in all areas and topics: requirements, technologies, development, experimentation, testing, etc.
+---
 
-Please contact us!
+## Team
 
-Thank you!
+| Name | Email |
+|------|-------|
+| Afonso Cabral | up202405418@up.pt |
+| Artur Ferro | up202404762@up.pt |
+| Guilherme Nunes | up202404656@up.pt |
+| Henrique Pereira | up202404170@up.pt |
+| João Leppanen | up200202572@up.pt |
 
-- team member name and email
-- team member name and email
-- team member name and email
-- team member name and email
-- team member name and email
+> Contributions are expected to be made exclusively by the initial team. After the course ends, we may open contributions to the community across all areas: requirements, technologies, development, experimentation, testing, etc.
+>
+> **Please contact us if you'd like to get involved!**
 
 ---
 
@@ -44,12 +49,7 @@ Thank you!
 
 > _"To make access to school supplies fairer, more affordable, and sustainable for all students."_
 
-<<<<<<< HEAD
-**For students, families and educators who need affordable school and academic materials. EduCycle is a peer-to-peer marketplace that allows users to buy, sell, trade and lend used educational items. 
-Unlike general second-hand platforms, EduCycle is built exclusively for the academic journey, organised by school level, discipline and institution.**
-=======
-**For students, families and educators who need affordable school and academic materials, EduCycle is a peer-to-peer marketplace that allows users to buy, sell, trade and lend used educational items — unlike general second-hand platforms, EduCycle is built exclusively for the academic journey, organised by school level, discipline and institution.**
->>>>>>> 4c94945 (chore: setup jest and project structure)
+**For students, families and educators who need affordable school and academic materials. EduCycle is a peer-to-peer marketplace that allows users to buy, sell, trade and lend used educational items. Unlike general second-hand platforms, EduCycle is built exclusively for the academic journey, organised by school level, discipline and institution.**
 
 ---
 
@@ -108,24 +108,15 @@ Below is a concise summary of all user stories for EduCycle, grouped by area. Ea
 
 ### Domain Model
 
-<!--
-UML class diagram with key domain concepts and relationships.
-Key entities: User, Listing, Transaction, Chat, Message, Organisation, Review, Wishlist, Pack, Shipment.
--->
 <p align="center">
-  <img src="docs/imgs/Domain.png"/>
+  <img src="docs/imgs/Domain.png" alt="Domain Model" width="800"/>
 </p>
-
-
-_Domain model diagram to be added._
 
 ---
 
 ### User Interfaces
 
-<!-- Mockups and UI drafts to be added per user story. -->
-
-_User interface mockups to be added._
+_User interface mockups — see [Architecture and Design > User Interface Mockups](#user-interface-mockups) below._
 
 ---
 
@@ -133,39 +124,17 @@ _User interface mockups to be added._
 
 ### Logical Architecture
 
-<!--
-UML package diagram showing the logical view of the system.
-Suggested layers:
-- Presentation Layer (Flutter UI)
-- Application/Business Logic Layer (use cases, state management)
-- Data Layer (repositories, local cache)
-- External Services (Payment API, Shipping API, Firebase)
--->
 <p align="center">
-  <img src="docs/imgs/Logical.drawio.svg"/>
+  <img src="docs/imgs/Logical.drawio.svg" alt="Logical Architecture" width="800"/>
 </p>
-
-
-_Logical architecture diagram to be added._
 
 ---
 
 ### Physical Architecture
 
-<!--
-UML deployment diagram showing nodes, artifacts and connections.
-Suggested nodes:
-- User Device (Flutter mobile/web app)
-- Backend Server (REST API)
-- Database (PostgreSQL / Firebase Firestore)
-- External: Payment Gateway, Shipping API, Push Notification Service
--->
 <p align="center">
-  <img src="docs/imgs/Physical.png"/>
+  <img src="docs/imgs/Physical.png" alt="Physical Architecture" width="800"/>
 </p>
-
-
-_Physical architecture diagram to be added._
 
 **Technology choices:**
 
@@ -179,27 +148,93 @@ _Physical architecture diagram to be added._
 
 ---
 
+### User Interface Mockups
+
+UI mockups designed for each key screen of the EduCycle application:
+
+#### Welcome & Authentication
+
+<p align="center">
+  <img src="docs/imgs/mockups/WelcomePage.png" alt="Welcome Page" width="250"/>
+  &nbsp;&nbsp;
+  <img src="docs/imgs/mockups/LoginPage.png" alt="Login Page" width="250"/>
+  &nbsp;&nbsp;
+  <img src="docs/imgs/mockups/CreateAccountPage.png" alt="Create Account Page" width="250"/>
+</p>
+
+#### Browsing & Discovery
+
+<p align="center">
+  <img src="docs/imgs/mockups/HomePage.png" alt="Home Page" width="250"/>
+  &nbsp;&nbsp;
+  <img src="docs/imgs/mockups/ItemPage.png" alt="Item Page" width="250"/>
+</p>
+
+#### Listings & Shopping
+
+<p align="center">
+  <img src="docs/imgs/mockups/ListingPage.png" alt="Listing Page" width="250"/>
+  &nbsp;&nbsp;
+  <img src="docs/imgs/mockups/ShoppingCartPage.png" alt="Shopping Cart Page" width="250"/>
+</p>
+
+#### Community & Chat
+
+<p align="center">
+  <img src="docs/imgs/mockups/HubPage.png" alt="Hub Page" width="250"/>
+  &nbsp;&nbsp;
+  <img src="docs/imgs/mockups/ChatPage.png" alt="Chat Page" width="250"/>
+</p>
+
+#### Profile
+
+<p align="center">
+  <img src="docs/imgs/mockups/EditProfilePage.png" alt="Edit Profile Page" width="250"/>
+  &nbsp;&nbsp;
+  <img src="docs/imgs/mockups/ProfileViewPage.png" alt="Profile View Page" width="250"/>
+</p>
+
+---
+
 ### Functional Prototype
 
-<!-- Description and screenshot of the initial thin vertical slice implemented. -->
-
-_Functional prototype to be added after initial implementation sprint._
+_Functional prototype to be added after the initial implementation sprint._
 
 ---
 
 ## Project Management
 
 - Backlog management: Product backlog and Sprint backlog in a [GitHub Projects board](#)
-- Release management: v0, v1, v2, v3, ...
+- Release management: v0, v1, v2, v3, …
 - Sprint planning and retrospectives:
-  - Plans: screenshots of GitHub Projects board at beginning and end of each Sprint
-  - Retrospectives: meeting notes addressing — _Did well_, _Do differently_, _Puzzles_, _Improvements for next Sprint_
+  - **Plans:** screenshots of GitHub Projects board at beginning and end of each Sprint
+  - **Retrospectives:** meeting notes addressing — _Did well_, _Do differently_, _Puzzles_, _Improvements for the next Sprint_
 
 ---
 
 ### Sprint 0
 
-_Sprint 0 plan and retrospective to be added._
+#### Scrum Board
+
+<p align="center">
+  <img src="docs/imgs/Sprint0_ScrumBoard.png" alt="Sprint 0 Scrum Board" width="900"/>
+</p>
+
+#### Retrospective
+
+**What went well**
+The team successfully set up the project repository, aligned on the product vision, and produced a first draft of the backlog with core user stories. Communication and task distribution were smooth throughout the sprint.
+
+**What to do differently**
+User stories should be drafted and refined earlier in the sprint to leave room for discussion before the deadline.
+
+**Open questions**
+The expected scope of the functional prototype for Sprint 1 still needs clarification from the teaching staff.
+
+**Improvements for next sprint**
+- Discuss requirements and design decisions earlier in the sprint to avoid last-minute blockers
+- Set up a shared document for meeting notes so decisions are not lost after calls
+- Review each other's pull requests within 24 hours to avoid merge delays
 
 ---
 
@@ -218,12 +253,6 @@ _Sprint 2 plan and retrospective to be added._
 ### Sprint 3
 
 _Sprint 3 plan and retrospective to be added._
-
----
-
-### Sprint 4
-
-_Sprint 4 plan and retrospective to be added._
 
 ---
 
