@@ -111,11 +111,11 @@ Below is a concise summary of all user stories for EduCycle, grouped by area. Ea
 <!--
 UML class diagram with key domain concepts and relationships.
 Key entities: User, Listing, Transaction, Chat, Message, Organisation, Review, Wishlist, Pack, Shipment.
-
-<p align="center">
-  <img src="images/DomainModel.png"/>
-</p>
 -->
+<p align="center">
+  <img src="docs/imgs/Domain.png"/>
+</p>
+
 
 _Domain model diagram to be added._
 
@@ -140,11 +140,11 @@ Suggested layers:
 - Application/Business Logic Layer (use cases, state management)
 - Data Layer (repositories, local cache)
 - External Services (Payment API, Shipping API, Firebase)
-
-<p align="center">
-  <img src="images/LogicalArchitecture.png"/>
-</p>
 -->
+<p align="center">
+  <img src="docs/imgs/Logical.drawio.svg"/>
+</p>
+
 
 _Logical architecture diagram to be added._
 
@@ -159,11 +159,11 @@ Suggested nodes:
 - Backend Server (REST API)
 - Database (PostgreSQL / Firebase Firestore)
 - External: Payment Gateway, Shipping API, Push Notification Service
-
-<p align="center">
-  <img src="images/PhysicalArchitecture.png"/>
-</p>
 -->
+<p align="center">
+  <img src="docs/imgs/Physical.png"/>
+</p>
+
 
 _Physical architecture diagram to be added._
 
