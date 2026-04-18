@@ -127,7 +127,7 @@ export default function HomeScreen({ navigate }) {
                 key={listing.id}
                 listing={listing}
                 onToggleFavourite={handleToggleFavourite}
-                onPress={() => navigate?.('PublicProfile')}
+                onPress={() => navigate?.('ListingDetails', { listing: listing })}
               />
             ))}
             {row.length === 1 ? <View style={styles.emptySlot} /> : null}
