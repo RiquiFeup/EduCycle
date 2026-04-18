@@ -69,11 +69,26 @@ export default function ListingDetailsScreen({ listing, navigate }) {
             </Text>
           </View>
 
-          {/* Vendedor */}
-        <TouchableOpacity style={styles.vendorCard} onPress={() => navigate('PublicProfile')}>
-        <Text style={styles.vendorName}>Vendedor Anónimo</Text>
-        <Text style={styles.vendorSubtext}>Ver Perfil Público →</Text>
-        </TouchableOpacity>
+            {/* Vendedor */}
+          <TouchableOpacity 
+            style={styles.vendorCard} 
+            // Ao clicar, envia o sellerId que veio do listings.js
+            onPress={() => navigate('PublicProfile', { sellerId: listing?.sellerId })}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              {listing?.sellerPhoto ? (
+                <Image source={{ uri: listing.sellerPhoto }} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: COLORS.surface }} />
+              ) : (
+                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: COLORS.border }} />
+              )}
+              
+              <View>
+                {/* Mostra o nome do vendedor ou o fallback */}
+                <Text style={styles.vendorName}>{listing?.sellerName || 'Vendedor Anónimo'}</Text>
+                <Text style={styles.vendorSubtext}>Ver Perfil Público →</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
 
           {/* Botão de Contacto */}
           <TouchableOpacity style={styles.actionButton} onPress={() => navigate('Chat', { conversationId: 'c1' })}>

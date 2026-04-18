@@ -138,6 +138,7 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
         return (
           <PublicProfileScreen
             isPreview={screenParams?.isPreview}
+            sellerId={screenParams?.sellerId}
             navigate={navigate}
           />
         );
