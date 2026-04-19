@@ -1,8 +1,17 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react-native';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react-native';
+import { act } from 'react-test-renderer';
 import DevProfileFlow from '../../src/screens/DevProfileFlow';
 
+jest.useFakeTimers();
+
 describe('DevProfileFlow Tests', () => {
+  afterEach(() => {
+    act(() => {
+      jest.runOnlyPendingTimers();
+    });
+    cleanup();
+  });
   it('renders the dev directory menu by default', () => {
     render(<DevProfileFlow />);
 
