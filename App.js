@@ -4,6 +4,7 @@ import LoginScreen from './src/screens/LoginScreen';
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import MainAppScreen from './src/screens/MainAppScreen';
 import { normalizeEmail } from './src/utils/validation';
+import { registerUser } from './src/services/authService';
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -30,37 +31,17 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
 
   const handleSignupSuccess = async ({ email, password }) => {
-    await wait(300);
+    try {
+      // Register with Firebase
+      const newUser = await registerUser({ email, password });
 
-    const normalizedEmail = normalizeEmail(email);
-    const existingUser = registeredUsers.find(
-      (user) => user.email === normalizedEmail,
-    );
-
-    if (existingUser) {
-      throw new Error('An account with this email already exists. Please log in instead.');
+      setRegisteredUsers((prev) => [...prev, newUser]);
+      setCurrentUser(newUser);
+      setScreen('app');
+    } catch (error) {
+      // Re-throw to be handled by SignupScreen UI
+      throw error;
     }
-
-    const newUser = {
-      id: String(Date.now()),
-      email: normalizedEmail,
-      password,
-      name: normalizedEmail.split('@')[0].replace(/[._-]/g, ' '),
-      memberSince: 'April 2026',
-      joinedDate: 'Apr 2026',
-      photo: 'https://i.pravatar.cc/150?u=' + encodeURIComponent(normalizedEmail),
-      communities: ['FEUP'],
-      course: 'Informatics Engineering',
-      phone: '+351 912 345 678',
-      isPhonePublic: false,
-      rating: 5.0,
-      reviewsCount: 0,
-      totalListings: 0,
-    };
-
-    setRegisteredUsers((prev) => [...prev, newUser]);
-    setCurrentUser(newUser);
-    setScreen('app');
   };
 
   const handleLoginSuccess = async ({ email, password }) => {
