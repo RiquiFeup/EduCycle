@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   StatusBar,
   Platform,
   TouchableOpacity,
@@ -11,6 +10,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import ListingCard from '../components/ListingCard';
 import CommunityBadge from '../components/CommunityBadge';
 import SectionHeader from '../components/SectionHeader';

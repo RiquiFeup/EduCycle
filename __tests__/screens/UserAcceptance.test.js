@@ -8,6 +8,27 @@ jest.spyOn(Alert, 'alert').mockImplementation((title, message, buttons) => {
   destructiveButton?.onPress?.();
 });
 
+jest.mock('../../src/services/authService', () => ({
+  registerUser: jest.fn().mockImplementation(async ({ email, password }) => {
+    return {
+      id: 'mock-user-123',
+      email,
+      password,
+      name: email.split('@')[0],
+      memberSince: 'Mock Member',
+      joinedDate: 'Mock Date',
+      photo: 'https://i.pravatar.cc/150?u=mock',
+      communities: ['FEUP'],
+      course: 'Informatics',
+      phone: '+351 900 000 000',
+      isPhonePublic: false,
+      rating: 5.0,
+      reviewsCount: 0,
+      totalListings: 0,
+    };
+  }),
+}));
+
 describe('User Acceptance Tests (UAT) - account creation and login', () => {
   test('UAT-01: user can create an account with valid data and lands in the main app', async () => {
     const screen = render(<App />);
