@@ -3,6 +3,15 @@ import { render, screen, fireEvent } from '@testing-library/react-native';
 import SectionHeader from '../../../src/components/SectionHeader';
 
 describe('SectionHeader', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  });
+
   it('renders title and button if action is provided', () => {
     const mockAction = jest.fn();
     render(<SectionHeader title="Categorias" actionText="Ver Tudo" onActionPress={mockAction} />);

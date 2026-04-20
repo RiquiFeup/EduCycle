@@ -4,6 +4,15 @@ import { Text } from 'react-native';
 import AuthCard from '../../../src/components/AuthCard';
 
 describe('AuthCard', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  });
+
   it('renders correctly with title, subtitle and children', () => {
     render(
       <AuthCard title="My Title" subtitle="My Subtitle" footer={<Text>My Footer</Text>}>
