@@ -8,9 +8,11 @@ jest.spyOn(Alert, 'alert').mockImplementation((title, message, buttons) => {
   destructiveButton?.onPress?.();
 });
 
+const mockRegisteredUsers = new Map();
+
 jest.mock('../../src/services/authService', () => ({
   registerUser: jest.fn().mockImplementation(async ({ email, password }) => {
-    return {
+    const user = {
       id: 'mock-user-123',
       email,
       password,
@@ -26,10 +28,34 @@ jest.mock('../../src/services/authService', () => ({
       reviewsCount: 0,
       totalListings: 0,
     };
+
+    mockRegisteredUsers.set(email, user);
+    return user;
+  }),
+
+  loginUser: jest.fn().mockImplementation(async ({ email, password }) => {
+    const user = mockRegisteredUsers.get(email);
+
+    if (!user || user.password !== password) {
+      throw new Error('We could not find an account with those credentials.');
+    }
+
+    return user;
+  }),
+
+  logoutUser: jest.fn().mockResolvedValue(),
+
+  subscribeToAuthState: jest.fn((callback) => {
+    callback(null);
+    return jest.fn();
   }),
 }));
 
 describe('User Acceptance Tests (UAT) - account creation and login', () => {
+  beforeEach(() => {
+    mockRegisteredUsers.clear();
+    jest.clearAllMocks();
+  });
   test('UAT-01: user can create an account with valid data and lands in the main app', async () => {
     const screen = render(<App />);
 
