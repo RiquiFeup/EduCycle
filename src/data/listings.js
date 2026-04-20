@@ -9,6 +9,9 @@ export const LISTINGS = [
     institution: 'FEUP',
     image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400&q=80',
     isFavourited: false,
+    sellerId: 'seller-1', // <--- Sofia
+    sellerName: 'Sofia Martins',
+    sellerPhoto: 'https://i.pravatar.cc/150?u=sofia'
   },
   {
     id: '2',
@@ -18,6 +21,9 @@ export const LISTINGS = [
     institution: 'FEUP',
     image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&q=80',
     isFavourited: false,
+    sellerId: 'seller-2', // <--- Miguel
+    sellerName: 'Miguel Ferreira',
+    sellerPhoto: 'https://i.pravatar.cc/150?u=miguel'
   },
   {
     id: '3',

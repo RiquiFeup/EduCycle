@@ -9,6 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import NewListingScreen from './listing/NewListingScreen';
+import ListingDetailsScreen from './listing/ListingDetailsScreen';
 import HomeScreen from './HomeScreen.jsx';
 import PrivateProfileScreen from './PrivateProfileScreen';
 import PublicProfileScreen from './PublicProfileScreen';
@@ -137,13 +138,23 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
         return (
           <PublicProfileScreen
             isPreview={screenParams?.isPreview}
+            sellerId={screenParams?.sellerId}
             navigate={navigate}
+          />
+        );
+
+      case 'ListingDetails':
+        return (
+          <ListingDetailsScreen 
+            listing={screenParams?.listing} 
+            navigate={navigate} 
           />
         );
 
       case 'Home':
       default:
-        return <HomeScreen navigate={navigate} />;
+        return <HomeScreen navigate={navigate} />; 
+      
     }
   };
 
