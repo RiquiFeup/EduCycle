@@ -8,6 +8,7 @@ import {
   loginUser,
   logoutUser,
   subscribeToAuthState,
+  updateUserAccount,
 } from './src/services/authService';
 
 export default function App() {
@@ -46,6 +47,21 @@ export default function App() {
   const handleUserUpdate = async (updatedUser) => {
     // 1. Optimistic local update
     setCurrentUser(updatedUser);
+
+    // 2. Persist to Firebase
+    if (updatedUser.id) {
+      try {
+        await updateUserAccount(updatedUser.id, {
+          name: updatedUser.name,
+          course: updatedUser.course,
+          phone: updatedUser.phone,
+          isPhonePublic: updatedUser.isPhonePublic,
+          photo: updatedUser.photo,
+        });
+      } catch (error) {
+        console.error("Failed to update user profile in Firebase", error);
+      }
+    }
   };
 
   if (!authReady) {
