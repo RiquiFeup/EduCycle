@@ -12,6 +12,10 @@ describe('DevProfileFlow Tests', () => {
     });
     cleanup();
   });
+
+  afterAll(() => {
+    jest.useRealTimers();
+  });
   it('renders the dev directory menu by default', () => {
     render(<DevProfileFlow />);
 
