@@ -52,6 +52,10 @@ jest.mock('../../src/services/authService', () => ({
 }));
 
 describe('User Acceptance Tests (UAT) - account creation and login', () => {
+  beforeEach(() => {
+    mockRegisteredUsers.clear();
+    jest.clearAllMocks();
+  });
   test('UAT-01: user can create an account with valid data and lands in the main app', async () => {
     const screen = render(<App />);
 
