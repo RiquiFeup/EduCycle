@@ -16,23 +16,28 @@ import CommunityBadge from '../components/CommunityBadge';
 import SectionHeader from '../components/SectionHeader';
 import { COLORS, SPACING } from '../utils/theme';
 import { LISTINGS } from '../data/listings';
+import { MOCK_USERS } from '../data/conversations';
 import { UserContext } from '../contexts/UserContext';
 
-export default function PublicProfileScreen({ isPreview, navigate }) {
+export default function PublicProfileScreen({ isPreview, sellerId,navigate }) {
   const { currentUser } = useContext(UserContext);
 
-  const [mockSeller] = useState({
-    id: 'u123',
-    name: 'Sofia Martins',
-    photo: 'https://i.pravatar.cc/150?u=sofia',
-    communities: ['Universidade do Porto'],
-    course: 'Mechanical Engineering',
-    publicPhone: '+351 900 000 000',
-    email: 'sofia.martins@fe.up.pt',
-    totalListings: 12,
-  });
+  const foundSeller = MOCK_USERS?.find(user => user.id === sellerId);
 
-  const displayedUser = isPreview ? currentUser : mockSeller;
+  const defaultMockSeller = {
+    id: 'u123',
+    name: 'Vendedor Desconhecido',
+    photo: 'https://i.pravatar.cc/150?u=unknown',
+    communities: ['Universidade'],
+    course: 'Curso Desconhecido',
+    publicPhone: 'N/A',
+    email: 'N/A',
+    totalListings: 0,
+  };
+
+  const sellerToDisplay = foundSeller || defaultMockSeller;
+  const displayedUser = isPreview ? currentUser : sellerToDisplay;
+
   const [userListings, setUserListings] = useState(LISTINGS.slice(0, 2));
 
   const handleToggleFavourite = (id) => {
@@ -81,9 +86,9 @@ export default function PublicProfileScreen({ isPreview, navigate }) {
               <Text style={styles.userCourse}>{displayedUser.course}</Text>
 
               <View style={styles.tagsContainer}>
-                {displayedUser.communities.map((community, index) => (
-                  <CommunityBadge key={index} name={community} />
-                ))}
+                {displayedUser.institution ?(
+                  <CommunityBadge name={displayedUser.institution} />
+                ):null}
               </View>
             </View>
           </View>
