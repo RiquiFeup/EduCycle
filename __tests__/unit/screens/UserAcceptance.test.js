@@ -8,7 +8,7 @@ jest.spyOn(Alert, 'alert').mockImplementation((title, message, buttons) => {
   destructiveButton?.onPress?.();
 });
 
-jest.mock('../../src/services/authService', () => ({
+jest.mock('../../../src/services/authService', () => ({
   registerUser: jest.fn().mockImplementation(async ({ email, password }) => {
     return {
       id: 'mock-user-123',
