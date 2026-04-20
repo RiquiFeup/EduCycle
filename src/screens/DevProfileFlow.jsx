@@ -4,10 +4,10 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   Platform,
   StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { UserProvider } from '../contexts/UserContext';
 import HomeScreen from './HomeScreen';
 import PublicProfileScreen from './PublicProfileScreen';

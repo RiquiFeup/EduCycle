@@ -4,10 +4,10 @@ import {
   Text,
   Pressable,
   StyleSheet,
-  SafeAreaView,
   StatusBar,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import NewListingScreen from './listing/NewListingScreen';
 import ListingDetailsScreen from './listing/ListingDetailsScreen';
 import HomeScreen from './HomeScreen.jsx';
