@@ -34,7 +34,7 @@
   },
   "jest": {
     "preset": "jest-expo",
-    "testTimeout": 50000,
+    "testTimeout": 10000,
     "setupFilesAfterEnv": [
       "<rootDir>/__tests__/setup/jest.setup.js"
     ],
