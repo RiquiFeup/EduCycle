@@ -3,9 +3,11 @@ import { render, screen, fireEvent, cleanup } from '@testing-library/react-nativ
 import { act } from 'react-test-renderer';
 import DevProfileFlow from '../../../src/screens/DevProfileFlow';
 
-jest.useFakeTimers();
-
 describe('DevProfileFlow Tests', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
   afterEach(() => {
     act(() => {
       jest.runOnlyPendingTimers();
