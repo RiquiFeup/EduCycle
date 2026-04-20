@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react-native';
-import ChatScreen from '../../src/screens/ChatScreen';
+import ChatScreen from '../../../src/screens/ChatScreen';
 
 describe('ChatScreen Tests', () => {
   it('renders the chat screen and essential elements', () => {
@@ -31,3 +31,4 @@ describe('ChatScreen Tests', () => {
     expect(input.props.value).toBe('');
   });
 });
+

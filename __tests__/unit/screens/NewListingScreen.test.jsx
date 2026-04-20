@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react-native';
-import NewListingScreen from '../../src/screens/listing/NewListingScreen';
+import NewListingScreen from '../../../src/screens/listing/NewListingScreen';
 
 
 function fillValidSellListing() {
@@ -99,3 +99,4 @@ describe('US-03 — Publish a New Listing (As a seller, I want to create a listi
 
 
 });
+

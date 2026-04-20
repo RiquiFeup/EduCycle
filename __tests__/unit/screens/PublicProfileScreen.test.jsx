@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
-import PublicProfileScreen from '../../src/screens/PublicProfileScreen';
-import { UserProvider } from '../../src/contexts/UserContext';
+import PublicProfileScreen from '../../../src/screens/PublicProfileScreen';
+import { UserProvider } from '../../../src/contexts/UserContext';
 
 describe('PublicProfileScreen Tests', () => {
   const renderWithContext = (component) => {
@@ -33,3 +33,4 @@ describe('PublicProfileScreen Tests', () => {
     expect(screen.queryByText('💬 Message')).toBeNull();
   });
 });
+

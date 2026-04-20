@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
-import MainAppScreen from '../../src/screens/MainAppScreen';
+import MainAppScreen from '../../../src/screens/MainAppScreen';
 
 describe('MainAppScreen Tests', () => {
   it('renders correctly and displays the tab bar', () => {
@@ -32,3 +32,4 @@ describe('MainAppScreen Tests', () => {
     expect(screen.getByTestId('inbox-screen')).toBeTruthy();
   });
 });
+

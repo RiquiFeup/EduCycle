@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
-import HomeScreen from '../../src/screens/HomeScreen';
+import HomeScreen from '../../../src/screens/HomeScreen';
 
 describe('HomeScreen Tests', () => {
   it('renders home screen correctly and displays header elements', () => {
@@ -33,3 +33,4 @@ describe('HomeScreen Tests', () => {
     expect(screen.getByTestId('empty-state-text')).toBeTruthy();
   });
 });
+

@@ -1,0 +1,12 @@
+appId: com.t3
+---
+- launchApp
+- tapOn: "Mensagens" # Tab 
+- assertVisible: "As Tuas Conversas"
+- tapOn: "Ana Oliveira" # Assumindo um mock
+- assertVisible: "Enviar"
+- tapOn: "Escreve uma mensagem..."
+- inputText: "Olá, ainda está disponível?"
+- hideKeyboard
+- tapOn: "Enviar"
+- assertVisible: "Olá, ainda está disponível?"

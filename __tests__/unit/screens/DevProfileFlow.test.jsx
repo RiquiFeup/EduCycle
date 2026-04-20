@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
-import DevProfileFlow from '../../src/screens/DevProfileFlow';
+import DevProfileFlow from '../../../src/screens/DevProfileFlow';
 
 describe('DevProfileFlow Tests', () => {
   it('renders the dev directory menu by default', () => {
@@ -28,3 +28,4 @@ describe('DevProfileFlow Tests', () => {
     expect(screen.getByText('← Dev Menu')).toBeTruthy();
   });
 });
+

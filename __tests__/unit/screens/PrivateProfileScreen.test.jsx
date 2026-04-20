@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
-import PrivateProfileScreen from '../../src/screens/PrivateProfileScreen';
-import { UserProvider } from '../../src/contexts/UserContext';
+import PrivateProfileScreen from '../../../src/screens/PrivateProfileScreen';
+import { UserProvider } from '../../../src/contexts/UserContext';
 
 describe('PrivateProfileScreen Tests', () => {
   const renderWithContext = (component) => {
@@ -29,3 +29,4 @@ describe('PrivateProfileScreen Tests', () => {
     // Verify listing cards show up, we could search for testIds if they existed or just by components
   });
 });
+

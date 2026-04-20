@@ -1,7 +1,7 @@
 import React from 'react';
 import { Alert } from 'react-native';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import App from '../../App';
+import App from '../../../App';
 
 jest.spyOn(Alert, 'alert').mockImplementation((title, message, buttons) => {
   const destructiveButton = buttons?.find((button) => button.text === 'Log Out');

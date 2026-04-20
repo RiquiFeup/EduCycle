@@ -1,0 +1,19 @@
+appId: com.t3
+---
+- launchApp
+- tapOn: "Entrar"
+- inputText: "joao.silva@fe.up.pt"
+- tapOn: "Palavra-passe"
+- inputText: "secret123"
+- hideKeyboard
+- tapOn: "Entrar"
+- assertVisible: "Explorar"
+# Procurar um Anúncio
+- scrollUntilVisible:
+    element:
+      text: "Física Geral" # Exemplo de título de anúncio base
+    direction: DOWN
+- tapOn: "Física Geral"
+# Dentro do Ecrã de Detalhes
+- assertVisible: "Contactar"
+- tapOn: "Voltar" # Sair da listagem
