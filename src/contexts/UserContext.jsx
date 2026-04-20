@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useMemo, useState } from 'react';
 
 export const UserContext = createContext();
 
@@ -18,13 +18,10 @@ const DEFAULT_USER = {
 };
 
 export const UserProvider = ({ children, initialUser, onUserUpdate, onLogout }) => {
-  const [currentUser, setCurrentUser] = useState({ ...DEFAULT_USER, ...(initialUser ?? {}) });
-
-  useEffect(() => {
-    if (initialUser && initialUser.id !== currentUser.id) {
-      setCurrentUser((prev) => ({ ...prev, ...initialUser }));
-    }
-  }, [initialUser]);
+  const [currentUser, setCurrentUser] = useState({
+    ...DEFAULT_USER,
+    ...(initialUser ?? {}),
+  });
 
   const updateUser = (newData) => {
     let updated;
