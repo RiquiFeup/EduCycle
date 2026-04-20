@@ -21,7 +21,7 @@ export const UserProvider = ({ children, initialUser, onUserUpdate, onLogout }) 
   const [currentUser, setCurrentUser] = useState({ ...DEFAULT_USER, ...(initialUser ?? {}) });
 
   useEffect(() => {
-    if (initialUser) {
+    if (initialUser && initialUser.id !== currentUser.id) {
       setCurrentUser((prev) => ({ ...prev, ...initialUser }));
     }
   }, [initialUser]);
