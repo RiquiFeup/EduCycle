@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   View,
   Text,
@@ -9,36 +9,61 @@ import {
   Image,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../utils/firebase';
+
 import ListingCard from '../components/ListingCard';
 import CommunityBadge from '../components/CommunityBadge';
 import SectionHeader from '../components/SectionHeader';
-import { COLORS, SPACING } from '../utils/theme';
-import { LISTINGS } from '../data/listings';
-import { MOCK_USERS } from '../data/conversations';
+import { COLORS, SPACING, RADIUS } from '../utils/theme';
 import { UserContext } from '../contexts/UserContext';
 
-export default function PublicProfileScreen({ isPreview, sellerId,navigate }) {
+export default function PublicProfileScreen({ isPreview, sellerId, navigate }) {
   const { currentUser } = useContext(UserContext);
 
-  const foundSeller = MOCK_USERS?.find(user => user.id === sellerId);
+  const [displayedUser, setDisplayedUser] = useState(isPreview ? currentUser : null);
+  const [loading, setLoading] = useState(true);
+  const [userListings, setUserListings] = useState([]); // Agora começa vazio
 
-  const defaultMockSeller = {
-    id: 'u123',
-    name: 'Vendedor Desconhecido',
-    photo: 'https://i.pravatar.cc/150?u=unknown',
-    communities: ['Universidade'],
-    course: 'Curso Desconhecido',
-    publicPhone: 'N/A',
-    email: 'N/A',
-    totalListings: 0,
-  };
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        let targetUserId = sellerId;
 
-  const sellerToDisplay = foundSeller || defaultMockSeller;
-  const displayedUser = isPreview ? currentUser : sellerToDisplay;
+        // 1. Carregar os dados do utilizador
+        if (isPreview) {
+          targetUserId = currentUser?.id;
+          setDisplayedUser(currentUser);
+        } else if (sellerId) {
+          const docRef = doc(db, 'users', sellerId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setDisplayedUser(docSnap.data());
+          }
+        }
 
-  const [userListings, setUserListings] = useState(LISTINGS.slice(0, 2));
+        // 2. Carregar os anúncios reais do utilizador
+        if (targetUserId) {
+          const q = query(collection(db, 'listings'), where('sellerId', '==', targetUserId));
+          const querySnapshot = await getDocs(q);
+          const realListings = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          setUserListings(realListings);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar perfil e anúncios:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfileData();
+  }, [sellerId, isPreview, currentUser]);
 
   const handleToggleFavourite = (id) => {
     setUserListings((prev) =>
@@ -49,6 +74,26 @@ export default function PublicProfileScreen({ isPreview, sellerId,navigate }) {
       ),
     );
   };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.stateContainer}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={styles.stateText}>A carregar perfil...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (!displayedUser) {
+    return (
+      <SafeAreaView style={styles.stateContainer}>
+        <Text style={styles.headerTitle}>Utilizador não encontrado.</Text>
+        <TouchableOpacity style={styles.stateButton} onPress={() => navigate('Home')}>
+          <Text style={styles.stateButtonText}>Voltar ao Início</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea} testID="public-profile-screen">
@@ -86,9 +131,9 @@ export default function PublicProfileScreen({ isPreview, sellerId,navigate }) {
               <Text style={styles.userCourse}>{displayedUser.course}</Text>
 
               <View style={styles.tagsContainer}>
-                {displayedUser.institution ?(
-                  <CommunityBadge name={displayedUser.institution} />
-                ):null}
+                {displayedUser.communities?.map((community, index) => (
+                  <CommunityBadge key={index} name={community} />
+                ))}
               </View>
             </View>
           </View>
@@ -111,25 +156,28 @@ export default function PublicProfileScreen({ isPreview, sellerId,navigate }) {
             </View>
           ) : null}
 
-          {(displayedUser.publicPhone || (isPreview && displayedUser.isPhonePublic)) ? (
+          {(displayedUser.phone && (displayedUser.isPhonePublic || isPreview)) ? (
             <View style={styles.phoneContainer}>
               <Text style={styles.phoneLabel}>Public Contact:</Text>
-              <Text style={styles.phoneValue}>
-                {isPreview ? displayedUser.phone : displayedUser.publicPhone}
-              </Text>
+              <Text style={styles.phoneValue}>{displayedUser.phone}</Text>
             </View>
           ) : null}
 
           <SectionHeader title="Active Listings" hasTopBorder />
 
           <View style={styles.row}>
-            {userListings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                onToggleFavourite={handleToggleFavourite}
-              />
-            ))}
+            {userListings.length > 0 ? (
+              userListings.map((listing) => (
+                <ListingCard
+                  key={listing.id}
+                  listing={listing}
+                  onToggleFavourite={handleToggleFavourite}
+                  onPress={() => navigate?.('ListingDetails', { listing: listing })}
+                />
+              ))
+            ) : (
+              <Text style={{ color: COLORS.textMuted, marginTop: 10 }}>Este utilizador ainda não tem anúncios ativos.</Text>
+            )}
             {userListings.length === 1 ? <View style={styles.emptySlot} /> : null}
           </View>
         </View>
@@ -143,6 +191,32 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
+  stateContainer: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.lg,
+  },
+  stateText: {
+    marginTop: SPACING.sm,
+    color: COLORS.textMuted,
+    fontSize: 15,
+  },
+  stateButton: {
+    marginTop: SPACING.lg,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.button,
+    borderWidth: 1,
+    borderColor: COLORS.borderDark,
+  },
+  stateButtonText: {
+    color: COLORS.primary,
+    fontWeight: '600',
+    fontSize: 15,
   },
   header: {
     flexDirection: 'row',
@@ -158,13 +232,13 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 17, fontWeight: '700', color: COLORS.text },
   placeholder: { width: 32 },
   previewHeader: {
-    backgroundColor: '#F0F4F8',
-    borderBottomColor: '#D9E2EC',
+    backgroundColor: COLORS.primarySoft,
+    borderBottomColor: COLORS.borderDark,
   },
   previewTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#486581',
+    color: COLORS.text,
   },
   exitPreviewBtn: {
     backgroundColor: COLORS.text,
@@ -238,6 +312,7 @@ const styles = StyleSheet.create({
   phoneValue: { fontSize: 14, fontWeight: '600', color: COLORS.text },
   row: {
     flexDirection: 'row',
+    flexWrap: 'wrap', // Permite que os cards passem para a linha de baixo se houver mais de 2
     paddingHorizontal: SPACING.horizontal,
     gap: SPACING.cardGap,
     marginBottom: SPACING.md,

@@ -118,13 +118,23 @@ export const subscribeToAuthState = (callback) =>
       return;
     }
 
-    const storedProfile = await getStoredUserProfile(firebaseUser.uid);
+    try {
+      // Tenta ir buscar o perfil à base de dados
+      const storedProfile = await getStoredUserProfile(firebaseUser.uid);
 
-    callback(
-      storedProfile ??
-        buildUserProfile({
-          uid: firebaseUser.uid,
-          email: firebaseUser.email ?? '',
-        }),
-    );
+      callback(
+        storedProfile ??
+          buildUserProfile({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email ?? '',
+          }),
+      );
+    } catch (error) {
+      console.error("Erro fatal ao validar sessão na base de dados:", error);
+      
+      // Se a base de dados rejeitar a ligação (ex: conta foi apagada no servidor),
+      // forçamos a limpeza da persistência local e mandamos o utilizador para o Login.
+      await signOut(auth);
+      callback(null);
+    }
   });

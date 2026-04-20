@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,27 +10,54 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { db } from '../utils/firebase';
+
 import SearchBar from '../components/SearchBar';
 import ListingCard from '../components/ListingCard';
 import SectionHeader from '../components/SectionHeader';
 import { COLORS, SPACING } from '../utils/theme';
-import { LISTINGS, PAGE_SIZE } from '../data/listings';
+import { PAGE_SIZE } from '../data/listings';
 
 export default function HomeScreen({ navigate }) {
-  const [query, setQuery] = useState('');
-  const [listings, setListings] = useState(LISTINGS);
+  const [queryText, setQueryText] = useState('');
+  const [listings, setListings] = useState([]);
   const [page, setPage] = useState(1);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
-  const filtered = query.trim()
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        const q = query(collection(db, 'listings'), orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+
+        const realListings = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+
+        setListings(realListings);
+      } catch (error) {
+        console.error("Erro a carregar listagem da base de dados: ", error);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    fetchListings();
+  }, []);
+
+  const filtered = queryText.trim()
     ? listings.filter(
         (listing) =>
-          listing.title.toLowerCase().includes(query.toLowerCase()) ||
-          listing.institution.toLowerCase().includes(query.toLowerCase()),
+          listing.title?.toLowerCase().includes(queryText.toLowerCase()) ||
+          listing.campus?.toLowerCase().includes(queryText.toLowerCase()) ||
+          listing.institution?.toLowerCase().includes(queryText.toLowerCase()),
       )
     : listings.slice(0, page * PAGE_SIZE);
 
-  const hasMore = !query.trim() && page * PAGE_SIZE < listings.length;
+  const hasMore = !queryText.trim() && page * PAGE_SIZE < listings.length;
 
   const handleToggleFavourite = (id) => {
     setListings((prev) =>
@@ -70,7 +97,7 @@ export default function HomeScreen({ navigate }) {
       );
     }
 
-    if (!hasMore && listings.length > 0 && !query.trim()) {
+    if (!hasMore && listings.length > 0 && !queryText.trim()) {
       return (
         <View style={styles.endFooter}>
           <Text style={styles.endText}>You've seen all listings 🎉</Text>
@@ -80,6 +107,15 @@ export default function HomeScreen({ navigate }) {
 
     return null;
   };
+
+  if (initialLoading) {
+    return (
+      <SafeAreaView style={styles.stateContainer}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={styles.stateText}>A procurar anúncios...</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea} testID="home-feed-screen">
@@ -107,8 +143,8 @@ export default function HomeScreen({ navigate }) {
           <>
             <View style={styles.searchContainer}>
               <SearchBar
-                value={query}
-                onChangeText={setQuery}
+                value={queryText}
+                onChangeText={setQueryText}
                 placeholder="Search books, calculators, notes..."
                 testID="search-bar"
               />
@@ -150,6 +186,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
+  stateContainer: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stateText: {
+    marginTop: SPACING.md,
+    color: COLORS.textMuted,
+    fontSize: 15,
   },
   header: {
     flexDirection: 'row',
