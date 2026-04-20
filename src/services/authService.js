@@ -1,5 +1,5 @@
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, setDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../utils/firebase';
 
 /**
@@ -64,5 +64,37 @@ export const registerUser = async ({ email, password }) => {
     }
     
     throw new Error(errorMessage);
+  }
+};
+
+/**
+ * Updates an existing user's profile information in Firestore and Firebase Auth (if applicable).
+ * 
+ * @param {string} userId The UID of the user
+ * @param {Object} data The profile data to update
+ * @returns {Promise<void>}
+ */
+export const updateUserAccount = async (userId, data) => {
+  try {
+    const userDocRef = doc(db, 'users', userId);
+    
+    // We can filter out undefined values just in case
+    const cleanData = Object.fromEntries(
+      Object.entries(data).filter(([_, v]) => v !== undefined)
+    );
+    
+    // If name or photo changes, we also update it in Firebase auth
+    // Note: auth.currentUser might be null if called from another context, but checking is safe
+    if (auth.currentUser && auth.currentUser.uid === userId && (cleanData.name || cleanData.photo)) {
+      const authUpdates = {};
+      if (cleanData.name) authUpdates.displayName = cleanData.name;
+      if (cleanData.photo) authUpdates.photoURL = cleanData.photo;
+      await updateProfile(auth.currentUser, authUpdates);
+    }
+    
+    await updateDoc(userDocRef, cleanData);
+  } catch (error) {
+    console.error("Firebase Update Error:", error);
+    throw new Error('Could not update profile information. Please try again.');
   }
 };

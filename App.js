@@ -4,7 +4,7 @@ import LoginScreen from './src/screens/LoginScreen';
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import MainAppScreen from './src/screens/MainAppScreen';
 import { normalizeEmail } from './src/utils/validation';
-import { registerUser } from './src/services/authService';
+import { registerUser, updateUserAccount } from './src/services/authService';
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -65,11 +65,27 @@ export default function App() {
     setScreen('welcome');
   };
 
-  const handleUserUpdate = (updatedUser) => {
+  const handleUserUpdate = async (updatedUser) => {
+    // 1. Optimistic local update
     setCurrentUser(updatedUser);
     setRegisteredUsers((prev) =>
       prev.map((user) => (user.email === updatedUser.email ? updatedUser : user)),
     );
+
+    // 2. Update Firebase backend if it's a real created user (with a valid firebase UID)
+    if (updatedUser.id && !updatedUser.id.startsWith('test-user')) {
+      try {
+        await updateUserAccount(updatedUser.id, {
+          name: updatedUser.name,
+          course: updatedUser.course,
+          phone: updatedUser.phone,
+          isPhonePublic: updatedUser.isPhonePublic,
+          photo: updatedUser.photo,
+        });
+      } catch (error) {
+        console.error("Failed to update user profile in Firebase", error);
+      }
+    }
   };
 
   if (screen === 'signup') {
