@@ -1,5 +1,5 @@
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { doc, setDoc, updateDoc } from 'firebase/firestore';
+import { createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc, updateDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../utils/firebase';
 
 /**
@@ -89,12 +89,50 @@ export const updateUserAccount = async (userId, data) => {
       const authUpdates = {};
       if (cleanData.name) authUpdates.displayName = cleanData.name;
       if (cleanData.photo) authUpdates.photoURL = cleanData.photo;
-      await updateProfile(auth.currentUser, authUpdates);
+      try {
+        await updateProfile(auth.currentUser, authUpdates);
+      } catch (authErr) {
+        console.warn("Could not update Firebase Auth profile (likely invalid local photo URI), updating Firestore anyway:", authErr);
+      }
     }
     
     await updateDoc(userDocRef, cleanData);
   } catch (error) {
     console.error("Firebase Update Error:", error);
     throw new Error('Could not update profile information. Please try again.');
+  }
+};
+
+/**
+ * Logs in an existing user with Firebase Authentication and fetches their profile from Firestore.
+ * 
+ * @param {Object} userData
+ * @param {string} userData.email
+ * @param {string} userData.password
+ * @returns {Promise<Object>} The fetched user profile data
+ */
+export const loginUser = async ({ email, password }) => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    const userDocRef = doc(db, 'users', user.uid);
+    const userDoc = await getDoc(userDocRef);
+
+    if (!userDoc.exists()) {
+      throw new Error("We could not find your profile information. Please contact support.");
+    }
+
+    return userDoc.data();
+  } catch (error) {
+    let errorMessage = 'We could not log you in. Please try again.';
+    
+    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-email') {
+      errorMessage = 'We could not find an account with those credentials.';
+    } else {
+      console.error("Firebase Login Error:", error);
+    }
+    
+    throw new Error(errorMessage);
   }
 };

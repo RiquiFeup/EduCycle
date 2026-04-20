@@ -4,7 +4,7 @@ import LoginScreen from './src/screens/LoginScreen';
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import MainAppScreen from './src/screens/MainAppScreen';
 import { normalizeEmail } from './src/utils/validation';
-import { registerUser, updateUserAccount } from './src/services/authService';
+import { registerUser, updateUserAccount, loginUser } from './src/services/authService';
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -45,19 +45,21 @@ export default function App() {
   };
 
   const handleLoginSuccess = async ({ email, password }) => {
-    await wait(300);
+    try {
+      const loggedUser = await loginUser({ email, password });
+      
+      // Optionally sync to local array if needed elsewhere, though real app should rely on DB
+      setRegisteredUsers((prev) => {
+        const exists = prev.find((u) => u.id === loggedUser.id);
+        if (exists) return prev;
+        return [...prev, loggedUser];
+      });
 
-    const normalizedEmail = normalizeEmail(email);
-    const matchedUser = registeredUsers.find(
-      (user) => user.email === normalizedEmail && user.password === password,
-    );
-
-    if (!matchedUser) {
-      throw new Error('We could not find an account with those credentials.');
+      setCurrentUser(loggedUser);
+      setScreen('app');
+    } catch (error) {
+      throw error;
     }
-
-    setCurrentUser(matchedUser);
-    setScreen('app');
   };
 
   const handleLogout = () => {
