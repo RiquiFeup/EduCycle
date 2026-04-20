@@ -1,0 +1,16 @@
+appId: com.t3
+
+---
+- launchApp
+- tapOn: "Criar Conta"
+- tapOn: "Nome Completo"
+- inputText: "Maria Santos"
+- tapOn: "Email"
+- inputText: "maria.santos@fe.up.pt"
+- tapOn: "Palavra-passe"
+- inputText: "nova123"
+- tapOn: "Telefone (Opcional)"
+- inputText: "921234567"
+- hideKeyboard
+- tapOn: "Criar Conta" # O botão principal
+- assertVisible: "Explorar"
