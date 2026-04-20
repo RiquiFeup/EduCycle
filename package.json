@@ -13,6 +13,7 @@
     "e2e": "maestro test .maestro/flows/"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "~54.0.12",
     "expo-image-picker": "~17.0.0",
     "expo-status-bar": "~3.0.0",

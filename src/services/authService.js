@@ -1,68 +1,130 @@
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../utils/firebase';
+import { normalizeEmail } from '../utils/validation';
 
-/**
- * Registers a new user with Firebase Authentication and creates a user document in Firestore.
- * 
- * @param {Object} userData
- * @param {string} userData.email
- * @param {string} userData.password
- * @returns {Promise<Object>} The registered user data
- */
-export const registerUser = async ({ email, password }) => {
-  try {
-    // 1. Create user in Firebase Authentication
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+const buildUserProfile = ({ uid, email }) => {
+  const normalizedEmail = normalizeEmail(email);
+  const currentDate = new Date();
+  const month = currentDate.toLocaleString('default', { month: 'long' });
+  const year = currentDate.getFullYear();
 
-    // 2. Prepare user document for Firestore
-    const name = email.split('@')[0].replace(/[._-]/g, ' ');
-    
-    const currentDate = new Date();
-    const month = currentDate.toLocaleString('default', { month: 'long' });
-    const year = currentDate.getFullYear();
-    const formattedDate = `${month} ${year}`;
-    const shortDate = `${currentDate.toLocaleString('default', { month: 'short' })} ${year}`;
+  return {
+    id: uid,
+    email: normalizedEmail,
+    name: normalizedEmail.split('@')[0].replace(/[._-]/g, ' '),
+    memberSince: `${month} ${year}`,
+    joinedDate: `${currentDate.toLocaleString('default', { month: 'short' })} ${year}`,
+    photo: `https://i.pravatar.cc/150?u=${encodeURIComponent(normalizedEmail)}`,
+    communities: ['FEUP'],
+    course: 'Informatics Engineering',
+    phone: '+351 912 345 678',
+    isPhonePublic: false,
+    rating: 5.0,
+    reviewsCount: 0,
+    totalListings: 0,
+    createdAt: currentDate.toISOString(),
+  };
+};
 
-    const newUserProfile = {
-      id: user.uid,
-      email: email,
-      name: name,
-      memberSince: formattedDate,
-      joinedDate: shortDate,
-      photo: 'https://i.pravatar.cc/150?u=' + encodeURIComponent(email),
-      communities: ['FEUP'],
-      course: 'Informatics Engineering',
-      phone: '+351 912 345 678',
-      isPhonePublic: false,
-      rating: 5.0,
-      reviewsCount: 0,
-      totalListings: 0,
-      createdAt: currentDate.toISOString(),
-    };
+const getStoredUserProfile = async (uid) => {
+  const snapshot = await getDoc(doc(db, 'users', uid));
+  return snapshot.exists() ? snapshot.data() : null;
+};
 
-    // 3. Save user document to Firestore
-    // We use the auth uid as the document ID for consistency
-    const userDocRef = doc(db, 'users', user.uid);
-    await setDoc(userDocRef, newUserProfile);
-
-    return newUserProfile;
-
-  } catch (error) {
-    let errorMessage = 'Could not create the account. Please try again.';
-    
-    // Handle specific Firebase error codes if desired
-    if (error.code === 'auth/email-already-in-use') {
-      errorMessage = 'An account with this email already exists. Please log in instead.';
-    } else if (error.code === 'auth/invalid-email') {
-      errorMessage = 'The email address is invalid.';
-    } else if (error.code === 'auth/weak-password') {
-      errorMessage = 'The password is too weak.';
-    } else {
-       console.error("Firebase Auth Error:", error);
-    }
-    
-    throw new Error(errorMessage);
+const mapAuthErrorToMessage = (error, fallbackMessage) => {
+  switch (error.code) {
+    case 'auth/email-already-in-use':
+      return 'An account with this email already exists. Please log in instead.';
+    case 'auth/invalid-email':
+      return 'The email address is invalid.';
+    case 'auth/weak-password':
+      return 'The password is too weak.';
+    case 'auth/invalid-credential':
+    case 'auth/user-not-found':
+    case 'auth/wrong-password':
+      return 'We could not find an account with those credentials.';
+    case 'auth/too-many-requests':
+      return 'Too many failed attempts. Please try again later.';
+    default:
+      return fallbackMessage;
   }
 };
+
+export const registerUser = async ({ email, password }) => {
+  try {
+    const normalizedEmail = normalizeEmail(email);
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      normalizedEmail,
+      password,
+    );
+
+    const newUserProfile = buildUserProfile({
+      uid: userCredential.user.uid,
+      email: normalizedEmail,
+    });
+
+    await setDoc(doc(db, 'users', userCredential.user.uid), newUserProfile);
+
+    return newUserProfile;
+  } catch (error) {
+    throw new Error(
+      mapAuthErrorToMessage(error, 'Could not create the account. Please try again.'),
+    );
+  }
+};
+
+export const loginUser = async ({ email, password }) => {
+  try {
+    const normalizedEmail = normalizeEmail(email);
+
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      normalizedEmail,
+      password,
+    );
+
+    const firebaseUser = userCredential.user;
+    const storedProfile = await getStoredUserProfile(firebaseUser.uid);
+
+    return (
+      storedProfile ??
+      buildUserProfile({
+        uid: firebaseUser.uid,
+        email: firebaseUser.email ?? normalizedEmail,
+      })
+    );
+  } catch (error) {
+    throw new Error(
+      mapAuthErrorToMessage(error, 'Could not log in. Please try again.'),
+    );
+  }
+};
+
+export const logoutUser = async () => {
+  await signOut(auth);
+};
+
+export const subscribeToAuthState = (callback) =>
+  onAuthStateChanged(auth, async (firebaseUser) => {
+    if (!firebaseUser) {
+      callback(null);
+      return;
+    }
+
+    const storedProfile = await getStoredUserProfile(firebaseUser.uid);
+
+    callback(
+      storedProfile ??
+        buildUserProfile({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email ?? '',
+        }),
+    );
+  });

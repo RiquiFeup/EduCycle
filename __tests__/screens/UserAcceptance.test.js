@@ -9,23 +9,42 @@ jest.spyOn(Alert, 'alert').mockImplementation((title, message, buttons) => {
 });
 
 jest.mock('../../src/services/authService', () => ({
-  registerUser: jest.fn().mockImplementation(async ({ email, password }) => {
-    return {
-      id: 'mock-user-123',
-      email,
-      password,
-      name: email.split('@')[0],
-      memberSince: 'Mock Member',
-      joinedDate: 'Mock Date',
-      photo: 'https://i.pravatar.cc/150?u=mock',
-      communities: ['FEUP'],
-      course: 'Informatics',
-      phone: '+351 900 000 000',
-      isPhonePublic: false,
-      rating: 5.0,
-      reviewsCount: 0,
-      totalListings: 0,
-    };
+  registerUser: jest.fn().mockImplementation(async ({ email, password }) => ({
+    id: 'mock-user-123',
+    email,
+    password,
+    name: email.split('@')[0],
+    memberSince: 'Mock Member',
+    joinedDate: 'Mock Date',
+    photo: 'https://i.pravatar.cc/150?u=mock',
+    communities: ['FEUP'],
+    course: 'Informatics',
+    phone: '+351 900 000 000',
+    isPhonePublic: false,
+    rating: 5.0,
+    reviewsCount: 0,
+    totalListings: 0,
+  })),
+  loginUser: jest.fn().mockImplementation(async ({ email, password }) => ({
+    id: 'mock-user-123',
+    email,
+    password,
+    name: email.split('@')[0],
+    memberSince: 'Mock Member',
+    joinedDate: 'Mock Date',
+    photo: 'https://i.pravatar.cc/150?u=mock',
+    communities: ['FEUP'],
+    course: 'Informatics',
+    phone: '+351 900 000 000',
+    isPhonePublic: false,
+    rating: 5.0,
+    reviewsCount: 0,
+    totalListings: 0,
+  })),
+  logoutUser: jest.fn().mockResolvedValue(),
+  subscribeToAuthState: jest.fn((callback) => {
+    callback(null);
+    return jest.fn();
   }),
 }));
 
