@@ -3,6 +3,15 @@ import { render, screen, fireEvent } from '@testing-library/react-native';
 import SearchBar from '../../../src/components/SearchBar';
 
 describe('SearchBar component', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  });
+
   it('calls onChangeText when input changes', () => {
     const mockOnChange = jest.fn();
     render(<SearchBar value="livro" onChangeText={mockOnChange} placeholder="Teste de busca..." />);
