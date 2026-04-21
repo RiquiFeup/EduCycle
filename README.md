@@ -247,7 +247,45 @@ The expected scope of the functional prototype for Sprint 1 still needs clarific
 
 ### Sprint 1
 
-_Sprint 1 plan and retrospective to be added._
+#### Scrum Board
+
+<p align="center">
+  <img src="docs/imgs/Sprint1_ScrumBoard.png" alt="Sprint 1 Scrum Board" width="900"/>
+</p>
+
+<p align="center">
+  <img src="docs/imgs/Sprint1_ScrumBoard_end.png" alt="Sprint 1 Scrum Board" width="900"/>
+</p>
+
+#### Sprint 0 Review — Feedback Addressed
+
+During the Sprint 0 Review, the teaching staff identified the following issues that the team committed to addressing in Sprint 1:
+
+| # | Feedback Received | Action Taken |
+|---|-------------------|--------------|
+| 1 | **PBIs must be in the PBL, not in the README** | All PBIs were moved to the GitHub Projects board and removed from the README. |
+| 2 | **Missing names in associations (Domain Model)** | Role names and multiplicity labels were added to all associations in the Domain Model diagram. |
+| 3 | **Missing text in the Architecture section** | Descriptive text explaining the rationale and responsibilities of each layer was added to the Logical and Physical Architecture sections. |
+| 4 | **PBIs must be well specified** | Each PBI was rewritten with clear, testable acceptance criteria (Given/When/Then format) and linked to the corresponding feature branch and pull request. |
+| 5 | **Not sure about the CI pipeline** | The pipeline was stabilised: a merge-blocking error was fixed, flaky timeout tests were removed, and the full unit-test suite was merged into `development`. |
+
+#### Scrum Board
+
+_Screenshot of the Sprint 1 GitHub Projects board to be added here._
+
+#### Delivered PBIs
+
+The following Product Backlog Items were completed and closed during Sprint 1:
+
+| PBI | User Story | PR / Branch |
+|-----|-----------|-------------|
+| [#65](../../issues/65) | As a student, I want to **create an account with my email and password**, so that I can have a verified identity on the platform. | [PR #112](../../pull/112) — `feat/UserLogin` |
+| [#66](../../issues/66) | As a registered user, I want to **log in with my account**, so that I can access my personal session. | [PR #112](../../pull/112) — `feat/UserLogin` |
+| [#67](../../issues/67) | As a logged-in user, I want to **view my account information**, so that I can see my profile details at any time. | [PR #113](../../pull/113) — `feat/UserProfileEdit` |
+| [#68](../../issues/68) | As a logged-in user, I want to **edit my account information**, so that I can keep my profile up to date. | [PR #113](../../pull/113) — `feat/UserProfileEdit` |
+| [#70](../../issues/70) | As a buyer, I want to **search listings by ISBN or subject**, so that I can quickly find the school materials I need. | [PR #115](../../pull/115) — `feat/searchListings` |
+| [#72](../../issues/72) | As a seller, I want to **create a listing for an item**, so that I can make my school materials available on the platform. | [PR #109](../../pull/109) — `feat/listing-details-screen` |
+
 
 ---
 
