@@ -61,6 +61,23 @@ export default function ListingDetailsScreen({ listing, navigate }) {
             <Text style={styles.institution}>{listing?.institution}</Text>
           </View>
 
+          {/* Subject & ISBN */}
+          {listing?.subject ? (
+            <View style={styles.detailRow} testID="listing-subject">
+              <Text style={styles.detailLabel}>Subject</Text>
+              <View style={styles.subjectBadge}>
+                <Text style={styles.subjectBadgeText}>{listing.subject}</Text>
+              </View>
+            </View>
+          ) : null}
+
+          {listing?.isbn ? (
+            <View style={styles.detailRow} testID="listing-isbn">
+              <Text style={styles.detailLabel}>ISBN</Text>
+              <Text style={styles.detailValue}>{listing.isbn}</Text>
+            </View>
+          ) : null}
+
           {/* Descrição Falsa (já que o card atual não tem) */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Descrição</Text>
@@ -133,6 +150,11 @@ const styles = StyleSheet.create({
   vendorCard: { backgroundColor: COLORS.surface, padding: SPACING.md, borderRadius: RADIUS.panel, marginBottom: SPACING.xl, borderWidth: 1, borderColor: COLORS.border },
   vendorName: { fontSize: 16, fontWeight: '700', color: COLORS.text },
   vendorSubtext: { fontSize: 14, color: COLORS.textMuted, marginTop: 4 },
+  detailRow: { flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm, gap: SPACING.sm },
+  detailLabel: { fontSize: 14, fontWeight: '600', color: COLORS.textSecondary, minWidth: 60 },
+  detailValue: { fontSize: 14, color: COLORS.text, fontWeight: '500' },
+  subjectBadge: { backgroundColor: COLORS.primarySoft, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3 },
+  subjectBadgeText: { fontSize: 13, fontWeight: '600', color: COLORS.primary },
   actionButton: { backgroundColor: COLORS.primary, paddingVertical: 16, borderRadius: RADIUS.button, alignItems: 'center' },
   actionButtonText: { color: COLORS.background, fontSize: 16, fontWeight: '700' },
 });

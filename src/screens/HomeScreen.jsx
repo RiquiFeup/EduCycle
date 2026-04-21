@@ -23,11 +23,15 @@ export default function HomeScreen({ navigate }) {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const filtered = query.trim()
-    ? listings.filter(
-        (listing) =>
-          listing.title.toLowerCase().includes(query.toLowerCase()) ||
-          listing.institution.toLowerCase().includes(query.toLowerCase()),
-      )
+    ? listings.filter((listing) => {
+        const q = query.toLowerCase();
+        return (
+          listing.title.toLowerCase().includes(q) ||
+          listing.institution.toLowerCase().includes(q) ||
+          (listing.subject && listing.subject.toLowerCase().includes(q)) ||
+          (listing.isbn && listing.isbn.toLowerCase().includes(q))
+        );
+      })
     : listings.slice(0, page * PAGE_SIZE);
 
   const hasMore = !query.trim() && page * PAGE_SIZE < listings.length;
@@ -109,7 +113,7 @@ export default function HomeScreen({ navigate }) {
               <SearchBar
                 value={query}
                 onChangeText={setQuery}
-                placeholder="Search books, calculators, notes..."
+                placeholder="Search by title, ISBN, or subject..."
                 testID="search-bar"
               />
             </View>
@@ -135,9 +139,17 @@ export default function HomeScreen({ navigate }) {
         )}
         ListEmptyComponent={
           <View style={styles.empty} testID="empty-state">
-            <Text style={styles.emptyText} testID="empty-state-text">
-              No listings found.
+            <Text style={styles.emptyIcon}>📭</Text>
+            <Text style={styles.emptyTitle} testID="empty-state-text">
+              {query.trim()
+                ? `No results found for "${query.trim()}"`
+                : 'No listings found.'}
             </Text>
+            {query.trim() ? (
+              <Text style={styles.emptyHint}>
+                Try a different title, ISBN, or subject.
+              </Text>
+            ) : null}
           </View>
         }
       />
@@ -209,10 +221,23 @@ const styles = StyleSheet.create({
   empty: {
     alignItems: 'center',
     paddingTop: 48,
+    paddingHorizontal: SPACING.lg,
   },
-  emptyText: {
+  emptyIcon: {
+    fontSize: 40,
+    marginBottom: 12,
+  },
+  emptyTitle: {
+    color: COLORS.text,
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  emptyHint: {
     color: COLORS.textMuted,
-    fontSize: 14,
+    fontSize: 13,
+    textAlign: 'center',
   },
   loadingFooter: {
     flexDirection: 'row',
