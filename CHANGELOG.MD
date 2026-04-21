@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## Sprint 0 Review — Feedback Received & Actions Taken
+
+At the end of Sprint 0, the team received feedback during the Sprint Review session. The following issues were identified and addressed during Sprint 1.
+
+| # | Feedback | Action Taken in Sprint 1 |
+|---|----------|--------------------------|
+| 1 | **PBIs must be in the Product Backlog (PBL), not in the README** | All Product Backlog Items were moved exclusively to the GitHub Projects board. The README now references the board instead of duplicating its content. |
+| 2 | **Missing names in associations (Domain Model)** | Role names and multiplicity labels were added to all associations in the Domain Model diagram. |
+| 3 | **Missing text / description in the Architecture section** | Explanatory text was added to the Logical and Physical Architecture sections, describing the rationale behind the technology choices and the responsibilities of each layer. |
+| 4 | **PBIs must be well specified** — acceptance criteria were insufficient | Each PBI was reworked with clear, testable acceptance criteria following the Given/When/Then format, and linked to the corresponding feature branch and pull request. |
+| 5 | **Not sure about the CI pipeline** — pipeline setup was unclear | The CI pipeline was reviewed and stabilised: a pipeline error blocking branch merges was fixed (`dfe8c68`), test stability was improved by removing timeout-causing tests (`e66199a`), and the full `feature/unit-tests` suite was merged into `development` (`da9dfe6`). |
+
+---
+
 ## [Sprint 1] – 2026-04-21
 
 ### Value Added to End-Users
