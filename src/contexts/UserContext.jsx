@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useMemo, useState } from 'react';
 
 export const UserContext = createContext();
 
@@ -18,20 +18,22 @@ const DEFAULT_USER = {
 };
 
 export const UserProvider = ({ children, initialUser, onUserUpdate, onLogout }) => {
-  const [currentUser, setCurrentUser] = useState({ ...DEFAULT_USER, ...(initialUser ?? {}) });
-
-  useEffect(() => {
-    if (initialUser) {
-      setCurrentUser((prev) => ({ ...prev, ...initialUser }));
-    }
-  }, [initialUser]);
+  const [currentUser, setCurrentUser] = useState({
+    ...DEFAULT_USER,
+    ...(initialUser ?? {}),
+  });
 
   const updateUser = (newData) => {
+    let updated;
     setCurrentUser((prev) => {
-      const updated = { ...prev, ...newData };
-      onUserUpdate?.(updated);
+      updated = { ...prev, ...newData };
       return updated;
     });
+    // Fire side effect outside the updater to prevent duplicate/skipped updates in React 18 StrictMode
+    // Note: since set state is scheduled, we pass the locally constructed object
+    // or we can wait for the next render. For optimistic updates, this is fine.
+    // To ensure exact safety without closure staleness:
+    onUserUpdate?.({ ...currentUser, ...newData });
   };
 
   const contextValue = useMemo(

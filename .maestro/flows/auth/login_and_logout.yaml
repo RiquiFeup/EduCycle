@@ -1,0 +1,15 @@
+appId: com.t3 # Substitua pelo real ID se diferente
+
+---
+- launchApp
+- tapOn:
+    text: ".*Entrar.*"
+- inputText: "joao.silva@fe.up.pt"
+- tapOn: "Palavra-passe"
+- inputText: "secret123"
+- tapOn:
+    id: "login-button" # Se houver ID ou use o texto: text: "Entrar"
+- assertVisible: "Explorar" # Garante que chegou à HomeScreen
+- tapOn: "Perfil"
+- tapOn: "Sair"
+- assertVisible: "EduCycle" # Retornou ao ínicio
