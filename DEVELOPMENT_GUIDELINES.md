@@ -343,8 +343,4 @@ Every team member working on EduCycle should be able to:
 6. run tests before pushing code;
 7. keep documentation aligned with the real implementation.
 
----
-
-## 11. Short version to place in the report
-
-**Maintain development environment, coding standards and guidelines** means documenting how the team sets up, runs, tests and maintains the project. For EduCycle, this includes installing Node.js 18.x and npm, cloning the repository, installing dependencies with `npm ci --legacy-peer-deps`, running the app with Expo, and validating changes with Jest, React Native Testing Library, Maestro and GitHub Actions. The project follows a React Native + Expo architecture with Firebase Authentication, Firestore and AsyncStorage. Code should be organised by responsibility, using reusable components, screen modules, service abstractions and shared utilities. The team standard is to use functional components, clear naming conventions, single quotes, semicolons, focused commits, tested changes and consistent theme usage.
+abstractions and shared utilities. The team standard is to use functional components, clear naming conventions, single quotes, semicolons, focused commits, tested changes and consistent theme usage.
