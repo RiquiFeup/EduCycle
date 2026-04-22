@@ -125,7 +125,7 @@ _User interface mockups — see [Architecture and Design > User Interface Mockup
 ### Logical Architecture
 
 <p align="center">
-  <img src="docs/imgs/Logical.drawio.svg" alt="Logical Architecture" width="800"/>
+  <img src="docs/imgs/Logical.drawio.png" alt="Logical Architecture" width="800"/>
 </p>
 
 ---
@@ -133,7 +133,7 @@ _User interface mockups — see [Architecture and Design > User Interface Mockup
 ### Physical Architecture
 
 <p align="center">
-  <img src="docs/imgs/Physical.png" alt="Physical Architecture" width="800"/>
+  <img src="docs/imgs/Physical.drawio.png" alt="Physical Architecture" width="800"/>
 </p>
 
 **Technology choices:**
