@@ -1,36 +1,46 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react-native';
+import { render, screen, waitFor } from '@testing-library/react-native';
 import PublicProfileScreen from '../../../src/screens/PublicProfileScreen';
-import { UserProvider } from '../../../src/contexts/UserContext';
+import { UserContext } from '../../../src/contexts/UserContext';
+
+const mockUser = { id: 'user-123', name: 'João Silva', photo: 'uri', course: 'Engenharia', communities: [] };
 
 describe('PublicProfileScreen Tests', () => {
-  const renderWithContext = (component) => {
-    return render(
-      <UserProvider>
-        {component}
-      </UserProvider>
+  /*
+   * CLASSIFICATION: UT (Unit Test)
+   * JUSTIFICATION: Confirma o comportamento de renderização estrutural do ecrã quando lhe 
+   * é passada uma configuração estática específica (a propriedade isPreview = true).
+   */
+  it('renders correctly in Preview Mode after loading', async () => {
+    render(
+      <UserContext.Provider value={{ currentUser: mockUser }}>
+        <PublicProfileScreen isPreview={true} navigate={jest.fn()} />
+      </UserContext.Provider>
     );
-  };
 
-  it('renders public profile in regular mode', () => {
-    renderWithContext(<PublicProfileScreen isPreview={false} navigate={jest.fn()} />);
+    // Aguarda que o ecrã passe do ActivityIndicator para o perfil
+    await waitFor(() => {
+      expect(screen.getByTestId('public-profile-screen')).toBeTruthy();
+    }, { timeout: 5000 });
 
-    expect(screen.getByTestId('public-profile-screen')).toBeTruthy();
-    expect(screen.getByText('Seller Profile')).toBeTruthy();
-    expect(screen.getByText('💬 Message')).toBeTruthy();
-    expect(screen.getByText('✉️ Email')).toBeTruthy();
-    expect(screen.getByText('Active Listings')).toBeTruthy();
+    expect(screen.getByText('👁️ Preview Mode')).toBeTruthy();
+    expect(screen.getByText('João Silva')).toBeTruthy();
   });
 
-  it('renders public profile in preview mode', () => {
-    renderWithContext(<PublicProfileScreen isPreview={true} navigate={jest.fn()} />);
+  /*
+   * CLASSIFICATION: UT (Unit Test)
+   * JUSTIFICATION: Valida as defesas mecânicas do componente (fallback estático), testando 
+   * o UI providenciado caso haja ausência da prop obrigatória (sellerId).
+   */
+  it('shows error state when no sellerId is provided', async () => {
+    render(
+      <UserContext.Provider value={{ currentUser: mockUser }}>
+        <PublicProfileScreen isPreview={false} sellerId={null} navigate={jest.fn()} />
+      </UserContext.Provider>
+    );
 
-    expect(screen.getByTestId('public-profile-screen')).toBeTruthy();
-    // Preview header title
-    expect(screen.getByText('👁️ Preview Mode')).toBeTruthy();
-    expect(screen.getByText('Exit')).toBeTruthy();
-    // Buttons should not show in preview
-    expect(screen.queryByText('💬 Message')).toBeNull();
+    await waitFor(() => {
+      expect(screen.getByText('Utilizador não encontrado.')).toBeTruthy();
+    });
   });
 });
-

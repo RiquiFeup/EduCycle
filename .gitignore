@@ -53,3 +53,7 @@ yarn-error.*
 jest_results.json
 jest_output.txt
 errors.txt
+
+# Testing Coverage
+coverage/
+.nyc_output/

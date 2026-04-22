@@ -36,15 +36,29 @@
   "jest": {
     "preset": "jest-expo",
     "testTimeout": 10000,
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "json",
+      "ts",
+      "tsx",
+      "mjs"
+    ],
     "setupFilesAfterEnv": [
       "<rootDir>/__tests__/setup/jest.setup.js"
     ],
     "testMatch": [
       "**/__tests__/**/*.test.[jt]s?(x)"
     ],
+    "transform": {
+      "^.+\\.(js|jsx|ts|tsx|mjs)$": "babel-jest"
+    },
     "transformIgnorePatterns": [
-      "node_modules/(?!(jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|expo-.*|react-navigation|@react-navigation/.*|react-native-svg|firebase|@firebase)"
-    ]
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|expo-.*|react-navigation|@react-navigation/.*|react-native-svg|firebase|@firebase|@react-native-async-storage)/"
+    ],
+    "moduleNameMapper": {
+      "^firebase/(.*)$": "<rootDir>/node_modules/firebase/$1"
+    }
   },
   "private": true
 }

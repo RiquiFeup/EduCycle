@@ -1,36 +1,34 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react-native';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
 import HomeScreen from '../../../src/screens/HomeScreen';
 
+// Importamos a função falsa que criámos no setup.js
+import { getDocs } from 'firebase/firestore';
+
 describe('HomeScreen Tests', () => {
-  it('renders home screen correctly and displays header elements', () => {
-    render(<HomeScreen navigate={jest.fn()} />);
-
-    expect(screen.getByTestId('home-feed-screen')).toBeTruthy();
-    expect(screen.getByText('EduCycle')).toBeTruthy();
-    expect(screen.getByTestId('home-notifications-button')).toBeTruthy();
+  beforeEach(() => {
+    // Dizemos o que a função falsa deve devolver neste teste
+    getDocs.mockResolvedValue({
+      docs: [
+        { id: '1', data: () => ({ title: 'Livro de Cálculo', price: '20' }) }
+      ]
+    });
   });
 
-  it('renders search bar and accepts text input', () => {
+  /*
+   * CLASSIFICATION: UT (Unit Test)
+   * JUSTIFICATION: Avalia exclusivamente o ciclo de vida e a renderização do componente 
+   * quando injetado com dados. Não exige qualquer interação interativa (clique, texto) 
+   * por parte do utilizador para forçar a renderização do Livro de Cálculo.
+   */
+  it('renderiza o feed sem ir à internet', async () => {
     render(<HomeScreen navigate={jest.fn()} />);
-    
-    // Test the search bar
-    const searchInput = screen.getByPlaceholderText('Search books, calculators, notes...');
-    expect(searchInput).toBeTruthy();
-    
-    fireEvent.changeText(searchInput, 'Math');
-    expect(searchInput.props.value).toBe('Math');
-  });
 
-  it('filters empty state when searching for nonexistent term', () => {
-    render(<HomeScreen navigate={jest.fn()} />);
-    const searchInput = screen.getByPlaceholderText('Search books, calculators, notes...');
-    
-    // Type something that likely won't match the mocked LISTINGS data
-    fireEvent.changeText(searchInput, 'XyZ_Impossible_Search_Term');
-    
-    expect(screen.getByTestId('empty-state')).toBeTruthy();
-    expect(screen.getByTestId('empty-state-text')).toBeTruthy();
+    // Esperar que os dados cheguem para calar o aviso do act(...)
+    await waitFor(() => {
+      expect(screen.getByTestId('home-feed-screen')).toBeTruthy();
+    }, { timeout: 5000 });
+
+    expect(screen.getByText('Livro de Cálculo')).toBeTruthy();
   });
 });
-

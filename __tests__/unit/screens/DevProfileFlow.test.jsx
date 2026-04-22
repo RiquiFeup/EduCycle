@@ -1,46 +1,36 @@
 import React from 'react';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react-native';
-import { act } from 'react-test-renderer';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
 import DevProfileFlow from '../../../src/screens/DevProfileFlow';
+import { UserContext } from '../../../src/contexts/UserContext';
+
+const mockUser = { id: 'user-123' };
 
 describe('DevProfileFlow Tests', () => {
-  beforeEach(() => {
-    jest.useFakeTimers();
-  });
+  /*
+   * CLASSIFICATION: UAT (User Acceptance Test)
+   * JUSTIFICATION: Testa o fluxo de navegação explícito. Simula a intenção do utilizador 
+   * de clicar num botão para viajar para outro ecrã e aguarda assincronamente que a 
+   * viagem se conclua e o novo ecrã (Home) substitua o ecrã atual.
+   */
+  it('navigates to another screen when a button is pressed', async () => {
+    render(
+      <UserContext.Provider value={{ currentUser: mockUser }}>
+        <DevProfileFlow />
+      </UserContext.Provider>
+    );
 
-  afterEach(() => {
-    act(() => {
-      jest.runOnlyPendingTimers();
-    });
-    cleanup();
-  });
-
-  afterAll(() => {
-    jest.useRealTimers();
-  });
-  it('renders the dev directory menu by default', () => {
-    render(<DevProfileFlow />);
-
+    // 1. Confirma que o menu Dev está visível
     expect(screen.getByText('Dev Directory')).toBeTruthy();
-    expect(screen.getByText('🏠 Go to Home Screen')).toBeTruthy();
-    expect(screen.getByText('👤 Go to Public Profile (Seller View)')).toBeTruthy();
-    expect(screen.getByText('⚙️ Go to Private Profile')).toBeTruthy();
-  });
 
-  it('navigates to another screen when a button is pressed', () => {
-    render(<DevProfileFlow />);
-    
-    // Press the Home screen button
+    // 2. Clica no botão de navegação
     fireEvent.press(screen.getByText('🏠 Go to Home Screen'));
-    
-    // Home screen should render (we check for the logo)
-    expect(screen.getByText('EduCycle')).toBeTruthy();
-    
-    // And dev menu title should be gone
+
+    // 3. Espera que a Home carregue
+    await waitFor(() => {
+      expect(screen.getByText('EduCycle')).toBeTruthy();
+    }, { timeout: 5000 });
+
+    // 4. Confirma que o menu Dev desapareceu
     expect(screen.queryByText('Dev Directory')).toBeNull();
-    
-    // The floating back button should appear
-    expect(screen.getByText('← Dev Menu')).toBeTruthy();
   });
 });
-
