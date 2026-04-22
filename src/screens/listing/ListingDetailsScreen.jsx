@@ -18,14 +18,12 @@ const MODE_COLORS = {
 };
 
 export default function ListingDetailsScreen({ listing, navigate }) {
-  // O tipo de anúncio pode vir de diferentes formatos dependendo se foi lido de dados estáticos ou do Firestore
   const type = listing?.mode || listing?.listingType?.toLowerCase();
   const badge = MODE_LABELS[type];
   const badgeColor = MODE_COLORS[type];
 
   const [seller, setSeller] = useState(null);
 
-  // Consulta à base de dados para ir buscar o perfil do vendedor associado a este anúncio
   useEffect(() => {
     const fetchSeller = async () => {
       if (listing?.sellerId) {
@@ -48,7 +46,6 @@ export default function ListingDetailsScreen({ listing, navigate }) {
 
   return (
     <View style={styles.mainContainer}>
-      {/* Header Fixo com Botão Voltar */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigate('Home')}>
           <Text style={styles.backButtonText}>← Voltar</Text>
@@ -57,7 +54,6 @@ export default function ListingDetailsScreen({ listing, navigate }) {
       </View>
 
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
-        {/* Imagem do Produto */}
         <View style={styles.imageContainer}>
           {listing?.image ? (
             <Image source={{ uri: listing.image }} style={styles.image} resizeMode="cover" />
@@ -66,28 +62,41 @@ export default function ListingDetailsScreen({ listing, navigate }) {
           )}
         </View>
 
-        {/* Corpo do Produto */}
         <View style={styles.content}>
-          {/* Badge */}
           {badge ? (
             <View style={[styles.badge, { backgroundColor: badgeColor }]}>
               <Text style={styles.badgeText}>{badge}</Text>
             </View>
           ) : null}
 
-          {/* Título e Preço */}
           <Text style={styles.title}>{listing?.title}</Text>
           {listing?.price != null && listing?.price !== '' && (
             <Text style={styles.price}>€ {Number(listing.price).toFixed(2)}</Text>
           )}
 
-          {/* Localização / Campus */}
           <View style={styles.institutionRow}>
             <View style={styles.locationDot} />
             <Text style={styles.institution}>{listing?.institution || listing?.campus}</Text>
           </View>
 
-          {/* Descrição */}
+          {/* Subject & ISBN (from development branch) */}
+          {listing?.subject ? (
+            <View style={styles.detailRow} testID="listing-subject">
+              <Text style={styles.detailLabel}>Subject</Text>
+              <View style={styles.subjectBadge}>
+                <Text style={styles.subjectBadgeText}>{listing.subject}</Text>
+              </View>
+            </View>
+          ) : null}
+
+          {listing?.isbn ? (
+            <View style={styles.detailRow} testID="listing-isbn">
+              <Text style={styles.detailLabel}>ISBN</Text>
+              <Text style={styles.detailValue}>{listing.isbn}</Text>
+            </View>
+          ) : null}
+
+          {/* Descrição (from func/create-listing-db branch) */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Descrição</Text>
             <Text style={styles.description}>
@@ -95,7 +104,6 @@ export default function ListingDetailsScreen({ listing, navigate }) {
             </Text>
           </View>
 
-          {/* Vendedor */}
           <TouchableOpacity 
             style={styles.vendorCard} 
             onPress={() => navigate('PublicProfile', { sellerId: listing?.sellerId })}
@@ -114,7 +122,6 @@ export default function ListingDetailsScreen({ listing, navigate }) {
             </View>
           </TouchableOpacity>
 
-          {/* Botão de Contacto */}
           <TouchableOpacity style={styles.actionButton} onPress={() => navigate('Chat', { conversationId: 'c1' })}>
             <Text style={styles.actionButtonText}>Enviar Mensagem</Text>
           </TouchableOpacity>
@@ -126,16 +133,7 @@ export default function ListingDetailsScreen({ listing, navigate }) {
 
 const styles = StyleSheet.create({
   mainContainer: { flex: 1, backgroundColor: COLORS.background },
-  header: {
-    height: 60,
-    backgroundColor: COLORS.background,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderSoft,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.md,
-    paddingTop: 10,
-  },
+  header: { height: 60, backgroundColor: COLORS.background, borderBottomWidth: 1, borderBottomColor: COLORS.borderSoft, flexDirection: 'row', alignItems: 'center', paddingHorizontal: SPACING.md, paddingTop: 10 },
   backButton: { paddingRight: 15 },
   backButtonText: { color: COLORS.primary, fontSize: 16, fontWeight: '600' },
   headerTitle: { fontSize: 18, fontWeight: '700', color: COLORS.text, flex: 1, textAlign: 'center', marginRight: 60 },
@@ -157,6 +155,11 @@ const styles = StyleSheet.create({
   vendorCard: { backgroundColor: COLORS.surface, padding: SPACING.md, borderRadius: RADIUS.panel, marginBottom: SPACING.xl, borderWidth: 1, borderColor: COLORS.border },
   vendorName: { fontSize: 16, fontWeight: '700', color: COLORS.text },
   vendorSubtext: { fontSize: 14, color: COLORS.textMuted, marginTop: 4 },
+  detailRow: { flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm, gap: SPACING.sm },
+  detailLabel: { fontSize: 14, fontWeight: '600', color: COLORS.textSecondary, minWidth: 60 },
+  detailValue: { fontSize: 14, color: COLORS.text, fontWeight: '500' },
+  subjectBadge: { backgroundColor: COLORS.primarySoft, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3 },
+  subjectBadgeText: { fontSize: 13, fontWeight: '600', color: COLORS.primary },
   actionButton: { backgroundColor: COLORS.primary, paddingVertical: 16, borderRadius: RADIUS.button, alignItems: 'center' },
   actionButtonText: { color: COLORS.background, fontSize: 16, fontWeight: '700' },
 });

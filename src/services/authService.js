@@ -3,8 +3,9 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  updateProfile,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../utils/firebase';
 import { normalizeEmail } from '../utils/validation';
 
@@ -119,7 +120,6 @@ export const subscribeToAuthState = (callback) =>
     }
 
     try {
-      // Tenta ir buscar o perfil à base de dados
       const storedProfile = await getStoredUserProfile(firebaseUser.uid);
 
       callback(
@@ -131,10 +131,33 @@ export const subscribeToAuthState = (callback) =>
       );
     } catch (error) {
       console.error("Erro fatal ao validar sessão na base de dados:", error);
-      
-      // Se a base de dados rejeitar a ligação (ex: conta foi apagada no servidor),
-      // forçamos a limpeza da persistência local e mandamos o utilizador para o Login.
       await signOut(auth);
       callback(null);
     }
   });
+
+export const updateUserAccount = async (userId, data) => {
+  try {
+    const userDocRef = doc(db, 'users', userId);
+    
+    const cleanData = Object.fromEntries(
+      Object.entries(data).filter(([_, v]) => v !== undefined)
+    );
+    
+    if (auth.currentUser && auth.currentUser.uid === userId && (cleanData.name || cleanData.photo)) {
+      const authUpdates = {};
+      if (cleanData.name) authUpdates.displayName = cleanData.name;
+      if (cleanData.photo) authUpdates.photoURL = cleanData.photo;
+      try {
+        await updateProfile(auth.currentUser, authUpdates);
+      } catch (authErr) {
+        console.warn("Could not update Firebase Auth profile (likely invalid local photo URI), updating Firestore anyway:", authErr);
+      }
+    }
+    
+    await updateDoc(userDocRef, cleanData);
+  } catch (error) {
+    console.error("Firebase Update Error:", error);
+    throw new Error('Could not update profile information. Please try again.');
+  }
+};

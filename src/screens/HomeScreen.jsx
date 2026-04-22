@@ -49,12 +49,16 @@ export default function HomeScreen({ navigate }) {
   }, []);
 
   const filtered = queryText.trim()
-    ? listings.filter(
-        (listing) =>
-          listing.title?.toLowerCase().includes(queryText.toLowerCase()) ||
-          listing.campus?.toLowerCase().includes(queryText.toLowerCase()) ||
-          listing.institution?.toLowerCase().includes(queryText.toLowerCase()),
-      )
+    ? listings.filter((listing) => {
+        const q = queryText.toLowerCase();
+        return (
+          listing.title?.toLowerCase().includes(q) ||
+          listing.campus?.toLowerCase().includes(q) ||
+          listing.institution?.toLowerCase().includes(q) ||
+          (listing.subject && listing.subject.toLowerCase().includes(q)) ||
+          (listing.isbn && listing.isbn.toLowerCase().includes(q))
+        );
+      })
     : listings.slice(0, page * PAGE_SIZE);
 
   const hasMore = !queryText.trim() && page * PAGE_SIZE < listings.length;
@@ -145,7 +149,7 @@ export default function HomeScreen({ navigate }) {
               <SearchBar
                 value={queryText}
                 onChangeText={setQueryText}
-                placeholder="Search books, calculators, notes..."
+                placeholder="Search by title, ISBN, or subject..."
                 testID="search-bar"
               />
             </View>
@@ -171,9 +175,17 @@ export default function HomeScreen({ navigate }) {
         )}
         ListEmptyComponent={
           <View style={styles.empty} testID="empty-state">
-            <Text style={styles.emptyText} testID="empty-state-text">
-              No listings found.
+            <Text style={styles.emptyIcon}>📭</Text>
+            <Text style={styles.emptyTitle} testID="empty-state-text">
+              {queryText.trim()
+                ? `No results found for "${queryText.trim()}"`
+                : 'No listings found.'}
             </Text>
+            {queryText.trim() ? (
+              <Text style={styles.emptyHint}>
+                Try a different title, ISBN, or subject.
+              </Text>
+            ) : null}
           </View>
         }
       />
@@ -182,102 +194,25 @@ export default function HomeScreen({ navigate }) {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-  },
-  stateContainer: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  stateText: {
-    marginTop: SPACING.md,
-    color: COLORS.textMuted,
-    fontSize: 15,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.horizontal,
-    paddingVertical: 12,
-    backgroundColor: COLORS.background,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  logo: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: COLORS.primary,
-    letterSpacing: -0.5,
-  },
-  notifBtn: {
-    position: 'relative',
-    padding: 4,
-  },
-  notifIcon: {
-    fontSize: 22,
-  },
-  notifBadge: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    backgroundColor: COLORS.danger,
-    borderRadius: 8,
-    width: 16,
-    height: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  notifBadgeText: {
-    color: '#FFF',
-    fontSize: 9,
-    fontWeight: '700',
-  },
-  scrollContent: {
-    paddingBottom: SPACING.xl,
-  },
-  searchContainer: {
-    paddingHorizontal: SPACING.horizontal,
-    paddingVertical: 12,
-  },
-  row: {
-    flexDirection: 'row',
-    paddingHorizontal: SPACING.horizontal,
-    gap: SPACING.cardGap,
-    marginBottom: 0,
-  },
-  emptySlot: {
-    flex: 1,
-  },
-  empty: {
-    alignItems: 'center',
-    paddingTop: 48,
-  },
-  emptyText: {
-    color: COLORS.textMuted,
-    fontSize: 14,
-  },
-  loadingFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: SPACING.md,
-    gap: SPACING.sm,
-  },
-  loadingText: {
-    color: COLORS.textMuted,
-    fontSize: 13,
-  },
-  endFooter: {
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
-  endText: {
-    color: COLORS.textMuted,
-    fontSize: 13,
-  },
+  safeArea: { flex: 1, backgroundColor: COLORS.background, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
+  stateContainer: { flex: 1, backgroundColor: COLORS.background, justifyContent: 'center', alignItems: 'center' },
+  stateText: { marginTop: SPACING.md, color: COLORS.textMuted, fontSize: 15 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SPACING.horizontal, paddingVertical: 12, backgroundColor: COLORS.background, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  logo: { fontSize: 22, fontWeight: '800', color: COLORS.primary, letterSpacing: -0.5 },
+  notifBtn: { position: 'relative', padding: 4 },
+  notifIcon: { fontSize: 22 },
+  notifBadge: { position: 'absolute', top: 0, right: 0, backgroundColor: COLORS.danger, borderRadius: 8, width: 16, height: 16, alignItems: 'center', justifyContent: 'center' },
+  notifBadgeText: { color: '#FFF', fontSize: 9, fontWeight: '700' },
+  scrollContent: { paddingBottom: SPACING.xl },
+  searchContainer: { paddingHorizontal: SPACING.horizontal, paddingVertical: 12 },
+  row: { flexDirection: 'row', paddingHorizontal: SPACING.horizontal, gap: SPACING.cardGap, marginBottom: 0 },
+  emptySlot: { flex: 1 },
+  empty: { alignItems: 'center', paddingTop: 48, paddingHorizontal: SPACING.lg },
+  emptyIcon: { fontSize: 40, marginBottom: 12 },
+  emptyTitle: { color: COLORS.text, fontSize: 16, fontWeight: '600', textAlign: 'center', marginBottom: 6 },
+  emptyHint: { color: COLORS.textMuted, fontSize: 13, textAlign: 'center' },
+  loadingFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: SPACING.md, gap: SPACING.sm },
+  loadingText: { color: COLORS.textMuted, fontSize: 13 },
+  endFooter: { alignItems: 'center', paddingVertical: 20 },
+  endText: { color: COLORS.textMuted, fontSize: 13 },
 });
