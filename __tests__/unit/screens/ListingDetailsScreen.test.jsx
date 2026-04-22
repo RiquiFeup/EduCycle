@@ -18,6 +18,11 @@ describe('ListingDetailsScreen - Testes UAT e Renderização Visual', () => {
   };
 
   describe('Cenário 1: Renderização de Informação Básica e Condicional', () => {
+    /*
+     * CLASSIFICATION: UT (Unit Test)
+     * JUSTIFICATION: Verifica a capacidade do componente de mapear um objeto de propriedades 
+     * (props) para o ecrã de forma estática. Não simula interações.
+     */
     it('renderiza os detalhes base do produto corretamente', () => {
       render(<ListingDetailsScreen listing={baseListing} navigate={jest.fn()} />);
 
@@ -28,6 +33,11 @@ describe('ListingDetailsScreen - Testes UAT e Renderização Visual', () => {
       expect(screen.getByText('Baterias novas.')).toBeTruthy();
     });
 
+    /*
+     * CLASSIFICATION: UT (Unit Test)
+     * JUSTIFICATION: Analisa uma condicional no render (o modo de troca). Avalia lógica 
+     * estática pura através da alteração de uma propriedade, sem simular cliques.
+     */
     it('aplica o badge correto quando o artigo é para Troca (Swap)', () => {
       const swapListing = { ...baseListing, mode: 'swap' };
       render(<ListingDetailsScreen listing={swapListing} navigate={jest.fn()} />);
@@ -35,6 +45,11 @@ describe('ListingDetailsScreen - Testes UAT e Renderização Visual', () => {
       expect(screen.getByText('For Swap')).toBeTruthy();
     });
 
+    /*
+     * CLASSIFICATION: UT (Unit Test)
+     * JUSTIFICATION: Avalia a renderização e o UI fallback de um edge-case estrutural 
+     * (descrição vazia), que não envolve ações dinâmicas do utilizador.
+     */
     it('mostra mensagem alternativa quando a descrição vem vazia', () => {
       const emptyDescListing = { ...baseListing, description: '' };
       render(<ListingDetailsScreen listing={emptyDescListing} navigate={jest.fn()} />);
@@ -44,6 +59,12 @@ describe('ListingDetailsScreen - Testes UAT e Renderização Visual', () => {
   });
 
   describe('Cenário 2: Comportamento Dinâmico do Vendedor', () => {
+    /*
+     * CLASSIFICATION: UAT (User Acceptance Test)
+     * JUSTIFICATION: Valida uma jornada completa onde o utilizador repara no nome do 
+     * vendedor, decide clicar para ver mais detalhes e o sistema processa a transição 
+     * corretamente enviando a sua ID na navegação.
+     */
     it('mostra o nome do vendedor e envia o ID correto ao clicar no perfil', () => {
       const mockNavigate = jest.fn();
       render(<ListingDetailsScreen listing={baseListing} navigate={mockNavigate} />);
@@ -58,6 +79,11 @@ describe('ListingDetailsScreen - Testes UAT e Renderização Visual', () => {
       expect(mockNavigate).toHaveBeenCalledWith('PublicProfile', { sellerId: 'seller-1' });
     });
 
+    /*
+     * CLASSIFICATION: UAT (User Acceptance Test)
+     * JUSTIFICATION: Testa o fluxo de erro pelo ponto de vista do utilizador. Simula o 
+     * clique no vendedor mesmo em caso de falha nos dados, validando que o fluxo não quebra.
+     */
     it('recorre ao fallback de Vendedor Anónimo se faltarem dados, não enviando ID', () => {
       const mockNavigate = jest.fn();
       const anonListing = {
@@ -80,6 +106,11 @@ describe('ListingDetailsScreen - Testes UAT e Renderização Visual', () => {
   });
 
   describe('Cenário 3: Navegação Padrão', () => {
+    /*
+     * CLASSIFICATION: UAT (User Acceptance Test)
+     * JUSTIFICATION: Simulação de ação de negócio: O utilizador clica ativamente no 
+     * botão de enviar mensagem com a intenção de comunicar com o vendedor.
+     */
     it('navega para o chat ao clicar no botão de enviar mensagem', () => {
       const mockNavigate = jest.fn();
       render(<ListingDetailsScreen listing={baseListing} navigate={mockNavigate} />);
@@ -88,6 +119,10 @@ describe('ListingDetailsScreen - Testes UAT e Renderização Visual', () => {
       expect(mockNavigate).toHaveBeenCalledWith('Chat', { conversationId: 'c1' }); // Ajusta 'c1' se o teu botão usar outro id
     });
 
+    /*
+     * CLASSIFICATION: UAT (User Acceptance Test)
+     * JUSTIFICATION: Avalia uma interação do utilizador para regressar ao ecrã anterior.
+     */
     it('limpa a pilha e volta à Home ao clicar em Voltar', () => {
       const mockNavigate = jest.fn();
       render(<ListingDetailsScreen listing={baseListing} navigate={mockNavigate} />);

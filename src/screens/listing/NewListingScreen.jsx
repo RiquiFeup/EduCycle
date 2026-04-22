@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { ScrollView, Text } from 'react-native';
 import styles from './styles';
 
@@ -9,14 +9,20 @@ import DropdownField from './components/DropdownField';
 import SegmentedControl from './components/SegmentedControl';
 import PrimaryButton from './components/PrimaryButton';
 
+import { UserContext } from '../../contexts/UserContext';
+import { createListing } from '../../services/listingService';
+
 const SUBJECTS = ['Mathematics', 'Physics', 'Portuguese', 'History', 'Chemistry', 'Biology'];
 const CONDITIONS = ['New', 'Good', 'Fair', 'Poor'];
 const CAMPUSES = ['FEUP', 'ISEP', 'UP Law', 'Colégio Dom Dinis', 'Other'];
 const LISTING_TYPES = ['Sell', 'Swap'];
 
 export default function NewListingScreen({ onPublish }) {
+  const { currentUser } = useContext(UserContext);
+
   const [hasPhoto, setHasPhoto]         = useState(false);
   const [title, setTitle]               = useState('');
+  const [description, setDescription]   = useState(''); // Novo campo de descrição
   const [subject, setSubject]           = useState('');
   const [condition, setCondition]       = useState('');
   const [campus, setCampus]             = useState('');
@@ -27,23 +33,42 @@ export default function NewListingScreen({ onPublish }) {
 
   function validate() {
     const e = {};
-    if (!hasPhoto)              e.photo     = 'A photo is required.';
-    if (!title.trim())          e.title     = 'Title is required.';
-    if (!subject)               e.subject   = 'Please select a subject.';
-    if (!condition)             e.condition = 'Please select a condition.';
-    if (!campus)                e.campus    = 'Campus / School Tag is required.';
+    if (!hasPhoto)              e.photo       = 'A photo is required.';
+    if (!title.trim())          e.title       = 'Title is required.';
+    if (!description.trim())    e.description = 'Description is required.'; // Validação da descrição
+    if (!subject)               e.subject     = 'Please select a subject.';
+    if (!condition)             e.condition   = 'Please select a condition.';
+    if (!campus)                e.campus      = 'Campus / School Tag is required.';
     if (listingType === 'Sell' && !price.trim())
-                                e.price     = 'Price is required for items on sale.';
+                                e.price       = 'Price is required for items on sale.';
     return e;
   }
 
-  function handlePublish() {
+  async function handlePublish() {
     const e = validate();
     setErrors(e);
     if (Object.keys(e).length > 0) return;
 
-    setPublished(true);
-    if (onPublish) onPublish({ title, subject, condition, campus, listingType, price });
+    try {
+      await createListing(
+        { title, description, subject, condition, campus, listingType, price, hasPhoto }, // Descrição incluída no payload
+        currentUser?.id
+      );
+      setPublished(true);
+      if (onPublish) onPublish({ title, description, subject, condition, campus, listingType, price });
+      
+      // Limpar formulário após sucesso (opcional, para conveniência)
+      setTitle('');
+      setDescription('');
+      setPrice('');
+      setHasPhoto(false);
+      setSubject('');
+      setCondition('');
+      setCampus('');
+      
+    } catch (error) {
+      setErrors({ ...e, submit: 'Não foi possível publicar o anúncio. Tenta novamente.' });
+    }
   }
 
   return (
@@ -70,6 +95,17 @@ export default function NewListingScreen({ onPublish }) {
         testID="input-title"
         error={errors.title}
         accessibilityLabel="Title"
+      />
+
+      {/* Novo Input para a Descrição */}
+      <InputField
+        label="Description"
+        value={description}
+        onChangeText={setDescription}
+        placeholder="Detalhes sobre o estado, edições, marcações..."
+        testID="input-description"
+        error={errors.description}
+        accessibilityLabel="Description"
       />
 
       <DropdownField
@@ -123,6 +159,10 @@ export default function NewListingScreen({ onPublish }) {
           error={errors.price}
           accessibilityLabel="Price"
         />
+      )}
+
+      {errors.submit && (
+        <Text style={styles.error}>{errors.submit}</Text>
       )}
 
       <PrimaryButton

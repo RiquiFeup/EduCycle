@@ -119,15 +119,21 @@ export const subscribeToAuthState = (callback) =>
       return;
     }
 
-    const storedProfile = await getStoredUserProfile(firebaseUser.uid);
+    try {
+      const storedProfile = await getStoredUserProfile(firebaseUser.uid);
 
-    callback(
-      storedProfile ??
-        buildUserProfile({
-          uid: firebaseUser.uid,
-          email: firebaseUser.email ?? '',
-        }),
-    );
+      callback(
+        storedProfile ??
+          buildUserProfile({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email ?? '',
+          }),
+      );
+    } catch (error) {
+      console.error("Erro fatal ao validar sessão na base de dados:", error);
+      await signOut(auth);
+      callback(null);
+    }
   });
 
 export const updateUserAccount = async (userId, data) => {

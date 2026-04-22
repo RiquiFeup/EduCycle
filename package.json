@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "test:coverage": "jest --coverage --runInBand --forceExit",
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
     "e2e": "maestro test .maestro/flows/"
   },
   "dependencies": {
@@ -17,7 +17,7 @@
     "expo": "~54.0.12",
     "expo-image-picker": "~17.0.0",
     "expo-status-bar": "~3.0.0",
-    "firebase": "^11.3.1",
+    "firebase": "^11.10.0",
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-safe-area-context": "~5.6.0"
@@ -36,15 +36,29 @@
   "jest": {
     "preset": "jest-expo",
     "testTimeout": 10000,
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "json",
+      "ts",
+      "tsx",
+      "mjs"
+    ],
     "setupFilesAfterEnv": [
       "<rootDir>/__tests__/setup/jest.setup.js"
     ],
     "testMatch": [
       "**/__tests__/**/*.test.[jt]s?(x)"
     ],
+    "transform": {
+      "^.+\\.(js|jsx|ts|tsx|mjs)$": "babel-jest"
+    },
     "transformIgnorePatterns": [
-      "node_modules/(?!(jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|expo-.*|react-navigation|@react-navigation/.*|react-native-svg|firebase|@firebase)"
-    ]
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|expo-.*|react-navigation|@react-navigation/.*|react-native-svg|firebase|@firebase|@react-native-async-storage)/"
+    ],
+    "moduleNameMapper": {
+      "^firebase/(.*)$": "<rootDir>/node_modules/firebase/$1"
+    }
   },
   "private": true
 }

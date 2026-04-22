@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
-
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../utils/firebase';
 import { COLORS, SPACING, RADIUS } from '../../utils/theme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -17,12 +18,34 @@ const MODE_COLORS = {
 };
 
 export default function ListingDetailsScreen({ listing, navigate }) {
-  const badge = MODE_LABELS[listing?.mode];
-  const badgeColor = MODE_COLORS[listing?.mode];
+  const type = listing?.mode || listing?.listingType?.toLowerCase();
+  const badge = MODE_LABELS[type];
+  const badgeColor = MODE_COLORS[type];
+
+  const [seller, setSeller] = useState(null);
+
+  useEffect(() => {
+    const fetchSeller = async () => {
+      if (listing?.sellerId) {
+        try {
+          const docRef = doc(db, 'users', listing.sellerId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setSeller(docSnap.data());
+          }
+        } catch (error) {
+          console.error("Erro a carregar vendedor:", error);
+        }
+      }
+    };
+    fetchSeller();
+  }, [listing?.sellerId]);
+
+  const displaySellerName = seller?.name || listing?.sellerName || 'Vendedor Anónimo';
+  const displaySellerPhoto = seller?.photo || listing?.sellerPhoto;
 
   return (
     <View style={styles.mainContainer}>
-      {/* Header Fixo com Botão Voltar */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigate('Home')}>
           <Text style={styles.backButtonText}>← Voltar</Text>
@@ -31,7 +54,6 @@ export default function ListingDetailsScreen({ listing, navigate }) {
       </View>
 
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
-        {/* Imagem do Produto */}
         <View style={styles.imageContainer}>
           {listing?.image ? (
             <Image source={{ uri: listing.image }} style={styles.image} resizeMode="cover" />
@@ -40,28 +62,24 @@ export default function ListingDetailsScreen({ listing, navigate }) {
           )}
         </View>
 
-        {/* Corpo do Produto */}
         <View style={styles.content}>
-          {/* Badge */}
           {badge ? (
             <View style={[styles.badge, { backgroundColor: badgeColor }]}>
               <Text style={styles.badgeText}>{badge}</Text>
             </View>
           ) : null}
 
-          {/* Título e Preço */}
           <Text style={styles.title}>{listing?.title}</Text>
-          {listing?.price != null && (
+          {listing?.price != null && listing?.price !== '' && (
             <Text style={styles.price}>€ {Number(listing.price).toFixed(2)}</Text>
           )}
 
-          {/* Localização / Instituição */}
           <View style={styles.institutionRow}>
             <View style={styles.locationDot} />
-            <Text style={styles.institution}>{listing?.institution}</Text>
+            <Text style={styles.institution}>{listing?.institution || listing?.campus}</Text>
           </View>
 
-          {/* Subject & ISBN */}
+          {/* Subject & ISBN (from development branch) */}
           {listing?.subject ? (
             <View style={styles.detailRow} testID="listing-subject">
               <Text style={styles.detailLabel}>Subject</Text>
@@ -78,7 +96,7 @@ export default function ListingDetailsScreen({ listing, navigate }) {
             </View>
           ) : null}
 
-          {/* Descrição Falsa (já que o card atual não tem) */}
+          {/* Descrição (from func/create-listing-db branch) */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Descrição</Text>
             <Text style={styles.description}>
@@ -86,28 +104,24 @@ export default function ListingDetailsScreen({ listing, navigate }) {
             </Text>
           </View>
 
-            {/* Vendedor */}
           <TouchableOpacity 
             style={styles.vendorCard} 
-            // Ao clicar, envia o sellerId que veio do listings.js
             onPress={() => navigate('PublicProfile', { sellerId: listing?.sellerId })}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              {listing?.sellerPhoto ? (
-                <Image source={{ uri: listing.sellerPhoto }} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: COLORS.surface }} />
+              {displaySellerPhoto ? (
+                <Image source={{ uri: displaySellerPhoto }} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: COLORS.surface }} />
               ) : (
                 <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: COLORS.border }} />
               )}
               
               <View>
-                {/* Mostra o nome do vendedor ou o fallback */}
-                <Text style={styles.vendorName}>{listing?.sellerName || 'Vendedor Anónimo'}</Text>
+                <Text style={styles.vendorName}>{displaySellerName}</Text>
                 <Text style={styles.vendorSubtext}>Ver Perfil Público →</Text>
               </View>
             </View>
           </TouchableOpacity>
 
-          {/* Botão de Contacto */}
           <TouchableOpacity style={styles.actionButton} onPress={() => navigate('Chat', { conversationId: 'c1' })}>
             <Text style={styles.actionButtonText}>Enviar Mensagem</Text>
           </TouchableOpacity>
@@ -119,16 +133,7 @@ export default function ListingDetailsScreen({ listing, navigate }) {
 
 const styles = StyleSheet.create({
   mainContainer: { flex: 1, backgroundColor: COLORS.background },
-  header: {
-    height: 60,
-    backgroundColor: COLORS.background,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderSoft,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.md,
-    paddingTop: 10,
-  },
+  header: { height: 60, backgroundColor: COLORS.background, borderBottomWidth: 1, borderBottomColor: COLORS.borderSoft, flexDirection: 'row', alignItems: 'center', paddingHorizontal: SPACING.md, paddingTop: 10 },
   backButton: { paddingRight: 15 },
   backButtonText: { color: COLORS.primary, fontSize: 16, fontWeight: '600' },
   headerTitle: { fontSize: 18, fontWeight: '700', color: COLORS.text, flex: 1, textAlign: 'center', marginRight: 60 },

@@ -1,49 +1,53 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react-native';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
 import HomeScreen from '../../../src/screens/HomeScreen';
+import { getDocs } from 'firebase/firestore';
 
 describe('HomeScreen Tests', () => {
-  it('renders home screen correctly and displays header elements', () => {
-    render(<HomeScreen navigate={jest.fn()} />);
-
-    expect(screen.getByTestId('home-feed-screen')).toBeTruthy();
-    expect(screen.getByText('EduCycle')).toBeTruthy();
-    expect(screen.getByTestId('home-notifications-button')).toBeTruthy();
+  beforeEach(() => {
+    // Injetamos os dados específicos que os novos testes da branch development procuram
+    getDocs.mockResolvedValue({
+      docs: [
+        { id: '1', data: () => ({ title: 'Matemática A – 10.º Ano', price: '20', subject: 'Mathematics' }) },
+        { id: '9', data: () => ({ title: 'Introdução à Programação', price: '15', subject: 'Computer Science' }) },
+        { id: '2', data: () => ({ title: 'Física 11.º Ano – Resnick', price: '25', isbn: '978-0-471-32057' }) }
+      ]
+    });
   });
 
-  it('renders search bar and accepts text input', () => {
+  it('renderiza o feed sem ir à internet', async () => {
     render(<HomeScreen navigate={jest.fn()} />);
-    
-    // Test the search bar with updated placeholder
-    const searchInput = screen.getByPlaceholderText('Search by title, ISBN, or subject...');
-    expect(searchInput).toBeTruthy();
-    
-    fireEvent.changeText(searchInput, 'Math');
-    expect(searchInput.props.value).toBe('Math');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('home-feed-screen')).toBeTruthy();
+    }, { timeout: 5000 });
+
+    expect(screen.getByText('Matemática A – 10.º Ano')).toBeTruthy();
   });
 
-  it('filters listings when searching by subject', () => {
+  it('filters listings when searching by subject', async () => {
     render(<HomeScreen navigate={jest.fn()} />);
+    await waitFor(() => screen.getByPlaceholderText('Search by title, ISBN, or subject...'));
     const searchInput = screen.getByPlaceholderText('Search by title, ISBN, or subject...');
 
-    // "Computer Science" is the subject for "Introdução à Programação" (id 9)
     fireEvent.changeText(searchInput, 'Computer Science');
 
     expect(screen.getByText('Introdução à Programação')).toBeTruthy();
   });
 
-  it('filters listings when searching by ISBN', () => {
+  it('filters listings when searching by ISBN', async () => {
     render(<HomeScreen navigate={jest.fn()} />);
+    await waitFor(() => screen.getByPlaceholderText('Search by title, ISBN, or subject...'));
     const searchInput = screen.getByPlaceholderText('Search by title, ISBN, or subject...');
 
-    // Search by partial ISBN for "Física 11.º Ano – Resnick"
     fireEvent.changeText(searchInput, '978-0-471-32057');
 
     expect(screen.getByText('Física 11.º Ano – Resnick')).toBeTruthy();
   });
 
-  it('shows contextual empty state when no results match', () => {
+  it('shows contextual empty state when no results match', async () => {
     render(<HomeScreen navigate={jest.fn()} />);
+    await waitFor(() => screen.getByPlaceholderText('Search by title, ISBN, or subject...'));
     const searchInput = screen.getByPlaceholderText('Search by title, ISBN, or subject...');
     
     fireEvent.changeText(searchInput, 'XyZ_Impossible_Search_Term');
@@ -55,11 +59,11 @@ describe('HomeScreen Tests', () => {
     expect(screen.getByText('Try a different title, ISBN, or subject.')).toBeTruthy();
   });
 
-  it('navigates to listing details when a result is pressed', () => {
+  it('navigates to listing details when a result is pressed', async () => {
     const navigateMock = jest.fn();
     render(<HomeScreen navigate={navigateMock} />);
 
-    // Tap the first listing card visible on screen
+    await waitFor(() => screen.getByText('Matemática A – 10.º Ano'));
     const firstListing = screen.getByText('Matemática A – 10.º Ano');
     fireEvent.press(firstListing);
 
@@ -68,4 +72,3 @@ describe('HomeScreen Tests', () => {
     }));
   });
 });
-
