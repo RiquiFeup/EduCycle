@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   StatusBar,
   Platform,
   TouchableOpacity,
@@ -13,18 +12,23 @@ import {
   Modal,
   TextInput,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../utils/firebase';
 import ListingCard from '../components/ListingCard';
 import CommunityBadge from '../components/CommunityBadge';
 import SectionHeader from '../components/SectionHeader';
 import { COLORS, SPACING } from '../utils/theme';
-import { LISTINGS } from '../data/listings';
 import { UserContext } from '../contexts/UserContext';
 
 export default function PrivateProfileScreen({ navigate }) {
   const { currentUser, updateUser, logout } = useContext(UserContext);
-  const [myListings] = useState(LISTINGS.slice(2, 4));
+  
+  const [myListings, setMyListings] = useState([]);
+  const [loadingListings, setLoadingListings] = useState(true);
 
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -40,6 +44,27 @@ export default function PrivateProfileScreen({ navigate }) {
       phone: currentUser.phone,
     });
   }, [currentUser]);
+
+  useEffect(() => {
+    const fetchMyListings = async () => {
+      if (currentUser?.id) {
+        try {
+          const q = query(collection(db, 'listings'), where('sellerId', '==', currentUser.id));
+          const querySnapshot = await getDocs(q);
+          const realListings = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          setMyListings(realListings);
+        } catch (error) {
+          console.error("Erro a carregar os meus anúncios:", error);
+        } finally {
+          setLoadingListings(false);
+        }
+      }
+    };
+    fetchMyListings();
+  }, [currentUser?.id]);
 
   const handleNameChange = (text) => {
     if (/^[a-zA-ZÀ-ÿ\s]*$/.test(text)) {
@@ -154,7 +179,7 @@ export default function PrivateProfileScreen({ navigate }) {
               <Text style={styles.userCourse}>{currentUser.course}</Text>
 
               <View style={styles.tagsContainer}>
-                {currentUser.communities.map((community, index) => (
+                {currentUser.communities?.map((community, index) => (
                   <CommunityBadge key={index} name={community} />
                 ))}
               </View>
@@ -199,16 +224,25 @@ export default function PrivateProfileScreen({ navigate }) {
 
           <SectionHeader title="My Active Listings" hasTopBorder />
 
-          <View style={styles.row}>
-            {myListings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                onToggleFavourite={() => {}}
-              />
-            ))}
-            {myListings.length === 1 ? <View style={styles.emptySlot} /> : null}
-          </View>
+          {loadingListings ? (
+            <ActivityIndicator size="small" color={COLORS.primary} style={{ marginTop: 20 }} />
+          ) : (
+            <View style={styles.row}>
+              {myListings.length > 0 ? (
+                myListings.map((listing) => (
+                  <ListingCard
+                    key={listing.id}
+                    listing={listing}
+                    onToggleFavourite={() => {}}
+                    onPress={() => navigate('ListingDetails', { listing })}
+                  />
+                ))
+              ) : (
+                <Text style={{ color: COLORS.textMuted, marginTop: 10 }}>Ainda não tens anúncios ativos.</Text>
+              )}
+              {myListings.length === 1 ? <View style={styles.emptySlot} /> : null}
+            </View>
+          )}
 
           <TouchableOpacity
             style={styles.logoutButton}
@@ -381,6 +415,7 @@ const styles = StyleSheet.create({
   settingDescription: { fontSize: 13, color: COLORS.textMuted },
   row: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     paddingHorizontal: SPACING.horizontal,
     gap: SPACING.cardGap,
     marginBottom: SPACING.md,
@@ -388,6 +423,7 @@ const styles = StyleSheet.create({
   emptySlot: { flex: 1 },
   logoutButton: {
     marginHorizontal: SPACING.horizontal,
+    marginTop: 20,
     paddingVertical: 14,
     borderRadius: 8,
     backgroundColor: COLORS.dangerBackground,

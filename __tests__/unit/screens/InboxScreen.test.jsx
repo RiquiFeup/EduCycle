@@ -1,8 +1,13 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
-import InboxScreen from '../../src/screens/InboxScreen';
+import InboxScreen from '../../../src/screens/InboxScreen';
 
 describe('InboxScreen Tests', () => {
+  /*
+   * CLASSIFICATION: UT (Unit Test)
+   * JUSTIFICATION: Apenas valida que o layout e os campos de texto estáticos do header 
+   * renderizam em conformidade, sem simular o fluxo do utilizador.
+   */
   it('renders the inbox screen and header', () => {
     render(<InboxScreen navigate={jest.fn()} />);
 
@@ -11,6 +16,12 @@ describe('InboxScreen Tests', () => {
     expect(screen.getByText('Messages')).toBeTruthy();
   });
 
+  /*
+   * CLASSIFICATION: UAT (User Acceptance Test)
+   * JUSTIFICATION: Simula o cenário em que um utilizador clica especificamente numa 
+   * conversa individual e o sistema responde desencadeando a lógica de navegação 
+   * apropriada.
+   */
   it('renders conversations and handles press', () => {
     const mockNavigate = jest.fn();
     render(<InboxScreen navigate={mockNavigate} />);
