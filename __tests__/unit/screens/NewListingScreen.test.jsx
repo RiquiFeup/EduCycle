@@ -29,7 +29,6 @@ describe('US-03 — Publish a New Listing', () => {
 
     fireEvent.press(screen.getByTestId('btn-publish'));
 
-    // Esperar pelo handlePublish assíncrono
     await waitFor(() => {
       expect(screen.getByTestId('msg-success')).toBeTruthy();
     }, { timeout: 4000 });

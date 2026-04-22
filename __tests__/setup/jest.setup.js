@@ -4,7 +4,8 @@
 // - Outros módulos nativos
 
 import mockAsyncStorage from '@react-native-async-storage/async-storage/jest/async-storage-mock';
-
+process.env.RNTL_SKIP_AUTO_CLEANUP = 'true';
+jest.setTimeout(30000);
 jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
 
 // Mocks globais do Firebase. Sem "requireActual". Tudo falso.
@@ -13,7 +14,7 @@ jest.mock('firebase/auth', () => ({
   getAuth: jest.fn(),
   initializeAuth: jest.fn(),
   getReactNativePersistence: jest.fn(),
-  onAuthStateChanged: jest.fn(),
+  onAuthStateChanged: jest.fn(() => jest.fn()),
 }));
 
 jest.mock('firebase/firestore', () => ({

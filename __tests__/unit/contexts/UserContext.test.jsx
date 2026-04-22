@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { render, screen, fireEvent, renderHook, act } from '@testing-library/react-native';
+import { render, screen, fireEvent } from '@testing-library/react-native';
 import { UserContext, UserProvider } from '../../../src/contexts/UserContext';
 import { Text, Button } from 'react-native';
 

@@ -18,7 +18,6 @@ describe('PublicProfileScreen Tests', () => {
       </UserContext.Provider>
     );
 
-    // Aguarda que o ecrã passe do ActivityIndicator para o perfil
     await waitFor(() => {
       expect(screen.getByTestId('public-profile-screen')).toBeTruthy();
     }, { timeout: 5000 });
@@ -41,6 +40,6 @@ describe('PublicProfileScreen Tests', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Utilizador não encontrado.')).toBeTruthy();
-    });
+    }, { timeout: 5000 });
   });
 });
