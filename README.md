@@ -29,13 +29,13 @@ It is organised by the following activities:
 
 ## Team
 
-| Name | Email |
-|------|-------|
-| Afonso Cabral | up202405418@up.pt |
-| Artur Ferro | up202404762@up.pt |
-| Guilherme Nunes | up202404656@up.pt |
+| Name             | Email             |
+| ---------------- | ----------------- |
+| Afonso Cabral    | up202405418@up.pt |
+| Artur Ferro      | up202404762@up.pt |
+| Guilherme Nunes  | up202404656@up.pt |
 | Henrique Pereira | up202404170@up.pt |
-| João Leppanen | up200202572@up.pt |
+| João Leppanen    | up200202572@up.pt |
 
 > Contributions are expected to be made exclusively by the initial team. After the course ends, we may open contributions to the community across all areas: requirements, technologies, development, experimentation, testing, etc.
 >
@@ -89,19 +89,23 @@ Below is a concise summary of all user stories for EduCycle, grouped by area. Ea
 
 ---
 
-* **User Registration (Account)**
+- **User Registration (Account)**
+
   > **As a** student, **I want to** create an account using my email, **so that** I can have a verified identity on the platform.
 
-* **Publishing a Listing (Issuing)**
+- **Publishing a Listing (Issuing)**
+
   > **As a** seller, **I want to** create a listing with a photo, title, and price, **so that** I can put my school materials up for sale or swap.
 
-* **Browsing Materials (Discovery)**
+- **Browsing Materials (Discovery)**
+
   > **As a** buyer, **I want to** browse a feed of recently added items, **so that** I can discover school materials I might need.
 
-* **Advanced Search & Filters (Discovery)**
+- **Advanced Search & Filters (Discovery)**
+
   > **As a** buyer, **I want to** search for specific keywords and filter by academic year, **so that** I can quickly find the exact study materials I need.
 
-* **Chat & Negotiation (Transactions)**
+- **Chat & Negotiation (Transactions)**
   > **As a** user, **I want to** send direct messages to other users, **so that** I can easily negotiate prices and arrange safe deliveries.
 
 ---
@@ -221,6 +225,7 @@ _Functional prototype to be added after the initial implementation sprint._
 </p>
 
 #### Product Backlog Prioritization (User Survey)
+
 A user survey (12 responses) to validate and prioritize Sprint 1 requirements.
 
 - [View Full Survey Results and Backlog Order](docs/report_survey_results.md)
@@ -239,6 +244,7 @@ User stories should be drafted and refined earlier in the sprint to leave room f
 The expected scope of the functional prototype for Sprint 1 still needs clarification from the teaching staff.
 
 **Improvements for next sprint**
+
 - Discuss requirements and design decisions earlier in the sprint to avoid last-minute blockers
 - Set up a shared document for meeting notes so decisions are not lost after calls
 - Review each other's pull requests within 24 hours to avoid merge delays
@@ -261,13 +267,13 @@ The expected scope of the functional prototype for Sprint 1 still needs clarific
 
 During the Sprint 0 Review, the teaching staff identified the following issues that the team committed to addressing in Sprint 1:
 
-| # | Feedback Received | Action Taken |
-|---|-------------------|--------------|
-| 1 | **PBIs must be in the PBL, not in the README** | All PBIs were moved to the GitHub Projects board and removed from the README. |
-| 2 | **Missing names in associations (Domain Model)** | Role names and multiplicity labels were added to all associations in the Domain Model diagram. |
-| 3 | **Missing text in the Architecture section** | Descriptive text explaining the rationale and responsibilities of each layer was added to the Logical and Physical Architecture sections. |
-| 4 | **PBIs must be well specified** | Each PBI was rewritten with clear, testable acceptance criteria (Given/When/Then format) and linked to the corresponding feature branch and pull request. |
-| 5 | **Not sure about the CI pipeline** | The pipeline was stabilised: a merge-blocking error was fixed, flaky timeout tests were removed, and the full unit-test suite was merged into `development`. |
+| #   | Feedback Received                                | Action Taken                                                                                                                                                 |
+| --- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | **PBIs must be in the PBL, not in the README**   | All PBIs were moved to the GitHub Projects board and removed from the README.                                                                                |
+| 2   | **Missing names in associations (Domain Model)** | Role names and multiplicity labels were added to all associations in the Domain Model diagram.                                                               |
+| 3   | **Missing text in the Architecture section**     | Descriptive text explaining the rationale and responsibilities of each layer was added to the Logical and Physical Architecture sections.                    |
+| 4   | **PBIs must be well specified**                  | Each PBI was rewritten with clear, testable acceptance criteria (Given/When/Then format) and linked to the corresponding feature branch and pull request.    |
+| 5   | **Not sure about the CI pipeline**               | The pipeline was stabilised: a merge-blocking error was fixed, flaky timeout tests were removed, and the full unit-test suite was merged into `development`. |
 
 #### Scrum Board
 
@@ -277,15 +283,37 @@ _Screenshot of the Sprint 1 GitHub Projects board to be added here._
 
 The following Product Backlog Items were completed and closed during Sprint 1:
 
-| PBI | User Story | PR / Branch |
-|-----|-----------|-------------|
-| [#65](../../issues/65) | As a student, I want to **create an account with my email and password**, so that I can have a verified identity on the platform. | [PR #112](../../pull/112) — `feat/UserLogin` |
-| [#66](../../issues/66) | As a registered user, I want to **log in with my account**, so that I can access my personal session. | [PR #112](../../pull/112) — `feat/UserLogin` |
-| [#67](../../issues/67) | As a logged-in user, I want to **view my account information**, so that I can see my profile details at any time. | [PR #113](../../pull/113) — `feat/UserProfileEdit` |
-| [#68](../../issues/68) | As a logged-in user, I want to **edit my account information**, so that I can keep my profile up to date. | [PR #113](../../pull/113) — `feat/UserProfileEdit` |
-| [#70](../../issues/70) | As a buyer, I want to **search listings by ISBN or subject**, so that I can quickly find the school materials I need. | [PR #115](../../pull/115) — `feat/searchListings` |
-| [#72](../../issues/72) | As a seller, I want to **create a listing for an item**, so that I can make my school materials available on the platform. | [PR #109](../../pull/109) — `feat/listing-details-screen` |
+| PBI                    | User Story                                                                                                                        | PR / Branch                                               |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| [#65](../../issues/65) | As a student, I want to **create an account with my email and password**, so that I can have a verified identity on the platform. | [PR #112](../../pull/112) — `feat/UserLogin`              |
+| [#66](../../issues/66) | As a registered user, I want to **log in with my account**, so that I can access my personal session.                             | [PR #112](../../pull/112) — `feat/UserLogin`              |
+| [#67](../../issues/67) | As a logged-in user, I want to **view my account information**, so that I can see my profile details at any time.                 | [PR #113](../../pull/113) — `feat/UserProfileEdit`        |
+| [#68](../../issues/68) | As a logged-in user, I want to **edit my account information**, so that I can keep my profile up to date.                         | [PR #113](../../pull/113) — `feat/UserProfileEdit`        |
+| [#70](../../issues/70) | As a buyer, I want to **search listings by ISBN or subject**, so that I can quickly find the school materials I need.             | [PR #115](../../pull/115) — `feat/searchListings`         |
+| [#72](../../issues/72) | As a seller, I want to **create a listing for an item**, so that I can make my school materials available on the platform.        | [PR #109](../../pull/109) — `feat/listing-details-screen` |
 
+#### Retrospective
+
+**What went well**
+All six planned PBIs were delivered and merged into `development` before the review deadline. Firebase Authentication and profile management were successfully integrated end-to-end. The CI pipeline was stabilised, unblocking the team from merge conflicts that plagued Sprint 0. Test coverage improved across authentication and profile flows.
+
+**Issues identified in the Sprint 1 Review**
+
+The Sprint 1 Review session surfaced the following problems that the team committed to addressing in Sprint 2.
+
+| #   | Issue                                                                                                                                                                                   | Root Cause                                                                                                                           | Action Point for Sprint 2                                                                                                                                                                                                                            |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Sprint tags missing on issues** — issues on the GitHub Projects board were not labelled with the corresponding sprint tag, making traceability and filtering difficult                | Labels were never systematically applied when issues were created or moved across sprints                                            | Add `sprint-1`, `sprint-2`, … labels to the repository and retroactively tag all existing issues. Enforce tagging as a mandatory step in the Definition of Ready for all new issues.                                                                 |
+| 2   | **Back button does not work** — the back navigation button in several screens fails to navigate or crashes the app                                                                      | Navigation stack configuration is inconsistent; some screens were pushed without a proper parent route in the React Navigation stack | Audit every screen in the navigator. Ensure all detail/edit screens are nested inside a Stack navigator with a header back button enabled. Add a Maestro or Jest acceptance test that verifies back navigation before merging any screen-related PR. |
+| 3   | **No GitHub automation for deployment and metrics** — the project lacks automated deployment to a staging environment and has no visibility into build health or test metrics over time | The CI workflow only runs tests; no CD step or reporting job was ever configured                                                     | Extend `.github/workflows/ci.yml` with (a) an EAS build step triggered on merges to `development`, and (b) a test-results summary step that posts coverage and pass/fail counts as a PR comment.                                                     |
+
+**Strategy & verifiable action points**
+
+| Action Point                                               | Owner      | Verifiable Outcome                                                                                                                   |
+| ---------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Create and apply sprint-scoped labels to all issues        | Whole team | All open issues carry exactly one sprint label; confirmed via GitHub Issues filter `label:sprint-2` returning only Sprint 2 items    |
+| Fix back navigation on all screens and add regression test | Whole team | `npx maestro test .maestro/back_navigation.yaml` passes in CI without manual intervention                                            |
+| Add CD + metrics step to GitHub Actions workflow           | Whole team | A new `deploy` job appears in the Actions tab after every merge to `development`; PR comments show test pass rate and coverage delta |
 
 ---
 
