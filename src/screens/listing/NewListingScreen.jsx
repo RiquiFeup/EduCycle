@@ -20,7 +20,7 @@ const LISTING_TYPES = ['Sell', 'Swap'];
 export default function NewListingScreen({ onPublish }) {
   const { currentUser } = useContext(UserContext);
 
-  const [hasPhoto, setHasPhoto]         = useState(false);
+  const [photos, setPhotos]             = useState([]);
   const [title, setTitle]               = useState('');
   const [description, setDescription]   = useState(''); // Novo campo de descrição
   const [subject, setSubject]           = useState('');
@@ -30,10 +30,11 @@ export default function NewListingScreen({ onPublish }) {
   const [price, setPrice]               = useState('');
   const [errors, setErrors]             = useState({});
   const [published, setPublished]       = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
 
   function validate() {
     const e = {};
-    if (!hasPhoto)              e.photo       = 'A photo is required.';
+    if (photos.length === 0)    e.photos      = 'At least one photo is required.';
     if (!title.trim())          e.title       = 'Title is required.';
     if (!description.trim())    e.description = 'Description is required.'; // Validação da descrição
     if (!subject)               e.subject     = 'Please select a subject.';
@@ -49,10 +50,12 @@ export default function NewListingScreen({ onPublish }) {
     setErrors(e);
     if (Object.keys(e).length > 0) return;
 
+    setIsPublishing(true);
     try {
       await createListing(
-        { title, description, subject, condition, campus, listingType, price, hasPhoto }, // Descrição incluída no payload
-        currentUser?.id
+        { title, description, subject, condition, campus, listingType, price },
+        currentUser?.id,
+        photos
       );
       setPublished(true);
       if (onPublish) onPublish({ title, description, subject, condition, campus, listingType, price });
@@ -61,13 +64,15 @@ export default function NewListingScreen({ onPublish }) {
       setTitle('');
       setDescription('');
       setPrice('');
-      setHasPhoto(false);
+      setPhotos([]);
       setSubject('');
       setCondition('');
       setCampus('');
       
     } catch (error) {
       setErrors({ ...e, submit: 'Não foi possível publicar o anúncio. Tenta novamente.' });
+    } finally {
+      setIsPublishing(false);
     }
   }
 
@@ -82,9 +87,9 @@ export default function NewListingScreen({ onPublish }) {
       <Text testID="screen-title" accessible={true} accessibilityLabel="New Listing" style={styles.screenTitle}>New Listing</Text>
 
       <PhotoUpload 
-        hasPhoto={hasPhoto} 
-        setHasPhoto={setHasPhoto} 
-        error={errors.photo} 
+        photos={photos} 
+        setPhotos={setPhotos} 
+        error={errors.photos} 
       />
 
       <InputField
@@ -166,8 +171,9 @@ export default function NewListingScreen({ onPublish }) {
       )}
 
       <PrimaryButton
-        title="Publish Listing"
+        title={isPublishing ? "Publishing..." : "Publish Listing"}
         onPress={handlePublish}
+        disabled={isPublishing}
         testID="btn-publish"
         accessibilityLabel="Publish Listing"
       />
