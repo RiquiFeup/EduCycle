@@ -15,7 +15,7 @@ export default function PhotoUpload({ photos = [], setPhotos, error }) {
       mediaTypes: ['images'],
       allowsMultipleSelection: true,
       selectionLimit: 5,
-      quality: 0.8,
+      quality: 0.1,
     });
 
     if (!result.canceled) {

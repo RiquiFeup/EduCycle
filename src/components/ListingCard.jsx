@@ -45,7 +45,9 @@ export default function ListingCard({ listing, onToggleFavourite, onPress }) {
     >
       {/* Image */}
       <View style={styles.imageContainer}>
-        {listing.image ? (
+        {listing.imageUrls && listing.imageUrls.length > 0 ? (
+          <Image source={{ uri: listing.imageUrls[0] }} style={styles.image} resizeMode="cover" />
+        ) : listing.image ? (
           <Image source={{ uri: listing.image }} style={styles.image} resizeMode="cover" />
         ) : (
           <View style={styles.imagePlaceholder} />

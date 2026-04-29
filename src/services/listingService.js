@@ -1,6 +1,8 @@
 import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../utils/firebase';
+
+import * as FileSystem from 'expo-file-system/legacy';
 
 export const createListing = async (listingData, sellerId, photoUris = []) => {
   try {
@@ -8,17 +10,18 @@ export const createListing = async (listingData, sellerId, photoUris = []) => {
     const docRef = doc(collection(db, 'listings'));
     const listingId = docRef.id;
 
-    // 2. Upload photos to Firebase Storage
+    // 2. Process photos (Bypass Firebase Storage -> Save Base64 to Firestore)
     const imageUrls = [];
     for (let i = 0; i < photoUris.length; i++) {
       const uri = photoUris[i];
-      const response = await fetch(uri);
-      const blob = await response.blob();
       
-      const imageRef = ref(storage, `listings/${listingId}/${Date.now()}_${i}`);
-      await uploadBytes(imageRef, blob);
-      const downloadURL = await getDownloadURL(imageRef);
-      imageUrls.push(downloadURL);
+      const base64File = await FileSystem.readAsStringAsync(uri, {
+        encoding: 'base64',
+      });
+      
+      // Store the base64 string as a Data URI so the Image component can render it directly
+      const dataUri = `data:image/jpeg;base64,${base64File}`;
+      imageUrls.push(dataUri);
     }
 
     // 3. Save listing data to Firestore
