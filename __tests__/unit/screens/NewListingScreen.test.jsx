@@ -5,6 +5,24 @@ import { UserContext } from '../../../src/contexts/UserContext';
 
 const mockUser = { id: 'user-123' };
 
+jest.mock('expo-image-picker', () => ({
+  requestMediaLibraryPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
+  launchImageLibraryAsync: jest.fn().mockResolvedValue({
+    canceled: false,
+    assets: [{ uri: 'file://mock/image.jpg' }]
+  })
+}));
+
+jest.mock('../../../src/services/listingService', () => ({
+  createListing: jest.fn().mockResolvedValue('fake-listing-id')
+}));
+
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    blob: () => Promise.resolve(new Blob()),
+  })
+);
+
 describe('US-03 — Publish a New Listing', () => {
   /*
    * CLASSIFICATION: UAT (User Acceptance Test)
@@ -20,6 +38,12 @@ describe('US-03 — Publish a New Listing', () => {
     );
 
     fireEvent.press(screen.getByTestId('photo-upload-area'));
+    
+    // Aguardar que a imagem seja adicionada ao estado
+    await waitFor(() => {
+      expect(screen.getByText('X')).toBeTruthy();
+    });
+
     fireEvent.changeText(screen.getByTestId('input-title'), 'Matemática');
     fireEvent.changeText(screen.getByTestId('input-description'), 'Bom estado');
     fireEvent.press(screen.getByTestId('subject-option-Mathematics'));
