@@ -1,0 +1,57 @@
+appId: host.exp.exponent
+
+---
+- launchApp:
+    clearState: true
+
+- openLink: exp://10.0.2.2:8081
+
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+
+- tapOn:
+    point: "50%, 10%"
+
+- extendedWaitUntil:
+    visible:
+      id: "new-listing-screen"
+    timeout: 60000
+
+- waitForAnimationToEnd
+
+- scrollUntilVisible:
+    element:
+      id: "photo-upload-area"
+    direction: UP
+    timeout: 10000
+
+# Try to add a photo
+- tapOn:
+    id: "photo-upload-area"
+
+- assertVisible:
+    id: "photo-upload-added-0"
+
+# Add a second photo
+- tapOn:
+    id: "photo-upload-area"
+
+- assertVisible:
+    id: "photo-upload-added-1"
+
+# Add a third photo
+- tapOn:
+    id: "photo-upload-area"
+
+- assertVisible:
+    id: "photo-upload-added-2"
+
+# Delete the second photo
+- tapOn:
+    id: "remove-photo-1"
+
+- assertNotVisible:
+    id: "photo-upload-added-2" # The third photo becomes the second (index 1), so index 2 is no longer visible
+- assertVisible:
+    id: "photo-upload-added-1"

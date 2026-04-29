@@ -36,9 +36,9 @@ export default function PhotoUpload({ photos = [], setPhotos, error }) {
       {photos.length > 0 ? (
         <ScrollView horizontal style={styles.thumbnailContainer} showsHorizontalScrollIndicator={false}>
           {photos.map((uri, index) => (
-            <View key={index} style={styles.thumbnailWrapper}>
+            <View key={index} testID={`photo-upload-added-${index}`} style={styles.thumbnailWrapper}>
               <Image source={{ uri }} style={styles.thumbnail} />
-              <TouchableOpacity style={styles.removeBtn} onPress={() => removePhoto(index)}>
+              <TouchableOpacity testID={`remove-photo-${index}`} style={styles.removeBtn} onPress={() => removePhoto(index)}>
                 <Text style={styles.removeBtnText}>X</Text>
               </TouchableOpacity>
             </View>
