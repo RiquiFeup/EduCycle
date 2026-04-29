@@ -10,7 +10,7 @@
     "web": "expo start --web",
     "test": "jest",
     "test:watch": "jest --watch",
-    "e2e": "maestro test .maestro/flows/"
+    "e2e": "maestro test tests/acceptance/"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -45,10 +45,10 @@
       "mjs"
     ],
     "setupFilesAfterEnv": [
-      "<rootDir>/__tests__/setup/jest.setup.js"
+      "<rootDir>/tests/setup/jest.setup.js"
     ],
     "testMatch": [
-      "**/__tests__/**/*.test.[jt]s?(x)"
+      "**/tests/**/*.test.[jt]s?(x)"
     ],
     "transform": {
       "^.+\\.(js|jsx|ts|tsx|mjs)$": "babel-jest"
