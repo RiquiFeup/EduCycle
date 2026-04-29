@@ -96,6 +96,16 @@ export default function ListingDetailsScreen({ listing, navigate }) {
             </View>
           ) : null}
 
+          {/* Condition Display */}
+          {listing?.condition ? (
+            <View style={styles.detailRow} testID="listing-condition">
+              <Text style={styles.detailLabel}>Condition</Text>
+              <View style={[styles.subjectBadge, { backgroundColor: '#F0F4F8' }]}>
+                <Text style={[styles.subjectBadgeText, { color: '#2D3748' }]}>{listing.condition}</Text>
+              </View>
+            </View>
+          ) : null}
+
           {/* Descrição (from func/create-listing-db branch) */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Descrição</Text>

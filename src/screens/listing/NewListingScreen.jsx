@@ -38,6 +38,7 @@ export default function NewListingScreen({ onPublish }) {
     if (!description.trim())    e.description = 'Description is required.'; // Validação da descrição
     if (!subject)               e.subject     = 'Please select a subject.';
     if (!condition)             e.condition   = 'Please select a condition.';
+    else if (!CONDITIONS.includes(condition)) e.condition = 'Invalid condition selected.';
     if (!campus)                e.campus      = 'Campus / School Tag is required.';
     if (listingType === 'Sell' && !price.trim())
                                 e.price       = 'Price is required for items on sale.';
