@@ -1,0 +1,84 @@
+appId: host.exp.exponent
+
+---
+- launchApp:
+    clearState: true
+
+- openLink: exp://10.0.2.2:8081
+
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+
+- tapOn:
+    point: "50%, 10%"
+
+- extendedWaitUntil:
+    visible:
+      id: "new-listing-screen"
+    timeout: 60000
+
+- waitForAnimationToEnd
+
+- scrollUntilVisible:
+    element:
+      id: "photo-upload-area"
+    direction: UP
+    timeout: 10000
+
+- tapOn:
+    id: "photo-upload-area"
+
+- tapOn:
+    id: "input-title"
+- inputText: "Condition Validation Test"
+
+- tapOn:
+    id: "input-description"
+- inputText: "Testing validation"
+- hideKeyboard
+
+- scrollUntilVisible:
+    element:
+      id: "subject-option-Mathematics"
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: "subject-option-Mathematics"
+
+# Skip condition selection
+
+- scrollUntilVisible:
+    element:
+      id: "campus-option-FEUP"
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: "campus-option-FEUP"
+
+- scrollUntilVisible:
+    element:
+      id: "input-price"
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: "input-price"
+- inputText: "10"
+- hideKeyboard
+
+- scrollUntilVisible:
+    element:
+      id: "btn-publish"
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: "btn-publish"
+
+- scrollUntilVisible:
+    element:
+      text: "Please select a condition."
+    direction: UP
+    timeout: 20000
+
+- assertVisible:
+    text: "Please select a condition."
