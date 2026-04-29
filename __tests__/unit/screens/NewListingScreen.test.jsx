@@ -33,4 +33,26 @@ describe('US-03 — Publish a New Listing', () => {
       expect(screen.getByTestId('msg-success')).toBeTruthy();
     }, { timeout: 4000 });
   });
+
+  it('AT3 — falha de validação quando condição não é selecionada', async () => {
+    render(
+      <UserContext.Provider value={{ currentUser: mockUser }}>
+        <NewListingScreen onPublish={jest.fn()} />
+      </UserContext.Provider>
+    );
+
+    fireEvent.press(screen.getByTestId('photo-upload-area'));
+    fireEvent.changeText(screen.getByTestId('input-title'), 'Matemática');
+    fireEvent.changeText(screen.getByTestId('input-description'), 'Bom estado');
+    fireEvent.press(screen.getByTestId('subject-option-Mathematics'));
+    // DO NOT SELECT CONDITION
+    fireEvent.press(screen.getByTestId('campus-option-FEUP'));
+    fireEvent.changeText(screen.getByPlaceholderText('0.00'), '10');
+
+    fireEvent.press(screen.getByTestId('btn-publish'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Please select a condition.')).toBeTruthy();
+    });
+  });
 });
