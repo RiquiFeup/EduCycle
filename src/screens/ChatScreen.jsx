@@ -10,6 +10,7 @@ import {
   StatusBar,
   Platform,
   KeyboardAvoidingView,
+  Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS } from '../utils/theme';
@@ -127,6 +128,7 @@ export default function ChatScreen({ conversationId, navigate }) {
           renderItem={renderMessage}
           contentContainerStyle={styles.messageList}
           showsVerticalScrollIndicator={false}
+          keyboardDismissMode="on-drag"
           onContentSizeChange={() =>
             flatListRef.current?.scrollToEnd({ animated: false })
           }

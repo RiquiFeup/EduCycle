@@ -27,6 +27,7 @@ export default function AuthCard({
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          keyboardDismissMode="on-drag"
         >
           <View style={[styles.card, contentContainerStyle]}>
             <EduCycleIcon />
