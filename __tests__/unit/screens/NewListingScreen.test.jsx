@@ -25,6 +25,7 @@ describe('US-03 — Publish a New Listing', () => {
     fireEvent.press(screen.getByTestId('subject-option-Mathematics'));
     fireEvent.press(screen.getByTestId('condition-option-Good'));
     fireEvent.press(screen.getByTestId('campus-option-FEUP'));
+    fireEvent.changeText(screen.getByTestId('input-isbn'), '123456789');
     fireEvent.changeText(screen.getByPlaceholderText('0.00'), '10');
 
     fireEvent.press(screen.getByTestId('btn-publish'));
