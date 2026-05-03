@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   StyleSheet,
   StatusBar,
   Platform,
+  PanResponder,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import NewListingScreen from './listing/NewListingScreen';
@@ -61,40 +62,96 @@ const TABS = [
   { key: 'Profile', label: 'Profile', icon: '◉' },
 ];
 
+// Screens that are considered root-level tabs and should not be pushed to history
+const ROOT_TABS = new Set(['Home', 'Saved', 'Sell', 'Messages', 'Profile']);
+
 export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
   const [activeScreen, setActiveScreen] = useState('Home');
   const [screenParams, setScreenParams] = useState({});
+  const [screenHistory, setScreenHistory] = useState([]);
 
   const contextInitialUser = useMemo(() => user, [user]);
+
+  const goBack = () => {
+    setScreenHistory((prev) => {
+      if (prev.length === 0) return prev;
+      const newHistory = prev.slice(0, -1);
+      const previous = newHistory[newHistory.length - 1] ?? { screen: 'Home', params: {} };
+      setActiveScreen(previous.screen);
+      setScreenParams(previous.params);
+      return newHistory;
+    });
+  };
 
   const navigate = (screen, params = {}) => {
     if (screen === 'Menu' || screen === 'Home') {
       setActiveScreen('Home');
       setScreenParams({});
+      setScreenHistory([]);
       return;
     }
 
     if (screen === 'PrivateProfile') {
       setActiveScreen('Profile');
       setScreenParams({});
+      setScreenHistory([]);
       return;
     }
 
     if (screen === 'PublicProfile') {
+      setScreenHistory((prev) => [...prev, { screen: activeScreen, params: screenParams }]);
       setActiveScreen('PublicProfile');
       setScreenParams(params);
       return;
     }
 
     if (screen === 'Chat') {
+      setScreenHistory((prev) => [...prev, { screen: activeScreen, params: screenParams }]);
       setActiveScreen('Chat');
+      setScreenParams(params);
+      return;
+    }
+
+    if (screen === 'ListingDetails') {
+      setScreenHistory((prev) => [...prev, { screen: activeScreen, params: screenParams }]);
+      setActiveScreen('ListingDetails');
       setScreenParams(params);
       return;
     }
 
     setActiveScreen(screen);
     setScreenParams(params);
+    if (!ROOT_TABS.has(screen)) {
+      setScreenHistory((prev) => [...prev, { screen: activeScreen, params: screenParams }]);
+    } else {
+      setScreenHistory([]);
+    }
   };
+
+  // Swipe-right-to-go-back gesture
+  const swipeRef = useRef(null);
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        // Only capture horizontal swipes starting from the left edge area
+        // and moving significantly to the right
+        return (
+          gestureState.dx > 20 &&
+          Math.abs(gestureState.dy) < 80 &&
+          gestureState.moveX - gestureState.x0 < 60
+        );
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dx > 60 && gestureState.vx > 0.3) {
+          swipeRef.current?.();
+        }
+      },
+    }),
+  ).current;
+
+  // Keep swipeRef in sync with the latest goBack so the PanResponder closure
+  // doesn't capture a stale version of screenHistory.
+  swipeRef.current = goBack;
 
   const renderCurrentScreen = () => {
     switch (activeScreen) {
@@ -171,7 +228,11 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
       onUserUpdate={onUserUpdate}
       onLogout={onLogout}
     >
-      <View style={styles.appContainer} testID="main-app-screen">
+      <View
+        style={styles.appContainer}
+        testID="main-app-screen"
+        {...(screenHistory.length > 0 ? panResponder.panHandlers : {})}
+      >
         <View style={styles.screenContainer}>{renderCurrentScreen()}</View>
 
         <View style={styles.tabBar} testID="main-tab-bar">
