@@ -1,0 +1,35 @@
+appId: com.t3
+---
+# As a user
+# I want to be able to go to the previous page when I swipe right
+# So that I can go back
+
+- launchApp
+- tapOn: "Entrar"
+- inputText: "joao.silva@fe.up.pt"
+- tapOn: "Palavra-passe"
+- inputText: "secret123"
+- hideKeyboard
+- tapOn: "Entrar"
+- assertVisible: "Explorar"
+
+# Navegar para o detalhe de um anúncio
+- scrollUntilVisible:
+    element:
+      text: "Física Geral"
+    direction: DOWN
+- tapOn: "Física Geral"
+
+# Confirmar que estamos no ecrã de detalhes
+- assertVisible: "Detalhes do Produto"
+
+# Deslizar para a direita para voltar atrás (swipe right from left edge)
+- swipe:
+    startX: 5%
+    startY: 50%
+    endX: 60%
+    endY: 50%
+    duration: 200
+
+# Confirmar que voltámos ao ecrã anterior (feed de listagens)
+- assertVisible: "Explorar"
