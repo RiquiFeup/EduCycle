@@ -63,6 +63,16 @@ appId: host.exp.exponent
 
 - scrollUntilVisible:
     element:
+      id: "input-isbn"
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: "input-isbn"
+- inputText: "978-1234567890"
+- hideKeyboard
+
+- scrollUntilVisible:
+    element:
       id: "input-price"
     direction: DOWN
     timeout: 20000

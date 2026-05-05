@@ -28,6 +28,7 @@ export default function NewListingScreen({ onPublish }) {
   const [campus, setCampus]             = useState('');
   const [listingType, setListingType]   = useState('Sell');
   const [price, setPrice]               = useState('');
+  const [isbn, setIsbn]                 = useState('');
   const [errors, setErrors]             = useState({});
   const [published, setPublished]       = useState(false);
 
@@ -52,16 +53,17 @@ export default function NewListingScreen({ onPublish }) {
 
     try {
       await createListing(
-        { title, description, subject, condition, campus, listingType, price, hasPhoto }, // Descrição incluída no payload
+        { title, description, subject, condition, campus, listingType, price, hasPhoto, isbn }, // Descrição incluída no payload
         currentUser?.id
       );
       setPublished(true);
-      if (onPublish) onPublish({ title, description, subject, condition, campus, listingType, price });
+      if (onPublish) onPublish({ title, description, subject, condition, campus, listingType, price, isbn });
       
       // Limpar formulário após sucesso (opcional, para conveniência)
       setTitle('');
       setDescription('');
       setPrice('');
+      setIsbn('');
       setHasPhoto(false);
       setSubject('');
       setCondition('');
@@ -108,6 +110,15 @@ export default function NewListingScreen({ onPublish }) {
         testID="input-description"
         error={errors.description}
         accessibilityLabel="Description"
+      />
+
+      <InputField
+        label="ISBN (Optional)"
+        value={isbn}
+        onChangeText={setIsbn}
+        placeholder="Ex: 978-989-111-222"
+        testID="input-isbn"
+        accessibilityLabel="ISBN"
       />
 
       <DropdownField
