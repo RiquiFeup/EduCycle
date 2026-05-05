@@ -53,7 +53,7 @@ export default function ListingDetailsScreen({ listing, navigate }) {
         <Text style={styles.headerTitle}>Detalhes do Produto</Text>
       </View>
 
-      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }} keyboardDismissMode="on-drag">
         <View style={styles.imageContainer}>
           {listing?.image ? (
             <Image source={{ uri: listing.image }} style={styles.image} resizeMode="cover" />

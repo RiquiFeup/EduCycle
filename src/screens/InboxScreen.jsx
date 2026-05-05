@@ -85,6 +85,7 @@ export default function InboxScreen({ navigate }) {
         renderItem={renderConversation}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+        keyboardDismissMode="on-drag"
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListEmptyComponent={
           <View style={styles.emptyContainer} testID="inbox-empty-state">

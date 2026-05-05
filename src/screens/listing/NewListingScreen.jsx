@@ -79,6 +79,7 @@ export default function NewListingScreen({ onPublish }) {
       accessibilityLabel="New Listing Screen"
       contentContainerStyle={styles.container}
       keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="on-drag"
     >
       <Text testID="screen-title" accessible={true} accessibilityLabel="New Listing" style={styles.screenTitle}>New Listing</Text>
 

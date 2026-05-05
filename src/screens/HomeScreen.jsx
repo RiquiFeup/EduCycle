@@ -140,6 +140,7 @@ export default function HomeScreen({ navigate }) {
         keyExtractor={(_, index) => String(index)}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardDismissMode="on-drag"
         onEndReached={loadMore}
         onEndReachedThreshold={0.4}
         ListFooterComponent={renderFooter}

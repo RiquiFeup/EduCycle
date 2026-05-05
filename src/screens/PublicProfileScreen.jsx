@@ -122,6 +122,7 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate }) {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardDismissMode="on-drag"
       >
         <View style={styles.profileHeaderContainer}>
           <View style={styles.topSection}>

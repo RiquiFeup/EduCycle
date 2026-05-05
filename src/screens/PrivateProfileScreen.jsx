@@ -160,6 +160,7 @@ export default function PrivateProfileScreen({ navigate }) {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardDismissMode="on-drag"
       >
         <View style={styles.profileHeaderContainer}>
           <View style={styles.topSection}>
@@ -267,7 +268,7 @@ export default function PrivateProfileScreen({ navigate }) {
             </TouchableOpacity>
           </View>
 
-          <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+          <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false} keyboardDismissMode="on-drag">
             <View style={styles.editPhotoContainer}>
               <Image source={{ uri: currentUser.photo }} style={styles.editPhoto} />
               <TouchableOpacity
