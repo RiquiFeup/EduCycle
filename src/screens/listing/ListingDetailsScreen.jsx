@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions, Alert } from 'react-native';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../utils/firebase';
 import { COLORS, SPACING, RADIUS } from '../../utils/theme';
+import { UserContext } from '../../contexts/UserContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -18,11 +19,20 @@ const MODE_COLORS = {
 };
 
 export default function ListingDetailsScreen({ listing, navigate }) {
+  const wishlistContext = useContext(UserContext) ?? {};
+  const {
+    currentUser,
+    isWishlisted = () => false,
+    toggleWishlist,
+  } = wishlistContext;
+
   const type = listing?.mode || listing?.listingType?.toLowerCase();
   const badge = MODE_LABELS[type];
   const badgeColor = MODE_COLORS[type];
 
   const [seller, setSeller] = useState(null);
+  const [isSavingWishlist, setIsSavingWishlist] = useState(false);
+  const isSaved = Boolean(listing?.id && isWishlisted(listing.id));
 
   useEffect(() => {
     const fetchSeller = async () => {
@@ -43,6 +53,33 @@ export default function ListingDetailsScreen({ listing, navigate }) {
 
   const displaySellerName = seller?.name || listing?.sellerName || 'Vendedor Anónimo';
   const displaySellerPhoto = seller?.photo || listing?.sellerPhoto;
+
+  const handleWishlistPress = async () => {
+    if (!listing?.id) {
+      Alert.alert('Wishlist', 'Este anúncio não pode ser guardado.');
+      return;
+    }
+
+    if (!currentUser?.id || !toggleWishlist) {
+      Alert.alert(
+        'Login required',
+        'Log in to save listings to your wishlist.',
+      );
+      return;
+    }
+
+    try {
+      setIsSavingWishlist(true);
+      await toggleWishlist(listing);
+    } catch (error) {
+      Alert.alert(
+        'Wishlist',
+        error.message || 'Não foi possível atualizar a wishlist.',
+      );
+    } finally {
+      setIsSavingWishlist(false);
+    }
+  };
 
   return (
     <View style={styles.mainContainer}>
@@ -132,6 +169,21 @@ export default function ListingDetailsScreen({ listing, navigate }) {
             </View>
           </TouchableOpacity>
 
+          <TouchableOpacity
+            style={[styles.wishlistButton, isSaved && styles.wishlistButtonActive]}
+            onPress={handleWishlistPress}
+            disabled={isSavingWishlist}
+            testID="listing-save-button"
+          >
+            <Text style={[styles.wishlistButtonText, isSaved && styles.wishlistButtonTextActive]}>
+              {isSavingWishlist
+                ? 'A atualizar...'
+                : isSaved
+                  ? 'Guardado na wishlist'
+                  : 'Guardar na wishlist'}
+            </Text>
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.actionButton} onPress={() => navigate('Chat', { conversationId: 'c1' })}>
             <Text style={styles.actionButtonText}>Enviar Mensagem</Text>
           </TouchableOpacity>
@@ -170,6 +222,10 @@ const styles = StyleSheet.create({
   detailValue: { fontSize: 14, color: COLORS.text, fontWeight: '500' },
   subjectBadge: { backgroundColor: COLORS.primarySoft, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3 },
   subjectBadgeText: { fontSize: 13, fontWeight: '600', color: COLORS.primary },
+  wishlistButton: { backgroundColor: COLORS.surface, paddingVertical: 16, borderRadius: RADIUS.button, alignItems: 'center', marginBottom: SPACING.sm, borderWidth: 1, borderColor: COLORS.primaryBorder },
+  wishlistButtonActive: { backgroundColor: COLORS.primarySoft },
+  wishlistButtonText: { color: COLORS.primary, fontSize: 16, fontWeight: '700' },
+  wishlistButtonTextActive: { color: COLORS.text },
   actionButton: { backgroundColor: COLORS.primary, paddingVertical: 16, borderRadius: RADIUS.button, alignItems: 'center' },
   actionButtonText: { color: COLORS.background, fontSize: 16, fontWeight: '700' },
 });

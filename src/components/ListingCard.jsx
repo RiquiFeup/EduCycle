@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  Alert,
 } from 'react-native';
+import { UserContext } from '../contexts/UserContext';
 
 const CARD_GAP = 12;
 const HORIZONTAL_PADDING = 16;
@@ -26,15 +28,42 @@ const MODE_COLORS = {
 };
 
 export default function ListingCard({ listing, onToggleFavourite, onPress }) {
-  const [fav, setFav] = useState(listing.isFavourited);
+  const wishlistContext = useContext(UserContext) ?? {};
+  const {
+    currentUser,
+    isWishlisted = () => false,
+    toggleWishlist,
+  } = wishlistContext;
 
-  const handleFav = () => {
-    setFav((prev) => !prev);
-    onToggleFavourite?.(listing.id);
+  const isSaved = Boolean(listing?.id && isWishlisted(listing.id)) || Boolean(listing?.isFavourited);
+
+  const handleFav = async () => {
+    if (!listing?.id) {
+      return;
+    }
+
+    if (!currentUser?.id || !toggleWishlist) {
+      Alert.alert(
+        'Login required',
+        'Log in to save listings to your wishlist.',
+      );
+      return;
+    }
+
+    try {
+      await toggleWishlist(listing);
+      onToggleFavourite?.(listing.id, listing);
+    } catch (error) {
+      Alert.alert(
+        'Wishlist',
+        error.message || 'Não foi possível atualizar a wishlist.',
+      );
+    }
   };
 
   const badge = MODE_LABELS[listing.mode];
   const badgeColor = MODE_COLORS[listing.mode];
+  const hasPrice = listing.price !== null && listing.price !== undefined && listing.price !== '';
 
   return (
     <TouchableOpacity
@@ -67,19 +96,25 @@ export default function ListingCard({ listing, onToggleFavourite, onPress }) {
         </Text>
 
         {/* Price */}
-        {listing.price !== null && (
+        {hasPrice ? (
           <Text style={styles.price}>€ {listing.price}</Text>
-        )}
+        ) : null}
 
         {/* Footer: institution + heart */}
         <View style={styles.footer}>
           <View style={styles.institutionRow}>
             <View style={styles.locationDot} />
-            <Text style={styles.institution}>{listing.institution}</Text>
+            <Text style={styles.institution}>{listing.institution || listing.campus}</Text>
           </View>
-          <TouchableOpacity onPress={handleFav} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Text style={[styles.heart, fav && styles.heartActive]}>
-              {fav ? '♥' : '♡'}
+          <TouchableOpacity
+            onPress={handleFav}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            testID={`wishlist-toggle-${listing.id}`}
+            accessibilityRole="button"
+            accessibilityLabel={isSaved ? 'Remove from wishlist' : 'Save to wishlist'}
+          >
+            <Text style={[styles.heart, isSaved && styles.heartActive]}>
+              {isSaved ? '♥' : '♡'}
             </Text>
           </TouchableOpacity>
         </View>

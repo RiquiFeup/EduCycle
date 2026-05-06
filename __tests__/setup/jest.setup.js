@@ -25,9 +25,12 @@ jest.mock('firebase/firestore', () => ({
   orderBy: jest.fn(),
   getDocs: jest.fn(() => Promise.resolve({ docs: [] })),
   doc: jest.fn(),
+  setDoc: jest.fn(() => Promise.resolve()),
+  deleteDoc: jest.fn(() => Promise.resolve()),
   getDoc: jest.fn(() => Promise.resolve({ exists: () => false, data: () => ({}) })),
   addDoc: jest.fn(() => Promise.resolve({ id: 'mock-id' })),
-  serverTimestamp: jest.fn(),
+  updateDoc: jest.fn(() => Promise.resolve()),
+  serverTimestamp: jest.fn(() => 'mock-server-timestamp'),
 }));
 
 // Mock do teu ficheiro local para bloquear totalmente o SDK real
