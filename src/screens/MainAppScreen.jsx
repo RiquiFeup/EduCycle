@@ -57,7 +57,7 @@ function PlaceholderTabScreen({
 
 const TABS = [
   { key: 'Home', label: 'Home', icon: '⌂' },
-  { key: 'Saved', label: 'Saved', icon: '♡' },
+  { key: 'Saved', label: 'Wishlist', icon: '♡' },
   { key: 'Sell', label: 'Sell', icon: '+' },
   { key: 'Messages', label: 'Inbox', icon: '✉' },
   { key: 'Profile', label: 'Profile', icon: '◉' },

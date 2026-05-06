@@ -56,7 +56,7 @@ export default function WishlistScreen({ navigate }) {
       <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
 
       <View style={styles.header}>
-        <Text style={styles.logo}>Saved</Text>
+        <Text style={styles.logo}>Wishlist</Text>
         <TouchableOpacity style={styles.refreshButton} onPress={refreshWishlist}>
           <Text style={styles.refreshText}>Atualizar</Text>
         </TouchableOpacity>
