@@ -31,7 +31,7 @@ jest.mock('firebase/firestore', () => ({
   addDoc: jest.fn(() => Promise.resolve({ id: 'mock-id' })),
   updateDoc: jest.fn(() => Promise.resolve()),
   serverTimestamp: jest.fn(() => 'mock-server-timestamp'),
-
+}));
 jest.mock('firebase/storage', () => ({
   getStorage: jest.fn(),
   ref: jest.fn(),
