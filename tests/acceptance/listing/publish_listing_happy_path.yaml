@@ -29,7 +29,7 @@ appId: host.exp.exponent
 - tapOn:
     id: "photo-upload-area"
 - assertVisible:
-    id: "photo-upload-added"
+    id: "photo-upload-added-0"
 
 - tapOn:
     id: "input-title"

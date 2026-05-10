@@ -55,7 +55,13 @@ export default function ListingDetailsScreen({ listing, navigate }) {
 
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }} keyboardDismissMode="on-drag">
         <View style={styles.imageContainer}>
-          {listing?.image ? (
+          {listing?.imageUrls && listing.imageUrls.length > 0 ? (
+            <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>
+              {listing.imageUrls.map((uri, index) => (
+                <Image key={index} source={{ uri }} style={[styles.image, { width: SCREEN_WIDTH }]} resizeMode="cover" />
+              ))}
+            </ScrollView>
+          ) : listing?.image ? (
             <Image source={{ uri: listing.image }} style={styles.image} resizeMode="cover" />
           ) : (
             <View style={styles.imagePlaceholder} />

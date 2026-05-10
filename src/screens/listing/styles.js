@@ -18,6 +18,17 @@ export default StyleSheet.create({
   photoIcon:          { fontSize: 32, marginBottom: 8 },
   photoLabel:         { fontSize: 14, color: HINT },
 
+  thumbnailContainer: { flexDirection: 'row', marginBottom: 4, height: 160 },
+  thumbnailWrapper:   { marginRight: 10, position: 'relative', width: 120, height: 160 },
+  thumbnail:          { width: 120, height: 160, borderRadius: 12 },
+  removeBtn:          { position: 'absolute', top: 5, right: 5, backgroundColor: 'rgba(0,0,0,0.6)', 
+                        width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  removeBtnText:      { color: '#fff', fontSize: 12, fontWeight: 'bold' },
+  addMoreBtn:         { width: 80, height: 160, borderWidth: 1.5, borderColor: PRIMARY, borderStyle: 'dashed', 
+                        borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: GRAY_BG },
+  addMoreIcon:        { fontSize: 32, color: PRIMARY },
+
+
   label:              { fontSize: 14, fontWeight: '600', color: TEXT, marginTop: 16, marginBottom: 6 },
   required:           { color: ERROR_RED },
   input:              { borderWidth: 1, borderColor: BORDER, borderRadius: 12,

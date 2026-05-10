@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,9 +7,10 @@ on:
     branches: ["main", "development"]
 
 jobs:
-  build_and_test:
+  # FASE 1: Qualidade e Testes (Corre sempre)
+  quality_and_tests:
+    name:  Quality & Tests
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [18.x]
@@ -27,5 +28,41 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
+      # Métrica de Qualidade (Avalia o estilo do código)
+      - name: Code Quality Analysis (Lint)
+        run: npm run lint --if-present
+
+      # Testes com métricas de cobertura
       - name: Run Unit Tests with Coverage
         run: npm run test:coverage
+
+  # FASE 2: Deployment (Só corre se a FASE 1 passar e SÓ na main)
+  deploy:
+    name:  Build & Deploy APK
+    needs: quality_and_tests # Obriga a esperar que os testes passem
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' # Gatilho restrito
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+          cache: "npm"
+
+      # Instala o CLI da Expo no servidor do GitHub
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }} # Puxa o teu segredo com segurança
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      # Manda a Expo construir o APK
+      - name: Build Android APK
+        run: eas build --platform android --profile preview --non-interactive
