@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint src/ __tests__/",
+    "lint": "eslint src/ tests",
     "test:coverage": "jest --coverage --runInBand --forceExit",
     "start": "expo start",
     "android": "expo run:android",
