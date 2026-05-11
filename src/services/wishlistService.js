@@ -1,19 +1,68 @@
-import {
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  orderBy,
-  query,
-  serverTimestamp,
-  setDoc,
-} from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../utils/firebase';
 
-const wishlistCollectionRef = (userId) => collection(db, 'users', userId, 'wishlist');
-const wishlistDocRef = (userId, listingId) => doc(db, 'users', userId, 'wishlist', listingId);
+const userDocRef = (userId) => doc(db, 'users', userId);
 
 const cleanValue = (value, fallback = null) => (value === undefined ? fallback : value);
+
+const getSavedAtValue = (savedAt) => {
+  if (!savedAt) {
+    return 0;
+  }
+
+  if (typeof savedAt?.toMillis === 'function') {
+    return savedAt.toMillis();
+  }
+
+  if (typeof savedAt === 'number') {
+    return savedAt;
+  }
+
+  const parsedDate = Date.parse(savedAt);
+  return Number.isNaN(parsedDate) ? 0 : parsedDate;
+};
+
+const markAsFavourited = (listing) => ({
+  ...listing,
+  id: String(listing.id ?? listing.listingId),
+  listingId: String(listing.listingId ?? listing.id),
+  isFavourited: true,
+});
+
+const sortWishlist = (listings) =>
+  [...listings].sort((a, b) => getSavedAtValue(b.savedAt) - getSavedAtValue(a.savedAt));
+
+const readWishlistFromUserDocument = async (userId) => {
+  const snapshot = await getDoc(userDocRef(userId));
+
+  if (!snapshot.exists()) {
+    return [];
+  }
+
+  const storedWishlist = snapshot.data()?.wishlistListings;
+
+  if (!Array.isArray(storedWishlist)) {
+    return [];
+  }
+
+  return sortWishlist(storedWishlist.map(markAsFavourited));
+};
+
+const updateWishlistInUserDocument = async (userId, updater) => {
+  const snapshot = await getDoc(userDocRef(userId));
+  const userData = snapshot.exists() ? snapshot.data() : {};
+  const currentWishlist = Array.isArray(userData?.wishlistListings)
+    ? userData.wishlistListings
+    : [];
+  const nextWishlist = updater(currentWishlist).map((listing) => ({
+    ...listing,
+    id: String(listing.id ?? listing.listingId),
+    listingId: String(listing.listingId ?? listing.id),
+  }));
+
+  await setDoc(userDocRef(userId), { wishlistListings: nextWishlist }, { merge: true });
+  return nextWishlist;
+};
 
 export const normalizeListingForWishlist = (listing) => {
   if (!listing?.id) {
@@ -44,18 +93,7 @@ export const getWishlistListings = async (userId) => {
     return [];
   }
 
-  try {
-    const wishlistQuery = query(wishlistCollectionRef(userId), orderBy('savedAt', 'desc'));
-    const snapshot = await getDocs(wishlistQuery);
-
-    return snapshot.docs.map((wishlistDoc) => ({
-      id: wishlistDoc.id,
-      ...wishlistDoc.data(),
-      isFavourited: true,
-    }));
-  } catch (error) {
-    throw new Error('Não foi possível carregar a wishlist.');
-  }
+  return readWishlistFromUserDocument(userId);
 };
 
 export const saveListingToWishlist = async (userId, listing) => {
@@ -64,18 +102,18 @@ export const saveListingToWishlist = async (userId, listing) => {
   }
 
   const wishlistListing = normalizeListingForWishlist(listing);
+  const embeddedListing = {
+    ...wishlistListing,
+    savedAt: new Date().toISOString(),
+  };
 
   try {
-    await setDoc(
-      wishlistDocRef(userId, wishlistListing.id),
-      {
-        ...wishlistListing,
-        savedAt: serverTimestamp(),
-      },
-      { merge: true },
-    );
+    await updateWishlistInUserDocument(userId, (currentWishlist) => [
+      embeddedListing,
+      ...currentWishlist.filter((item) => String(item.id ?? item.listingId) !== wishlistListing.id),
+    ]);
 
-    return { ...wishlistListing, isFavourited: true };
+    return { ...embeddedListing, isFavourited: true };
   } catch (error) {
     throw new Error('Não foi possível guardar o anúncio na wishlist.');
   }
@@ -90,8 +128,12 @@ export const removeListingFromWishlist = async (userId, listingId) => {
     throw new Error('Anúncio inválido.');
   }
 
+  const normalizedListingId = String(listingId);
+
   try {
-    await deleteDoc(wishlistDocRef(userId, String(listingId)));
+    await updateWishlistInUserDocument(userId, (currentWishlist) =>
+      currentWishlist.filter((item) => String(item.id ?? item.listingId) !== normalizedListingId),
+    );
   } catch (error) {
     throw new Error('Não foi possível remover o anúncio da wishlist.');
   }

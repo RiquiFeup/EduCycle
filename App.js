@@ -45,6 +45,8 @@ export default function App() {
   };
 
   const handleUserUpdate = async (updatedUser) => {
+    const previousUser = currentUser;
+
     // 1. Optimistic local update
     setCurrentUser(updatedUser);
 
@@ -59,7 +61,9 @@ export default function App() {
           photo: updatedUser.photo,
         });
       } catch (error) {
+        setCurrentUser(previousUser);
         console.error("Failed to update user profile in Firebase", error);
+        throw error;
       }
     }
   };
