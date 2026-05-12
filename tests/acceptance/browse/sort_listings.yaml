@@ -1,0 +1,28 @@
+appId: com.t3
+---
+# As a buyer
+# I want to sort listings by criteria such as newest, lowest or highest price
+# So that I can view items in the order most useful to me
+
+- launchApp:
+    clearState: true
+- tapOn: "Entrar"
+- inputText: "joao.silva@fe.up.pt"
+- tapOn: "Palavra-passe"
+- inputText: "secret123"
+- hideKeyboard
+- tapOn: "Entrar"
+- assertVisible: "Explorar"
+
+# Tap the dropdown (which defaults to 'Date') and select 'Price'
+- tapOn: "Date"
+- tapOn: "Price"
+
+# Confirm the dropdown registered the change
+- assertVisible: "Price"
+
+# Tap the toggle button to change from descending (↓) to ascending (↑)
+- tapOn: "↓"
+
+# Confirm the toggle button updated visually
+- assertVisible: "↑"
