@@ -28,6 +28,14 @@ export const inferImageMimeType = ({ uri = '', fileName = '' } = {}) => {
   return PROFILE_IMAGE_MIME_BY_EXTENSION[extension] ?? null;
 };
 
+export const getProfileImageMimeType = (asset = {}) => {
+  if (asset.base64) {
+    return 'image/jpeg';
+  }
+
+  return asset.mimeType || inferImageMimeType(asset);
+};
+
 export const validateProfileDisplayName = (value = '') => {
   const trimmedName = value.trim();
 
@@ -51,7 +59,7 @@ export const validateProfileImageAsset = (asset, detectedSize) => {
     return 'Please select a valid image.';
   }
 
-  const mimeType = asset.mimeType || inferImageMimeType(asset);
+  const mimeType = getProfileImageMimeType(asset);
 
   if (!VALID_PROFILE_IMAGE_MIME_TYPES.includes(mimeType)) {
     return 'Please upload a JPG, PNG or WebP image.';

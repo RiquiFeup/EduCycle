@@ -61,7 +61,7 @@ export default function PrivateProfileScreen({ navigate }) {
           }));
           setMyListings(realListings);
         } catch (error) {
-          console.error("Erro a carregar os meus anúncios:", error);
+          console.error("Failed to load my listings:", error);
         } finally {
           setLoadingListings(false);
         }
@@ -74,8 +74,22 @@ export default function PrivateProfileScreen({ navigate }) {
     setEditForm((prev) => ({ ...prev, name: text }));
   };
 
+  const isValidCourseInput = (text) => Array.from(text).every((char) => {
+    const code = char.codePointAt(0);
+
+    return (
+      char === ' ' ||
+      (code >= 48 && code <= 57) ||
+      (code >= 65 && code <= 90) ||
+      (code >= 97 && code <= 122) ||
+      (code >= 192 && code <= 214) ||
+      (code >= 216 && code <= 246) ||
+      (code >= 248 && code <= 255)
+    );
+  });
+
   const handleCourseChange = (text) => {
-    if (/^[a-zA-Z0-9À-ÿ\s]*$/.test(text)) {
+    if (isValidCourseInput(text)) {
       setEditForm((prev) => ({ ...prev, course: text }));
     }
   };
@@ -95,7 +109,7 @@ export default function PrivateProfileScreen({ navigate }) {
     const displayNameError = validateProfileDisplayName(sanitizedForm.name);
 
     if (displayNameError) {
-      Alert.alert('Nome inválido', displayNameError);
+      Alert.alert('Invalid name', displayNameError);
       return;
     }
 
@@ -105,8 +119,8 @@ export default function PrivateProfileScreen({ navigate }) {
       setEditModalVisible(false);
     } catch (error) {
       Alert.alert(
-        'Perfil não atualizado',
-        error.message || 'Não foi possível guardar as alterações ao perfil. Tenta novamente.',
+        'Profile not updated',
+        error.message || 'Could not save the profile changes. Please try again.',
       );
     } finally {
       setSavingProfile(false);
@@ -127,7 +141,8 @@ export default function PrivateProfileScreen({ navigate }) {
         mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 0.7,
+        quality: 0.45,
+        base64: true,
       });
     } else {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -138,8 +153,10 @@ export default function PrivateProfileScreen({ navigate }) {
 
       result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
-        allowsEditing: false,
-        quality: 0.8,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.45,
+        base64: true,
         selectionLimit: 1,
       });
     }
@@ -153,8 +170,8 @@ export default function PrivateProfileScreen({ navigate }) {
         await updateUser({ photo: photoUrl });
       } catch (error) {
         Alert.alert(
-          'Foto de perfil não atualizada',
-          error.message || 'Escolhe uma imagem válida e tenta novamente.',
+          'Profile photo not updated',
+          error.message || 'Choose a valid image and try again.',
         );
       } finally {
         setUploadingPhoto(false);
@@ -198,7 +215,7 @@ export default function PrivateProfileScreen({ navigate }) {
           style={styles.settingsBtn}
           onPress={() => Alert.alert('Settings', 'Settings screen coming soon!')}
         >
-          <Text style={styles.settingsIcon}>⚙️</Text>
+          <Text style={styles.settingsIcon}>{String.fromCodePoint(0x2699, 0xFE0F)}</Text>
         </TouchableOpacity>
       </View>
 
@@ -216,9 +233,9 @@ export default function PrivateProfileScreen({ navigate }) {
 
               <View style={styles.statsRow}>
                 <Text style={styles.ratingText}>
-                  ⭐ {currentUser.rating} ({currentUser.reviewsCount})
+                  {String.fromCodePoint(0x2B50)} {currentUser.rating} ({currentUser.reviewsCount})
                 </Text>
-                <Text style={styles.bulletPoint}>•</Text>
+                <Text style={styles.bulletPoint}>{'\u2022'}</Text>
                 <Text style={styles.joinedText}>Joined {currentUser.joinedDate}</Text>
               </View>
 
@@ -245,7 +262,7 @@ export default function PrivateProfileScreen({ navigate }) {
               style={[styles.actionButton, { backgroundColor: COLORS.buttonGray }]}
               onPress={() => navigate('PublicProfile', { isPreview: true })}
             >
-              <Text style={styles.actionButtonText}>👁️ Preview Public</Text>
+              <Text style={styles.actionButtonText}>{String.fromCodePoint(0x1F441, 0xFE0F)} Preview Public</Text>
             </TouchableOpacity>
           </View>
 
@@ -285,7 +302,7 @@ export default function PrivateProfileScreen({ navigate }) {
                   />
                 ))
               ) : (
-                <Text style={{ color: COLORS.textMuted, marginTop: 10 }}>Ainda não tens anúncios ativos.</Text>
+                <Text style={{ color: COLORS.textMuted, marginTop: 10 }}>You do not have active listings yet.</Text>
               )}
               {myListings.length === 1 ? <View style={styles.emptySlot} /> : null}
             </View>
@@ -568,3 +585,5 @@ const styles = StyleSheet.create({
   disabledButton: { opacity: 0.6 },
   saveButtonText: { color: COLORS.background, fontSize: 16, fontWeight: '700' },
 });
+
+

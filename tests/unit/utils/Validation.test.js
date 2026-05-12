@@ -72,6 +72,13 @@ describe('profile validation helpers', () => {
     ).toBeNull();
   });
 
+  test('accepts picker JPEG base64 data even when the original asset is HEIC', () => {
+    const { validateProfileImageAsset } = require('../../../src/utils/validation');
+    expect(
+      validateProfileImageAsset({ uri: 'file:///avatar.heic', mimeType: 'image/heic', base64: 'mock-base64', fileSize: 200_000 }),
+    ).toBeNull();
+  });
+
   test('rejects invalid profile image types', () => {
     const { validateProfileImageAsset } = require('../../../src/utils/validation');
     expect(

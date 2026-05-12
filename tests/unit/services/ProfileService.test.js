@@ -1,55 +1,50 @@
-import { getDownloadURL, ref } from 'firebase/storage';
-import * as FileSystem from 'expo-file-system/legacy';
+﻿import * as FileSystem from 'expo-file-system/legacy';
 import { uploadProfilePhoto } from '../../../src/services/profileService';
 
 beforeEach(() => {
   jest.clearAllMocks();
   FileSystem.getInfoAsync.mockResolvedValue({ exists: true, size: 1024 });
-  FileSystem.uploadAsync.mockResolvedValue({
-    status: 200,
-    body: JSON.stringify({ downloadTokens: 'mock-token' }),
-  });
-  getDownloadURL.mockResolvedValue('https://mock.url/profile.jpg');
+  FileSystem.readAsStringAsync.mockResolvedValue('mock-base64');
 });
 
 describe('uploadProfilePhoto', () => {
-  test('validates, uploads and returns a public download URL', async () => {
+  test('validates and returns a Firestore-safe data URI for the profile photo', async () => {
     const url = await uploadProfilePhoto('user-123', {
       uri: 'file:///avatar.jpg',
       mimeType: 'image/jpeg',
       fileSize: 1024,
     });
 
-    expect(ref).toHaveBeenCalledWith(expect.anything(), expect.stringMatching(/^profilePictures\/user-123\/\d+\.jpg$/));
-    expect(FileSystem.uploadAsync).toHaveBeenCalledWith(
-      expect.stringContaining('https://firebasestorage.googleapis.com/v0/b/mock-bucket.appspot.com/o'),
-      'file:///avatar.jpg',
-      expect.objectContaining({
-        httpMethod: 'POST',
-        uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
-        headers: expect.objectContaining({
-          Authorization: 'Bearer mock-id-token',
-          'Content-Type': 'image/jpeg',
-        }),
-      }),
-    );
-    expect(url).toBe('https://mock.url/profile.jpg');
+    expect(FileSystem.readAsStringAsync).toHaveBeenCalledWith('file:///avatar.jpg', {
+      encoding: 'base64',
+    });
+    expect(url).toBe('data:image/jpeg;base64,mock-base64');
   });
 
-  test('returns the download token URL when Firebase getDownloadURL cannot read metadata', async () => {
-    getDownloadURL.mockRejectedValueOnce(new Error('No download URL'));
-
+  test('uses picker-provided JPEG base64 data before reading from the file system', async () => {
     const url = await uploadProfilePhoto('user-123', {
-      uri: 'file:///avatar.webp',
-      mimeType: 'image/webp',
+      uri: 'file:///avatar.heic',
+      mimeType: 'image/heic',
+      base64: 'picker-base64',
       fileSize: 1024,
     });
 
-    expect(url).toContain('https://firebasestorage.googleapis.com/v0/b/mock-bucket.appspot.com/o/profilePictures%2Fuser-123%2F');
-    expect(url).toContain('token=mock-token');
+    expect(FileSystem.readAsStringAsync).not.toHaveBeenCalled();
+    expect(url).toBe('data:image/jpeg;base64,picker-base64');
   });
 
-  test('rejects invalid image types before uploading', async () => {
+  test('rejects profile photos that are too large for a Firestore user document', async () => {
+    await expect(
+      uploadProfilePhoto('user-123', {
+        uri: 'file:///avatar.jpg',
+        mimeType: 'image/jpeg',
+        base64: 'a'.repeat(760 * 1024),
+        fileSize: 1024,
+      }),
+    ).rejects.toThrow('Profile image is too large to save.');
+  });
+
+  test('rejects invalid image types before reading the image', async () => {
     await expect(
       uploadProfilePhoto('user-123', {
         uri: 'file:///avatar.pdf',
@@ -58,11 +53,10 @@ describe('uploadProfilePhoto', () => {
       }),
     ).rejects.toThrow('Please upload a JPG, PNG or WebP image.');
 
-    expect(FileSystem.uploadAsync).not.toHaveBeenCalled();
-    expect(getDownloadURL).not.toHaveBeenCalled();
+    expect(FileSystem.readAsStringAsync).not.toHaveBeenCalled();
   });
 
-  test('rejects oversized images before uploading', async () => {
+  test('rejects oversized images before reading the image', async () => {
     FileSystem.getInfoAsync.mockResolvedValueOnce({ exists: true, size: 6 * 1024 * 1024 });
 
     await expect(
@@ -73,7 +67,6 @@ describe('uploadProfilePhoto', () => {
       }),
     ).rejects.toThrow('Profile image must be 5 MB or less.');
 
-    expect(FileSystem.uploadAsync).not.toHaveBeenCalled();
-    expect(getDownloadURL).not.toHaveBeenCalled();
+    expect(FileSystem.readAsStringAsync).not.toHaveBeenCalled();
   });
 });
