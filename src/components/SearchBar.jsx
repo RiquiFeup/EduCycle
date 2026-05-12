@@ -7,7 +7,7 @@ import {
   StyleSheet,
 } from 'react-native';
 
-export default function SearchBar({ value, onChangeText, placeholder, testID }) {
+export default function SearchBar({ value, onChangeText, placeholder, testID, onFilterPress }) {
   const [focused, setFocused] = useState(false);
 
   return (
@@ -26,7 +26,7 @@ export default function SearchBar({ value, onChangeText, placeholder, testID }) 
         testID={testID ?? 'search-input'}
       />
       {/* Filter button */}
-      <TouchableOpacity style={styles.filterBtn}>
+      <TouchableOpacity style={styles.filterBtn} onPress={onFilterPress}>
         <Text style={styles.filterIcon}>⚙</Text>
       </TouchableOpacity>
     </View>
