@@ -16,6 +16,7 @@ import { db } from '../utils/firebase';
 import SearchBar from '../components/SearchBar';
 import ListingCard from '../components/ListingCard';
 import SectionHeader from '../components/SectionHeader';
+import FilterModal from '../components/FilterModal';
 import { COLORS, SPACING } from '../utils/theme';
 import { PAGE_SIZE } from '../data/listings';
 
@@ -25,6 +26,14 @@ export default function HomeScreen({ navigate }) {
   const [page, setPage] = useState(1);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [filters, setFilters] = useState({
+    category: '',
+    academicLevel: '',
+    minPrice: '',
+    maxPrice: '',
+  });
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -48,18 +57,38 @@ export default function HomeScreen({ navigate }) {
     fetchListings();
   }, []);
 
-  const filtered = queryText.trim()
-    ? listings.filter((listing) => {
-        const q = queryText.toLowerCase();
-        return (
-          listing.title?.toLowerCase().includes(q) ||
-          listing.campus?.toLowerCase().includes(q) ||
-          listing.institution?.toLowerCase().includes(q) ||
-          (listing.subject && listing.subject.toLowerCase().includes(q)) ||
-          (listing.isbn && listing.isbn.toLowerCase().includes(q))
-        );
-      })
-    : listings.slice(0, page * PAGE_SIZE);
+  const filtered = listings.filter((listing) => {
+    if (queryText.trim()) {
+      const q = queryText.toLowerCase();
+      const matchesSearch =
+        listing.title?.toLowerCase().includes(q) ||
+        listing.campus?.toLowerCase().includes(q) ||
+        listing.institution?.toLowerCase().includes(q) ||
+        (listing.subject && listing.subject.toLowerCase().includes(q)) ||
+        (listing.isbn && listing.isbn.toLowerCase().includes(q));
+      if (!matchesSearch) return false;
+    }
+
+    // categoria
+    if (filters.category && listing.subject !== filters.category) {
+      return false;
+    }
+
+    // nível académico
+    if (filters.academicLevel && listing.campus !== filters.academicLevel) {
+      return false;
+    }
+
+    // preço
+    const price = parseFloat(listing.price);
+    const minPrice = parseFloat(filters.minPrice);
+    const maxPrice = parseFloat(filters.maxPrice);
+
+    if (!isNaN(minPrice) && (isNaN(price) || price < minPrice)) return false;
+    if (!isNaN(maxPrice) && (isNaN(price) || price > maxPrice)) return false;
+
+    return true;
+  }).slice(0, page * PAGE_SIZE);
 
   const hasMore = !queryText.trim() && page * PAGE_SIZE < listings.length;
 
@@ -152,6 +181,7 @@ export default function HomeScreen({ navigate }) {
                 onChangeText={setQueryText}
                 placeholder="Search by title, ISBN, or subject..."
                 testID="search-bar"
+                onFilterPress={() => setFilterModalVisible(true)}
               />
             </View>
             <SectionHeader
@@ -178,17 +208,25 @@ export default function HomeScreen({ navigate }) {
           <View style={styles.empty} testID="empty-state">
             <Text style={styles.emptyIcon}>📭</Text>
             <Text style={styles.emptyTitle} testID="empty-state-text">
-              {queryText.trim()
-                ? `No results found for "${queryText.trim()}"`
+              {queryText.trim() || Object.values(filters).some(Boolean)
+                ? `No results found for your filters`
                 : 'No listings found.'}
             </Text>
-            {queryText.trim() ? (
+            {queryText.trim() || Object.values(filters).some(Boolean) ? (
               <Text style={styles.emptyHint}>
-                Try a different title, ISBN, or subject.
+                Try adjusting your search or clearing your filters.
               </Text>
             ) : null}
           </View>
         }
+      />
+
+      <FilterModal
+        visible={filterModalVisible}
+        onClose={() => setFilterModalVisible(false)}
+        filters={filters}
+        setFilters={setFilters}
+        onApply={() => setFilterModalVisible(false)}
       />
     </SafeAreaView>
   );
