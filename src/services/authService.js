@@ -57,6 +57,28 @@ const mapAuthErrorToMessage = (error, fallbackMessage) => {
   }
 };
 
+const isSafeFirebaseAuthPhotoUrl = (photo) => (
+  typeof photo === 'string' &&
+  /^https?:\/\//i.test(photo) &&
+  photo.length <= 2048
+);
+
+const buildFirebaseAuthUpdates = (cleanData) => {
+  const authUpdates = {};
+
+  if (cleanData.name) {
+    authUpdates.displayName = cleanData.name;
+  }
+
+  // Firebase Auth photoURL is only for short web URLs.
+  // Profile photos saved as Firestore data URIs are intentionally skipped here.
+  if (isSafeFirebaseAuthPhotoUrl(cleanData.photo)) {
+    authUpdates.photoURL = cleanData.photo;
+  }
+
+  return authUpdates;
+};
+
 export const registerUser = async ({ email, password }) => {
   try {
     const normalizedEmail = normalizeEmail(email);
@@ -130,7 +152,7 @@ export const subscribeToAuthState = (callback) =>
           }),
       );
     } catch (error) {
-      console.error("Erro fatal ao validar sessão na base de dados:", error);
+      console.error('Fatal error while checking the saved user session:', error);
       await signOut(auth);
       callback(null);
     }
@@ -139,25 +161,29 @@ export const subscribeToAuthState = (callback) =>
 export const updateUserAccount = async (userId, data) => {
   try {
     const userDocRef = doc(db, 'users', userId);
-    
+
     const cleanData = Object.fromEntries(
-      Object.entries(data).filter(([_, v]) => v !== undefined)
+      Object.entries(data).filter(([, value]) => value !== undefined),
     );
-    
-    if (auth.currentUser && auth.currentUser.uid === userId && (cleanData.name || cleanData.photo)) {
-      const authUpdates = {};
-      if (cleanData.name) authUpdates.displayName = cleanData.name;
-      if (cleanData.photo) authUpdates.photoURL = cleanData.photo;
-      try {
-        await updateProfile(auth.currentUser, authUpdates);
-      } catch (authErr) {
-        console.warn("Could not update Firebase Auth profile (likely invalid local photo URI), updating Firestore anyway:", authErr);
+
+    if (auth.currentUser && auth.currentUser.uid === userId) {
+      const authUpdates = buildFirebaseAuthUpdates(cleanData);
+
+      if (Object.keys(authUpdates).length > 0) {
+        try {
+          await updateProfile(auth.currentUser, authUpdates);
+        } catch (authErr) {
+          console.warn(
+            'Could not update Firebase Auth profile. Firestore profile data will still be saved:',
+            authErr,
+          );
+        }
       }
     }
-    
+
     await setDoc(userDocRef, cleanData, { merge: true });
   } catch (error) {
-    console.error("Firebase Update Error:", error);
+    console.error('Firebase Update Error:', error);
     throw new Error('Could not update profile information. Please try again.');
   }
 };

@@ -1,34 +1,24 @@
-import { getDownloadURL, ref, uploadString } from 'firebase/storage';
-import * as FileSystem from 'expo-file-system/legacy';
+﻿import * as FileSystem from 'expo-file-system/legacy';
 import { uploadProfilePhoto } from '../../../src/services/profileService';
 
 beforeEach(() => {
   jest.clearAllMocks();
   FileSystem.getInfoAsync.mockResolvedValue({ exists: true, size: 1024 });
   FileSystem.readAsStringAsync.mockResolvedValue('mock-base64');
-  uploadString.mockResolvedValue({});
-  getDownloadURL.mockResolvedValue('https://mock.url/profile.jpg');
 });
 
 describe('uploadProfilePhoto', () => {
-  test('validates, uploads and returns a public download URL', async () => {
+  test('validates and returns a Firestore-safe data URI for the profile photo', async () => {
     const url = await uploadProfilePhoto('user-123', {
       uri: 'file:///avatar.jpg',
       mimeType: 'image/jpeg',
       fileSize: 1024,
     });
 
-    expect(ref).toHaveBeenCalledWith(expect.anything(), expect.stringMatching(/^profilePictures\/user-123\/\d+\.jpg$/));
     expect(FileSystem.readAsStringAsync).toHaveBeenCalledWith('file:///avatar.jpg', {
       encoding: 'base64',
     });
-    expect(uploadString).toHaveBeenCalledWith(
-      { path: expect.stringMatching(/^profilePictures\/user-123\/\d+\.jpg$/) },
-      'data:image/jpeg;base64,mock-base64',
-      'data_url',
-      { contentType: 'image/jpeg' },
-    );
-    expect(url).toBe('https://mock.url/profile.jpg');
+    expect(url).toBe('data:image/jpeg;base64,mock-base64');
   });
 
   test('uses picker-provided JPEG base64 data before reading from the file system', async () => {
@@ -40,28 +30,21 @@ describe('uploadProfilePhoto', () => {
     });
 
     expect(FileSystem.readAsStringAsync).not.toHaveBeenCalled();
-    expect(uploadString).toHaveBeenCalledWith(
-      { path: expect.stringMatching(/^profilePictures\/user-123\/\d+\.jpg$/) },
-      'data:image/jpeg;base64,picker-base64',
-      'data_url',
-      { contentType: 'image/jpeg' },
-    );
-    expect(url).toBe('https://mock.url/profile.jpg');
+    expect(url).toBe('data:image/jpeg;base64,picker-base64');
   });
 
-  test('reports a friendly error when Firebase Storage cannot return a download URL', async () => {
-    getDownloadURL.mockRejectedValueOnce(new Error('No download URL'));
-
+  test('rejects profile photos that are too large for a Firestore user document', async () => {
     await expect(
       uploadProfilePhoto('user-123', {
-        uri: 'file:///avatar.webp',
-        mimeType: 'image/webp',
+        uri: 'file:///avatar.jpg',
+        mimeType: 'image/jpeg',
+        base64: 'a'.repeat(760 * 1024),
         fileSize: 1024,
       }),
-    ).rejects.toThrow('Could not upload the selected image. Please try again.');
+    ).rejects.toThrow('Profile image is too large to save.');
   });
 
-  test('rejects invalid image types before uploading', async () => {
+  test('rejects invalid image types before reading the image', async () => {
     await expect(
       uploadProfilePhoto('user-123', {
         uri: 'file:///avatar.pdf',
@@ -71,11 +54,9 @@ describe('uploadProfilePhoto', () => {
     ).rejects.toThrow('Please upload a JPG, PNG or WebP image.');
 
     expect(FileSystem.readAsStringAsync).not.toHaveBeenCalled();
-    expect(uploadString).not.toHaveBeenCalled();
-    expect(getDownloadURL).not.toHaveBeenCalled();
   });
 
-  test('rejects oversized images before uploading', async () => {
+  test('rejects oversized images before reading the image', async () => {
     FileSystem.getInfoAsync.mockResolvedValueOnce({ exists: true, size: 6 * 1024 * 1024 });
 
     await expect(
@@ -87,7 +68,5 @@ describe('uploadProfilePhoto', () => {
     ).rejects.toThrow('Profile image must be 5 MB or less.');
 
     expect(FileSystem.readAsStringAsync).not.toHaveBeenCalled();
-    expect(uploadString).not.toHaveBeenCalled();
-    expect(getDownloadURL).not.toHaveBeenCalled();
   });
 });
