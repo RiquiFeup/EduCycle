@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import NewListingScreen from './listing/NewListingScreen';
 import ListingDetailsScreen from './listing/ListingDetailsScreen';
 import HomeScreen from './HomeScreen.jsx';
+import WishlistScreen from './WishlistScreen';
 import PrivateProfileScreen from './PrivateProfileScreen';
 import PublicProfileScreen from './PublicProfileScreen';
 import InboxScreen from './InboxScreen';
@@ -56,7 +57,7 @@ function PlaceholderTabScreen({
 
 const TABS = [
   { key: 'Home', label: 'Home', icon: '⌂' },
-  { key: 'Saved', label: 'Saved', icon: '♡' },
+  { key: 'Saved', label: 'Wishlist', icon: '♡' },
   { key: 'Sell', label: 'Sell', icon: '+' },
   { key: 'Messages', label: 'Inbox', icon: '✉' },
   { key: 'Profile', label: 'Profile', icon: '◉' },
@@ -156,15 +157,7 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
   const renderCurrentScreen = () => {
     switch (activeScreen) {
       case 'Saved':
-        return (
-          <PlaceholderTabScreen
-            title="Saved"
-            badge="Collections"
-            description="This is a dummy tab for saved items. Later you can wire your favourited books, notes, and calculators here instead of making users imagine the feature exists."
-            primaryActionLabel="Saved listings"
-            secondaryActionLabel="Filters soon"
-          />
-        );
+        return <WishlistScreen navigate={navigate} />;
 
       case 'Sell':
         return (

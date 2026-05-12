@@ -51,3 +51,38 @@ describe('validation helpers', () => {
     });
   });
 });
+
+describe('profile validation helpers', () => {
+  test('accepts a valid display name', () => {
+    const { validateProfileDisplayName } = require('../../../src/utils/validation');
+    expect(validateProfileDisplayName("Maria João-Silva")).toBeNull();
+    expect(validateProfileDisplayName('02May02')).toBeNull();
+    expect(validateProfileDisplayName('artur_mf.06')).toBeNull();
+  });
+
+  test('rejects an empty display name', () => {
+    const { validateProfileDisplayName } = require('../../../src/utils/validation');
+    expect(validateProfileDisplayName('   ')).toBe('Display name is required.');
+  });
+
+  test('accepts valid profile image metadata', () => {
+    const { validateProfileImageAsset } = require('../../../src/utils/validation');
+    expect(
+      validateProfileImageAsset({ uri: 'file:///avatar.png', mimeType: 'image/png', fileSize: 200_000 }),
+    ).toBeNull();
+  });
+
+  test('rejects invalid profile image types', () => {
+    const { validateProfileImageAsset } = require('../../../src/utils/validation');
+    expect(
+      validateProfileImageAsset({ uri: 'file:///avatar.pdf', mimeType: 'application/pdf', fileSize: 200_000 }),
+    ).toBe('Please upload a JPG, PNG or WebP image.');
+  });
+
+  test('rejects oversized profile images', () => {
+    const { PROFILE_IMAGE_MAX_BYTES, validateProfileImageAsset } = require('../../../src/utils/validation');
+    expect(
+      validateProfileImageAsset({ uri: 'file:///avatar.jpg', mimeType: 'image/jpeg' }, PROFILE_IMAGE_MAX_BYTES + 1),
+    ).toBe('Profile image must be 5 MB or less.');
+  });
+});

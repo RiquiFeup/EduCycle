@@ -1,4 +1,15 @@
-import React, { createContext, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import {
+  getWishlistListings,
+  removeListingFromWishlist,
+  saveListingToWishlist,
+} from '../services/wishlistService';
 
 export const UserContext = createContext();
 
@@ -22,27 +33,119 @@ export const UserProvider = ({ children, initialUser, onUserUpdate, onLogout }) 
     ...DEFAULT_USER,
     ...(initialUser ?? {}),
   });
+  const [wishlistListings, setWishlistListings] = useState([]);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
 
-  const updateUser = (newData) => {
-    let updated;
-    setCurrentUser((prev) => {
-      updated = { ...prev, ...newData };
-      return updated;
+  useEffect(() => {
+    setCurrentUser({
+      ...DEFAULT_USER,
+      ...(initialUser ?? {}),
     });
-    // Fire side effect outside the updater to prevent duplicate/skipped updates in React 18 StrictMode
-    // Note: since set state is scheduled, we pass the locally constructed object
-    // or we can wait for the next render. For optimistic updates, this is fine.
-    // To ensure exact safety without closure staleness:
-    onUserUpdate?.({ ...currentUser, ...newData });
-  };
+  }, [initialUser]);
+
+  const updateUser = useCallback(async (newData) => {
+    const updatedUser = { ...currentUser, ...newData };
+
+    setCurrentUser(updatedUser);
+
+    try {
+      await onUserUpdate?.(updatedUser);
+      return updatedUser;
+    } catch (error) {
+      setCurrentUser(currentUser);
+      throw error;
+    }
+  }, [currentUser, onUserUpdate]);
+
+  const refreshWishlist = useCallback(async () => {
+    if (!currentUser?.id) {
+      setWishlistListings([]);
+      return [];
+    }
+
+    setWishlistLoading(true);
+
+    try {
+      const savedListings = await getWishlistListings(currentUser.id);
+      setWishlistListings(savedListings);
+      return savedListings;
+    } catch (error) {
+      console.warn('Wishlist indisponível. A aplicação continua sem bloquear:', error?.message || error);
+      return [];
+    } finally {
+      setWishlistLoading(false);
+    }
+  }, [currentUser?.id]);
+
+  useEffect(() => {
+    if (!initialUser?.id) {
+      setWishlistListings([]);
+      return;
+    }
+
+    refreshWishlist();
+  }, [initialUser?.id, refreshWishlist]);
+
+  const isWishlisted = useCallback(
+    (listingId) => wishlistListings.some((listing) => listing.id === String(listingId)),
+    [wishlistListings],
+  );
+
+  const saveToWishlist = useCallback(async (listing) => {
+    const savedListing = await saveListingToWishlist(currentUser?.id, listing);
+
+    setWishlistListings((prev) => {
+      const withoutDuplicate = prev.filter((item) => item.id !== savedListing.id);
+      return [savedListing, ...withoutDuplicate];
+    });
+
+    return savedListing;
+  }, [currentUser?.id]);
+
+  const removeFromWishlist = useCallback(async (listingId) => {
+    await removeListingFromWishlist(currentUser?.id, listingId);
+    setWishlistListings((prev) => prev.filter((listing) => listing.id !== String(listingId)));
+  }, [currentUser?.id]);
+
+  const toggleWishlist = useCallback(async (listing) => {
+    if (!listing?.id) {
+      throw new Error('Anúncio inválido.');
+    }
+
+    if (isWishlisted(listing.id)) {
+      await removeFromWishlist(listing.id);
+      return false;
+    }
+
+    await saveToWishlist(listing);
+    return true;
+  }, [isWishlisted, removeFromWishlist, saveToWishlist]);
 
   const contextValue = useMemo(
     () => ({
       currentUser,
       updateUser,
       logout: onLogout,
+      wishlistListings,
+      wishlistLoading,
+      refreshWishlist,
+      isWishlisted,
+      saveToWishlist,
+      removeFromWishlist,
+      toggleWishlist,
     }),
-    [currentUser, onLogout],
+    [
+      currentUser,
+      updateUser,
+      onLogout,
+      wishlistListings,
+      wishlistLoading,
+      refreshWishlist,
+      isWishlisted,
+      saveToWishlist,
+      removeFromWishlist,
+      toggleWishlist,
+    ],
   );
 
   return (
