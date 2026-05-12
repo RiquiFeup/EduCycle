@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, screen, fireEvent, waitFor , act} from '@testing-library/react-native';
 import HomeScreen from '../../../src/screens/HomeScreen';
 import { getDocs } from 'firebase/firestore';
 
@@ -71,4 +71,31 @@ describe('HomeScreen Tests', () => {
       listing: expect.objectContaining({ id: '1' }),
     }));
   });
+
+  it('updates the sort direction when the toggle button is pressed', async () => {
+    render(<HomeScreen navigate={jest.fn()} />);
+
+    // Wait for the feed to render
+    await waitFor(() => {
+      expect(screen.getByTestId('home-feed-screen')).toBeTruthy();
+    }, { timeout: 5000 });
+
+    // 1. Check default state (Descending)
+    expect(screen.getByText('↓')).toBeTruthy();
+
+    // 2. Press the toggle button
+    const toggleButton = screen.getByText('↓');
+    
+    // Using act() tells Jest to wait for all internal FlatList background 
+    // updates to finish before moving on to the next line.
+    await act(async () => {
+      fireEvent.press(toggleButton);
+    });
+
+    // 3. Verify it changed to Ascending
+    await waitFor(() => {
+      expect(screen.getByText('↑')).toBeTruthy();
+    });
+  });
+
 });

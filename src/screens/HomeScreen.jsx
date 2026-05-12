@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback , useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,12 +8,15 @@ import {
   StatusBar,
   Platform,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../utils/firebase';
+import { sortListingsData } from '../utils/sorting';
 
 import SearchBar from '../components/SearchBar';
+import DropdownField from './listing/components/DropdownField';
 import ListingCard from '../components/ListingCard';
 import SectionHeader from '../components/SectionHeader';
 import FilterModal from '../components/FilterModal';
@@ -26,6 +29,22 @@ export default function HomeScreen({ navigate }) {
   const [page, setPage] = useState(1);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [sortField, setSortField] = useState('Date'); 
+  const [sortDirection, setSortDirection] = useState('desc'); // 'asc' or 'desc'
+  const SORT_FIELDS = ['Date', 'Price', 'Title', 'Subject'];
+
+  //sort helper toggle function
+  const toggleSortDirection = () => {
+    setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+  };
+
+  const getSectionTitle = () => {
+    if (sortField === 'Date') return sortDirection === 'desc' ? 'Recently Added' : 'Listed for Longer';
+    if (sortField === 'Price') return sortDirection === 'asc' ? 'Lowest Price First' : 'Highest Price First';
+    if (sortField === 'Title') return sortDirection === 'asc' ? 'Alphabetical (A-Z)' : 'Alphabetical (Z-A)';
+    if (sortField === 'Subject') return sortDirection === 'asc' ? 'Subjects (A-Z)' : 'Subjects (Z-A)';
+    return 'Listings';
+  };
 
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [filters, setFilters] = useState({
@@ -57,38 +76,27 @@ export default function HomeScreen({ navigate }) {
     fetchListings();
   }, []);
 
-  const filtered = listings.filter((listing) => {
+//preocessedListings combines Filtering and Searching
+const processedListings = useMemo(() => {
+    // 1. Text Filtering
+    let result = listings;
     if (queryText.trim()) {
       const q = queryText.toLowerCase();
-      const matchesSearch =
+      result = listings.filter((listing) =>
         listing.title?.toLowerCase().includes(q) ||
         listing.campus?.toLowerCase().includes(q) ||
         listing.institution?.toLowerCase().includes(q) ||
         (listing.subject && listing.subject.toLowerCase().includes(q)) ||
-        (listing.isbn && listing.isbn.toLowerCase().includes(q));
-      if (!matchesSearch) return false;
+        (listing.isbn && listing.isbn.toLowerCase().includes(q))
+      );
     }
 
-    // categoria
-    if (filters.category && listing.subject !== filters.category) {
-      return false;
-    }
+    // 2. Universal Sorting (Now using our pure utility function)
+    result = sortListingsData(result, sortField, sortDirection);
 
-    // nível académico
-    if (filters.academicLevel && listing.campus !== filters.academicLevel) {
-      return false;
-    }
-
-    // preço
-    const price = parseFloat(listing.price);
-    const minPrice = parseFloat(filters.minPrice);
-    const maxPrice = parseFloat(filters.maxPrice);
-
-    if (!isNaN(minPrice) && (isNaN(price) || price < minPrice)) return false;
-    if (!isNaN(maxPrice) && (isNaN(price) || price > maxPrice)) return false;
-
-    return true;
-  }).slice(0, page * PAGE_SIZE);
+    // 3. Pagination Slicing
+    return queryText.trim() ? result : result.slice(0, page * PAGE_SIZE);
+  }, [listings, queryText, sortField, sortDirection, page]);
 
   const hasMore = !queryText.trim() && page * PAGE_SIZE < listings.length;
 
@@ -116,8 +124,8 @@ export default function HomeScreen({ navigate }) {
   }, [hasMore, isLoadingMore]);
 
   const rows = [];
-  for (let index = 0; index < filtered.length; index += 2) {
-    rows.push(filtered.slice(index, index + 2));
+  for (let index = 0; index < processedListings.length; index += 2) {
+    rows.push(processedListings.slice(index, index + 2));
   }
 
   const renderFooter = () => {
@@ -183,9 +191,66 @@ export default function HomeScreen({ navigate }) {
                 testID="search-bar"
                 onFilterPress={() => setFilterModalVisible(true)}
               />
+              
+             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, zIndex: 10 }}>
+                <ScrollView 
+                  horizontal 
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ gap: 8, paddingRight: 8 }}
+                >
+                  {SORT_FIELDS.map((field) => (
+                    <TouchableOpacity
+                      key={field}
+                      onPress={() => {
+                        if (sortField === field) {
+                            toggleSortDirection();
+                          } else {
+                            setSortField(field);
+                          }
+                        }}
+                      style={{
+                        paddingHorizontal: 16,
+                        paddingVertical: 8,
+                        borderRadius: 20,
+                        backgroundColor: sortField === field ? COLORS.primary : COLORS.background,
+                        borderWidth: 1,
+                        borderColor: sortField === field ? COLORS.primary : COLORS.border,
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <Text style={{ 
+                        color: sortField === field ? '#FFF' : COLORS.text,
+                        fontWeight: sortField === field ? '600' : '400'
+                      }}>
+                        {field}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+                
+                <TouchableOpacity
+                  onPress={toggleSortDirection}
+                  style={{ 
+                    paddingHorizontal: 16, 
+                    paddingVertical: 8, 
+                    backgroundColor: COLORS.background, 
+                    borderRadius: 20, 
+                    borderWidth: 1, 
+                    borderColor: COLORS.border,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginLeft: 4
+                  }}
+                >
+                  <Text style={{ fontSize: 16, color: COLORS.text, fontWeight: 'bold' }}>
+                    {sortDirection === 'asc' ? '↑' : '↓'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
             </View>
             <SectionHeader
-              title="Recently Added"
+              title={getSectionTitle()}
               actionText="See all"
               onActionPress={() => {}}
             />

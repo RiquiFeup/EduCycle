@@ -183,8 +183,10 @@ T3-development/
 │   │   └── listing/       # Listing-specific screens and UI pieces
 │   ├── services/          # External service access, e.g. Firebase auth
 │   └── utils/             # Shared helpers, theme and validation
-├── __tests__/             # Unit and screen tests
-├── .maestro/flows/        # End-to-end test flows
+├── tests/
+│   ├── unit/              # Jest unit and component tests
+│   ├── acceptance/        # Maestro end-to-end flow YAML files
+│   └── setup/             # Jest global setup (mocks, environment)
 ├── assets/                # Icons and images
 └── .github/workflows/     # CI configuration
 ```
@@ -195,7 +197,9 @@ T3-development/
 - Screen-level logic belongs in `src/screens/`.
 - Communication with Firebase or other external services belongs in `src/services/`.
 - Generic helpers and shared constants belong in `src/utils/`.
-- Tests must be placed under `__tests__/` and grouped by type whenever possible.
+- Unit and component tests must be placed under `tests/unit/`.
+- End-to-end Maestro flows must be placed under `tests/acceptance/`.
+- Jest global setup files (mocks, environment configuration) must be placed under `tests/setup/`.
 
 ---
 
@@ -254,10 +258,11 @@ The codebase already follows a mostly consistent style. The team standard should
 ### 6.7 Testing rules
 
 - Every relevant screen or utility change should include or update tests.
-- Validation logic belongs in unit tests.
+- Validation logic belongs in unit tests under `tests/unit/`.
 - Screen interactions should be covered with React Native Testing Library.
-- Core user journeys should be covered with Maestro flows.
+- Core user journeys should be covered with Maestro flows under `tests/acceptance/`.
 - New features should not reduce overall test reliability.
+- Run `npm run test:coverage` locally before opening a pull request to verify no regressions.
 
 ---
 
@@ -273,10 +278,12 @@ The repository CI is configured for `main` and `development`, so the recommended
 
 Suggested branch naming:
 
-- `feature/login-validation`
-- `feature/new-listing-form`
+- `feat/login-validation`
+- `feat/new-listing-form`
 - `fix/profile-update-error`
 - `test/chat-screen`
+- `chore/update-ci-pipeline`
+- `docs/update-readme`
 
 ### 7.2 Commits
 
@@ -312,22 +319,28 @@ To keep the project maintainable over time, the team should follow these rules:
 - update tests whenever behaviour changes;
 - avoid committing generated coverage output unless explicitly required by the course setup.
 
-## 9. Recommended future tooling
+## 9. Tooling
 
-The current environment works, but the following additions are recommended:
+### Currently active
 
-- **ESLint** for static analysis
+- **ESLint v8** — static code analysis, configured in `.eslintrc.js`. Run with `npm run lint`.
+  - Plugins: `eslint-plugin-react`, `eslint-plugin-react-hooks`, `eslint-plugin-react-native`.
+  - ESLint v9 is **not compatible** with the current `.eslintrc.js` format — do not upgrade without migrating to the flat config format.
+- **GitHub Actions** — CI/CD pipeline running lint + tests on every push/PR and EAS builds on `main` merges.
+
+### Recommended additions
+
+The following tools are not yet installed but are recommended for improved developer experience:
+
 - **Prettier** for automatic formatting
 - **Husky + lint-staged** for pre-commit checks
-- **Conventional Commits** for cleaner history
+- **Conventional Commits** for cleaner, machine-readable history
 
 Suggested installation:
 
 ```bash
-npm install -D eslint prettier eslint-config-expo eslint-plugin-react eslint-plugin-react-hooks husky lint-staged
+npm install -D prettier lint-staged
 ```
-
-These tools are not strictly required to run the current project, but they would make the development environment more robust.
 
 ---
 
@@ -342,5 +355,3 @@ Every team member working on EduCycle should be able to:
 5. write React Native code using functional components and shared utilities;
 6. run tests before pushing code;
 7. keep documentation aligned with the real implementation.
-
-abstractions and shared utilities. The team standard is to use functional components, clear naming conventions, single quotes, semicolons, focused commits, tested changes and consistent theme usage.
