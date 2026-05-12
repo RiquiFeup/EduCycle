@@ -30,7 +30,9 @@ describe('HomeScreen Tests', () => {
     await waitFor(() => screen.getByPlaceholderText('Search by title, ISBN, or subject...'));
     const searchInput = screen.getByPlaceholderText('Search by title, ISBN, or subject...');
 
-    fireEvent.changeText(searchInput, 'Computer Science');
+    await act(async () => {
+      fireEvent.changeText(searchInput, 'Computer Science');
+    });
 
     expect(screen.getByText('Introdução à Programação')).toBeTruthy();
   });
@@ -40,7 +42,9 @@ describe('HomeScreen Tests', () => {
     await waitFor(() => screen.getByPlaceholderText('Search by title, ISBN, or subject...'));
     const searchInput = screen.getByPlaceholderText('Search by title, ISBN, or subject...');
 
-    fireEvent.changeText(searchInput, '978-0-471-32057');
+    await act(async () => {
+      fireEvent.changeText(searchInput, '978-0-471-32057');
+    });
 
     expect(screen.getByText('Física 11.º Ano – Resnick')).toBeTruthy();
   });
@@ -50,13 +54,15 @@ describe('HomeScreen Tests', () => {
     await waitFor(() => screen.getByPlaceholderText('Search by title, ISBN, or subject...'));
     const searchInput = screen.getByPlaceholderText('Search by title, ISBN, or subject...');
     
-    fireEvent.changeText(searchInput, 'XyZ_Impossible_Search_Term');
+    await act(async () => {
+      fireEvent.changeText(searchInput, 'XyZ_Impossible_Search_Term');
+    });
     
     expect(screen.getByTestId('empty-state')).toBeTruthy();
-    expect(screen.getByTestId('empty-state-text').props.children).toContain(
-      'No results found for'
+    expect(screen.getByTestId('empty-state-text').props.children).toBe(
+      'No results found for your filters'
     );
-    expect(screen.getByText('Try a different title, ISBN, or subject.')).toBeTruthy();
+    expect(screen.getByText('Try adjusting your search or clearing your filters.')).toBeTruthy();
   });
 
   it('navigates to listing details when a result is pressed', async () => {

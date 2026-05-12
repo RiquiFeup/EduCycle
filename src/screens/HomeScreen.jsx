@@ -19,6 +19,7 @@ import SearchBar from '../components/SearchBar';
 import DropdownField from './listing/components/DropdownField';
 import ListingCard from '../components/ListingCard';
 import SectionHeader from '../components/SectionHeader';
+import FilterModal from '../components/FilterModal';
 import { COLORS, SPACING } from '../utils/theme';
 import { PAGE_SIZE } from '../data/listings';
 
@@ -45,6 +46,14 @@ export default function HomeScreen({ navigate }) {
     return 'Listings';
   };
 
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [filters, setFilters] = useState({
+    category: '',
+    academicLevel: '',
+    minPrice: '',
+    maxPrice: '',
+  });
+
   useEffect(() => {
     const fetchListings = async () => {
       try {
@@ -67,13 +76,27 @@ export default function HomeScreen({ navigate }) {
     fetchListings();
   }, []);
 
-//preocessedListings combines Filtering and Searching
-const processedListings = useMemo(() => {
-    // 1. Text Filtering
+  // processedListings combines Filtering and Searching
+  const filteredListings = useMemo(() => {
     let result = listings;
+
+    // filtros
+    if (filters.category) {
+      result = result.filter(listing => listing.subject === filters.category);
+    }
+    if (filters.academicLevel) {
+      result = result.filter(listing => listing.campus === filters.academicLevel);
+    }
+    if (filters.minPrice) {
+      result = result.filter(listing => parseFloat(listing.price) >= parseFloat(filters.minPrice));
+    }
+    if (filters.maxPrice) {
+      result = result.filter(listing => parseFloat(listing.price) <= parseFloat(filters.maxPrice));
+    }
+    //texto
     if (queryText.trim()) {
       const q = queryText.toLowerCase();
-      result = listings.filter((listing) =>
+      result = result.filter((listing) =>
         listing.title?.toLowerCase().includes(q) ||
         listing.campus?.toLowerCase().includes(q) ||
         listing.institution?.toLowerCase().includes(q) ||
@@ -82,14 +105,20 @@ const processedListings = useMemo(() => {
       );
     }
 
-    // 2. Universal Sorting (Now using our pure utility function)
-    result = sortListingsData(result, sortField, sortDirection);
+    return result;
+  }, [listings, queryText, filters]);
 
-    // 3. Pagination Slicing
-    return queryText.trim() ? result : result.slice(0, page * PAGE_SIZE);
-  }, [listings, queryText, sortField, sortDirection, page]);
+  const processedListings = useMemo(() => {
+    const sorted = sortListingsData(filteredListings, sortField, sortDirection);
 
-  const hasMore = !queryText.trim() && page * PAGE_SIZE < listings.length;
+    const isSearchingOrFiltering = queryText.trim() || Object.values(filters).some(Boolean);
+    return isSearchingOrFiltering ? sorted : sorted.slice(0, page * PAGE_SIZE);
+  }, [filteredListings, sortField, sortDirection, page, queryText, filters]);
+
+  const hasMore = useMemo(() => {
+    const isSearchingOrFiltering = queryText.trim() || Object.values(filters).some(Boolean);
+    return !isSearchingOrFiltering && page * PAGE_SIZE < filteredListings.length;
+  }, [filteredListings.length, page, queryText, filters]);
 
   const handleToggleFavourite = (id) => {
     setListings((prev) =>
@@ -180,6 +209,7 @@ const processedListings = useMemo(() => {
                 onChangeText={setQueryText}
                 placeholder="Search by title, ISBN, or subject..."
                 testID="search-bar"
+                onFilterPress={() => setFilterModalVisible(true)}
               />
               
              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, zIndex: 10 }}>
@@ -263,17 +293,25 @@ const processedListings = useMemo(() => {
           <View style={styles.empty} testID="empty-state">
             <Text style={styles.emptyIcon}>📭</Text>
             <Text style={styles.emptyTitle} testID="empty-state-text">
-              {queryText.trim()
-                ? `No results found for "${queryText.trim()}"`
+              {queryText.trim() || Object.values(filters).some(Boolean)
+                ? `No results found for your filters`
                 : 'No listings found.'}
             </Text>
-            {queryText.trim() ? (
+            {queryText.trim() || Object.values(filters).some(Boolean) ? (
               <Text style={styles.emptyHint}>
-                Try a different title, ISBN, or subject.
+                Try adjusting your search or clearing your filters.
               </Text>
             ) : null}
           </View>
         }
+      />
+
+      <FilterModal
+        visible={filterModalVisible}
+        onClose={() => setFilterModalVisible(false)}
+        filters={filters}
+        setFilters={setFilters}
+        onApply={() => setFilterModalVisible(false)}
       />
     </SafeAreaView>
   );
