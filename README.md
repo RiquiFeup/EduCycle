@@ -275,23 +275,6 @@ During the Sprint 0 Review, the teaching staff identified the following issues t
 | 4   | **PBIs must be well specified**                  | Each PBI was rewritten with clear, testable acceptance criteria (Given/When/Then format) and linked to the corresponding feature branch and pull request.    |
 | 5   | **Not sure about the CI pipeline**               | The pipeline was stabilised: a merge-blocking error was fixed, flaky timeout tests were removed, and the full unit-test suite was merged into `development`. |
 
-#### Scrum Board
-
-_Screenshot of the Sprint 1 GitHub Projects board to be added here._
-
-#### Delivered PBIs
-
-The following Product Backlog Items were completed and closed during Sprint 1:
-
-| PBI                    | User Story                                                                                                                        | PR / Branch                                               |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| [#65](../../issues/65) | As a student, I want to **create an account with my email and password**, so that I can have a verified identity on the platform. | [PR #112](../../pull/112) — `feat/UserLogin`              |
-| [#66](../../issues/66) | As a registered user, I want to **log in with my account**, so that I can access my personal session.                             | [PR #112](../../pull/112) — `feat/UserLogin`              |
-| [#67](../../issues/67) | As a logged-in user, I want to **view my account information**, so that I can see my profile details at any time.                 | [PR #113](../../pull/113) — `feat/UserProfileEdit`        |
-| [#68](../../issues/68) | As a logged-in user, I want to **edit my account information**, so that I can keep my profile up to date.                         | [PR #113](../../pull/113) — `feat/UserProfileEdit`        |
-| [#70](../../issues/70) | As a buyer, I want to **search listings by ISBN or subject**, so that I can quickly find the school materials I need.             | [PR #115](../../pull/115) — `feat/searchListings`         |
-| [#72](../../issues/72) | As a seller, I want to **create a listing for an item**, so that I can make my school materials available on the platform.        | [PR #109](../../pull/109) — `feat/listing-details-screen` |
-
 #### Retrospective
 
 **What went well**
@@ -319,7 +302,27 @@ The Sprint 1 Review session surfaced the following problems that the team commit
 
 ### Sprint 2
 
-_Sprint 2 plan and retrospective to be added._
+#### Scrum Board
+
+_Sprint 2 GitHub Projects board screenshot to be added here._
+
+#### Sprint 1 Review — Feedback Addressed
+
+During the Sprint 1 Review, the teaching staff and team identified the following issues that were committed to and addressed during Sprint 2:
+
+| # | Feedback Received | Action Taken |
+|---|---|---|
+| 1 | **Sprint tags missing on issues** | `sprint-1` and `sprint-2` labels were created and applied to all relevant issues. Tagging is now mandatory as part of the Definition of Ready. |
+| 2 | **Back button does not work** | All stack screens were audited. Swipe-right back navigation was implemented (`feat/swipeBack`, PR #129). |
+| 3 | **No GitHub automation for deployment and metrics** | A two-phase CI/CD pipeline was configured: Phase 1 runs lint + test coverage on every PR; Phase 2 triggers an EAS Android APK build on every merge to `main` (`feature/deployment-pipeline`, PR #126). |
+
+**Strategy & verifiable action points**
+
+| Action Point | Owner | Verifiable Outcome |
+|---|---|---|
+| Correct README architecture section to reflect React Native stack | Whole team | README no longer references Flutter; all technology references match the actual codebase |
+| Investigate Firestore real-time listeners for the feed | Whole team | Feed screen uses `onSnapshot`; a manual refresh button is no longer necessary |
+| Design wishlist alert mechanism | Whole team | A user who has wishlisted an item receives a notification when a matching listing is published |
 
 ---
 
