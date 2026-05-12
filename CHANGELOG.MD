@@ -99,3 +99,108 @@ This release marks the **first functional version** of the platform. Users can n
 ### Infrastructure & DevOps
 
 - Added survey results, appreciation report, and references to `docs/` and `README.md` (`7430454`, PR #73).
+
+---
+
+## [Sprint 2] – 2026-05-12
+
+### Value Added to End-Users
+
+This release significantly expands the listing and discovery experience. Users can now:
+
+- **Upload multiple photos** for a single listing, providing richer visual context for buyers.
+- **View the condition** of a listed item (e.g. Like New, Good, Fair) directly on the listing details screen, with strict validation enforced at creation time.
+- **Tag listings with an ISBN**, making them immediately discoverable through ISBN-based search.
+- **Sort the feed** by price, date or relevance using a dynamic chip-based UI, without leaving the home screen.
+- **Save listings to a wishlist** for later reference.
+- **Change their display name** directly from the profile screen.
+- **Navigate back** using a swipe-right gesture on any screen, matching native iOS and Android patterns.
+- **Dismiss the keyboard** by dragging down on any scrollable screen.
+
+---
+
+### Added
+
+#### Listing Enhancements
+
+- **Multi-photo upload for listings**
+  - Implemented the ability to attach multiple images to a single listing using `expo-image-picker`.
+  - Updated the Firestore data model to store an array of image URIs per listing.
+  - Updated the listing details screen to display all uploaded photos.
+  - _Commits:_ `6de7b33`, `a6e6bba`
+
+- **Listing condition display and validation**
+  - Added a mandatory condition field (e.g. Like New, Good, Fair, Poor) to the listing creation form.
+  - Enforced strict validation: listings cannot be submitted without a valid condition value.
+  - Displayed the condition label prominently on the listing details screen.
+  - _Commits:_ `e9860a8` (PR #127 — `feature/listing-condition-details`)
+
+- **ISBN tagging on listings**
+  - Added an optional ISBN input field to the new listing form.
+  - Stored the ISBN in Firestore alongside the listing document.
+  - ISBN is displayed as a searchable tag on the listing card and detail view.
+  - _Commits:_ `79442fb` (PR #130 — `feat/isbnTag`)
+
+#### Discovery & Feed
+
+- **Dynamic feed sorting**
+  - Implemented client-side sorting logic for the listing feed (by price ascending/descending, most recent, relevance).
+  - Added a horizontal chip-based sort selector UI component to the home screen.
+  - Pure utility functions for sort logic were covered by unit tests.
+  - _Commits:_ `11dff2b` (PR #131 — `feat/sorting-listings`)
+
+#### User Features
+
+- **Wishlist**
+  - Implemented the ability for users to save listings to a personal wishlist.
+  - Wishlist state is persisted in Firestore under the user's document.
+  - _Commits:_ `6cf2117`, `efb58f5`, `42ca328`
+
+- **Profile name change**
+  - Implemented the ability for users to update their display name from the profile screen.
+  - Name updates are persisted to Firestore and reflected in the UI immediately.
+  - _Commits:_ `fcc8b03` (PR #135 — `feat/ProfileChanges`)
+
+#### Navigation & UX
+
+- **Swipe-right to go back**
+  - Configured React Navigation to support swipe-right back navigation across all stack screens, matching native platform conventions.
+  - _Commits:_ `864ce64` (PR #129 — `feat/swipeBack`)
+
+- **Keyboard dismiss on scroll**
+  - Applied `keyboardDismissMode="on-drag"` to all scrollable views (`ScrollView`, `FlatList`), allowing users to dismiss the keyboard by dragging down.
+  - _Commits:_ `c320247` (PR #128 — `feat/hideKeyboard`)
+
+---
+
+### Fixed
+
+- Fixed ESLint v9 incompatibility breaking the CI pipeline; downgraded to ESLint v8 (`d44ff78`).
+- Fixed `package.json` test scripts pointing to the old `__tests__/` directory after folder restructure (`5cc6345`).
+- Fixed lint script path not re-applied after post-merge regression (`6bd8ee9`).
+- Fixed residual folder path issue after multi-branch structural changes (`e02fbb8`).
+- Fixed missing `testEnvironment` declaration in Jest configuration causing test environment errors (`f5d22fe`).
+- Fixed syntax error in Jest setup Firestore mock, which prevented the entire test suite from running (`87c9be7`).
+- Fixed wishlist logic errors and profile name change not correctly persisting to Firestore (`fcc8b03`).
+- Resolved directory rename conflicts during `tests/` folder restructure (`f31a017`).
+
+---
+
+### Tests
+
+- Added unit tests for listing multi-photo upload feature (`e7eedf4`).
+- Added acceptance tests (Maestro) for multi-photo upload functionality (`d5ea9ee`).
+- Added unit tests for listing condition validation logic (`dcae211`).
+- Added acceptance tests (Maestro) for condition validation flow (`c93e131`).
+- Added unit test for the wishlist feature (`42ca328`).
+- Added unit tests and pure utility tests for feed sorting logic (`11dff2b`).
+
+---
+
+### Infrastructure & DevOps
+
+- Introduced a two-phase CI/CD pipeline (PR #126 — `feature/deployment-pipeline`):
+  - **Phase 1 — Quality & Tests:** runs ESLint and `npm run test:coverage` on every push/PR to `main` or `development`.
+  - **Phase 2 — Build & Deploy:** triggers an EAS Android APK build only on pushes to `main`, using the `EXPO_TOKEN` secret.
+  - _Commits:_ `08c4445`, `55e11d1`
+- Reorganised test directory from `__tests__/` to `tests/unit/` and `tests/acceptance/` for cleaner separation (`af07024`).
