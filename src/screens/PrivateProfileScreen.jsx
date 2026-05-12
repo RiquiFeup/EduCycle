@@ -23,12 +23,16 @@ import CommunityBadge from '../components/CommunityBadge';
 import SectionHeader from '../components/SectionHeader';
 import { COLORS, SPACING } from '../utils/theme';
 import { UserContext } from '../contexts/UserContext';
+import { uploadProfilePhoto } from '../services/profileService';
+import { validateProfileDisplayName } from '../utils/validation';
 
 export default function PrivateProfileScreen({ navigate }) {
   const { currentUser, updateUser, logout } = useContext(UserContext);
-  
+
   const [myListings, setMyListings] = useState([]);
   const [loadingListings, setLoadingListings] = useState(true);
+  const [isSavingProfile, setSavingProfile] = useState(false);
+  const [isUploadingPhoto, setUploadingPhoto] = useState(false);
 
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -67,9 +71,7 @@ export default function PrivateProfileScreen({ navigate }) {
   }, [currentUser?.id]);
 
   const handleNameChange = (text) => {
-    if (/^[a-zA-ZÀ-ÿ\s]*$/.test(text)) {
-      setEditForm((prev) => ({ ...prev, name: text }));
-    }
+    setEditForm((prev) => ({ ...prev, name: text }));
   };
 
   const handleCourseChange = (text) => {
@@ -84,9 +86,31 @@ export default function PrivateProfileScreen({ navigate }) {
     }
   };
 
-  const handleSaveProfile = () => {
-    updateUser(editForm);
-    setEditModalVisible(false);
+  const handleSaveProfile = async () => {
+    const sanitizedForm = {
+      name: editForm.name.trim(),
+      course: editForm.course.trim(),
+      phone: editForm.phone.trim(),
+    };
+    const displayNameError = validateProfileDisplayName(sanitizedForm.name);
+
+    if (displayNameError) {
+      Alert.alert('Nome inválido', displayNameError);
+      return;
+    }
+
+    try {
+      setSavingProfile(true);
+      await updateUser(sanitizedForm);
+      setEditModalVisible(false);
+    } catch (error) {
+      Alert.alert(
+        'Perfil não atualizado',
+        error.message || 'Não foi possível guardar as alterações ao perfil. Tenta novamente.',
+      );
+    } finally {
+      setSavingProfile(false);
+    }
   };
 
   const pickImage = async (useCamera = false) => {
@@ -100,9 +124,10 @@ export default function PrivateProfileScreen({ navigate }) {
       }
 
       result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 0.5,
+        quality: 0.7,
       });
     } else {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -113,14 +138,27 @@ export default function PrivateProfileScreen({ navigate }) {
 
       result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.5,
+        allowsEditing: false,
+        quality: 0.8,
+        selectionLimit: 1,
       });
     }
 
     if (!result.canceled) {
-      updateUser({ photo: result.assets[0].uri });
+      const selectedAsset = result.assets?.[0];
+
+      try {
+        setUploadingPhoto(true);
+        const photoUrl = await uploadProfilePhoto(currentUser.id, selectedAsset);
+        await updateUser({ photo: photoUrl });
+      } catch (error) {
+        Alert.alert(
+          'Foto de perfil não atualizada',
+          error.message || 'Escolhe uma imagem válida e tenta novamente.',
+        );
+      } finally {
+        setUploadingPhoto(false);
+      }
     }
   };
 
@@ -132,8 +170,15 @@ export default function PrivateProfileScreen({ navigate }) {
     ]);
   };
 
-  const togglePhoneVisibility = () => {
-    updateUser({ isPhonePublic: !currentUser.isPhonePublic });
+  const togglePhoneVisibility = async () => {
+    try {
+      await updateUser({ isPhonePublic: !currentUser.isPhonePublic });
+    } catch (error) {
+      Alert.alert(
+        'Privacy setting not updated',
+        error.message || 'Could not update your privacy setting. Please try again.',
+      );
+    }
   };
 
   const handleLogout = () => {
@@ -191,6 +236,7 @@ export default function PrivateProfileScreen({ navigate }) {
             <TouchableOpacity
               style={styles.actionButton}
               onPress={() => setEditModalVisible(true)}
+              testID="edit-profile-button"
             >
               <Text style={styles.actionButtonText}>Edit Profile</Text>
             </TouchableOpacity>
@@ -270,28 +316,41 @@ export default function PrivateProfileScreen({ navigate }) {
 
           <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false} keyboardDismissMode="on-drag">
             <View style={styles.editPhotoContainer}>
-              <Image source={{ uri: currentUser.photo }} style={styles.editPhoto} />
+              <View style={styles.editPhotoWrapper}>
+                <Image source={{ uri: currentUser.photo }} style={styles.editPhoto} />
+                {isUploadingPhoto ? (
+                  <View style={styles.photoLoadingOverlay} testID="profile-photo-uploading">
+                    <ActivityIndicator size="small" color={COLORS.background} />
+                  </View>
+                ) : null}
+              </View>
               <TouchableOpacity
-                style={styles.changePhotoBtn}
+                style={[styles.changePhotoBtn, isUploadingPhoto && styles.disabledButton]}
                 onPress={handleChangePhotoAlert}
+                disabled={isUploadingPhoto || isSavingProfile}
+                testID="change-profile-photo-button"
               >
-                <Text style={styles.changePhotoText}>Change Photo</Text>
+                <Text style={styles.changePhotoText}>
+                  {isUploadingPhoto ? 'Uploading...' : 'Change Photo'}
+                </Text>
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.inputLabel}>Full Name (Max 50 chars)</Text>
+            <Text style={styles.inputLabel}>Display name (Max 50 chars)</Text>
             <TextInput
               style={styles.textInput}
               value={editForm.name}
+              testID="input-display-name"
               onChangeText={handleNameChange}
               maxLength={50}
-              placeholder="e.g. João Silva"
+              placeholder="e.g. 02May02"
             />
 
             <Text style={styles.inputLabel}>Course (Max 50 chars)</Text>
             <TextInput
               style={styles.textInput}
               value={editForm.course}
+              testID="input-course"
               onChangeText={handleCourseChange}
               maxLength={50}
               placeholder="e.g. Informatics Engineering"
@@ -301,14 +360,24 @@ export default function PrivateProfileScreen({ navigate }) {
             <TextInput
               style={styles.textInput}
               value={editForm.phone}
+              testID="input-phone"
               keyboardType="phone-pad"
               onChangeText={handlePhoneChange}
               maxLength={15}
               placeholder="e.g. +351912345678"
             />
 
-            <TouchableOpacity style={styles.saveButton} onPress={handleSaveProfile}>
-              <Text style={styles.saveButtonText}>Save Changes</Text>
+            <TouchableOpacity
+              style={[styles.saveButton, isSavingProfile && styles.disabledButton]}
+              onPress={handleSaveProfile}
+              disabled={isSavingProfile || isUploadingPhoto}
+              testID="save-profile-button"
+            >
+              {isSavingProfile ? (
+                <ActivityIndicator size="small" color={COLORS.background} />
+              ) : (
+                <Text style={styles.saveButtonText}>Save Changes</Text>
+              )}
             </TouchableOpacity>
 
             <View style={{ height: 40 }} />
@@ -446,12 +515,24 @@ const styles = StyleSheet.create({
   modalClose: { fontSize: 16, color: COLORS.primary, fontWeight: '600' },
   modalBody: { padding: SPACING.horizontal, paddingTop: SPACING.lg },
   editPhotoContainer: { alignItems: 'center', marginBottom: 24 },
+  editPhotoWrapper: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 12,
+    overflow: 'hidden',
+  },
   editPhoto: {
     width: 100,
     height: 100,
     borderRadius: 50,
     backgroundColor: COLORS.border,
-    marginBottom: 12,
+  },
+  photoLoadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
   },
   changePhotoBtn: {
     paddingVertical: 6,
@@ -484,5 +565,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
+  disabledButton: { opacity: 0.6 },
   saveButtonText: { color: COLORS.background, fontSize: 16, fontWeight: '700' },
 });

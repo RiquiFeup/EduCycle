@@ -5,7 +5,7 @@ import {
   onAuthStateChanged,
   updateProfile,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../utils/firebase';
 import { normalizeEmail } from '../utils/validation';
 
@@ -155,7 +155,7 @@ export const updateUserAccount = async (userId, data) => {
       }
     }
     
-    await updateDoc(userDocRef, cleanData);
+    await setDoc(userDocRef, cleanData, { merge: true });
   } catch (error) {
     console.error("Firebase Update Error:", error);
     throw new Error('Could not update profile information. Please try again.');

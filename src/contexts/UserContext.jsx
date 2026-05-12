@@ -43,13 +43,18 @@ export const UserProvider = ({ children, initialUser, onUserUpdate, onLogout }) 
     });
   }, [initialUser]);
 
-  const updateUser = useCallback((newData) => {
-    let updated;
-    setCurrentUser((prev) => {
-      updated = { ...prev, ...newData };
-      return updated;
-    });
-    onUserUpdate?.({ ...currentUser, ...newData });
+  const updateUser = useCallback(async (newData) => {
+    const updatedUser = { ...currentUser, ...newData };
+
+    setCurrentUser(updatedUser);
+
+    try {
+      await onUserUpdate?.(updatedUser);
+      return updatedUser;
+    } catch (error) {
+      setCurrentUser(currentUser);
+      throw error;
+    }
   }, [currentUser, onUserUpdate]);
 
   const refreshWishlist = useCallback(async () => {
@@ -65,7 +70,7 @@ export const UserProvider = ({ children, initialUser, onUserUpdate, onLogout }) 
       setWishlistListings(savedListings);
       return savedListings;
     } catch (error) {
-      console.error('Erro a carregar wishlist:', error);
+      console.warn('Wishlist indisponível. A aplicação continua sem bloquear:', error?.message || error);
       return [];
     } finally {
       setWishlistLoading(false);
