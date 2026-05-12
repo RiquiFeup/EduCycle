@@ -1,14 +1,12 @@
-import { getDownloadURL, ref } from 'firebase/storage';
+import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 import * as FileSystem from 'expo-file-system/legacy';
 import { uploadProfilePhoto } from '../../../src/services/profileService';
 
 beforeEach(() => {
   jest.clearAllMocks();
   FileSystem.getInfoAsync.mockResolvedValue({ exists: true, size: 1024 });
-  FileSystem.uploadAsync.mockResolvedValue({
-    status: 200,
-    body: JSON.stringify({ downloadTokens: 'mock-token' }),
-  });
+  FileSystem.readAsStringAsync.mockResolvedValue('mock-base64');
+  uploadString.mockResolvedValue({});
   getDownloadURL.mockResolvedValue('https://mock.url/profile.jpg');
 });
 
@@ -21,32 +19,46 @@ describe('uploadProfilePhoto', () => {
     });
 
     expect(ref).toHaveBeenCalledWith(expect.anything(), expect.stringMatching(/^profilePictures\/user-123\/\d+\.jpg$/));
-    expect(FileSystem.uploadAsync).toHaveBeenCalledWith(
-      expect.stringContaining('https://firebasestorage.googleapis.com/v0/b/mock-bucket.appspot.com/o'),
-      'file:///avatar.jpg',
-      expect.objectContaining({
-        httpMethod: 'POST',
-        uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
-        headers: expect.objectContaining({
-          Authorization: 'Bearer mock-id-token',
-          'Content-Type': 'image/jpeg',
-        }),
-      }),
+    expect(FileSystem.readAsStringAsync).toHaveBeenCalledWith('file:///avatar.jpg', {
+      encoding: 'base64',
+    });
+    expect(uploadString).toHaveBeenCalledWith(
+      { path: expect.stringMatching(/^profilePictures\/user-123\/\d+\.jpg$/) },
+      'data:image/jpeg;base64,mock-base64',
+      'data_url',
+      { contentType: 'image/jpeg' },
     );
     expect(url).toBe('https://mock.url/profile.jpg');
   });
 
-  test('returns the download token URL when Firebase getDownloadURL cannot read metadata', async () => {
-    getDownloadURL.mockRejectedValueOnce(new Error('No download URL'));
-
+  test('uses picker-provided JPEG base64 data before reading from the file system', async () => {
     const url = await uploadProfilePhoto('user-123', {
-      uri: 'file:///avatar.webp',
-      mimeType: 'image/webp',
+      uri: 'file:///avatar.heic',
+      mimeType: 'image/heic',
+      base64: 'picker-base64',
       fileSize: 1024,
     });
 
-    expect(url).toContain('https://firebasestorage.googleapis.com/v0/b/mock-bucket.appspot.com/o/profilePictures%2Fuser-123%2F');
-    expect(url).toContain('token=mock-token');
+    expect(FileSystem.readAsStringAsync).not.toHaveBeenCalled();
+    expect(uploadString).toHaveBeenCalledWith(
+      { path: expect.stringMatching(/^profilePictures\/user-123\/\d+\.jpg$/) },
+      'data:image/jpeg;base64,picker-base64',
+      'data_url',
+      { contentType: 'image/jpeg' },
+    );
+    expect(url).toBe('https://mock.url/profile.jpg');
+  });
+
+  test('reports a friendly error when Firebase Storage cannot return a download URL', async () => {
+    getDownloadURL.mockRejectedValueOnce(new Error('No download URL'));
+
+    await expect(
+      uploadProfilePhoto('user-123', {
+        uri: 'file:///avatar.webp',
+        mimeType: 'image/webp',
+        fileSize: 1024,
+      }),
+    ).rejects.toThrow('Could not upload the selected image. Please try again.');
   });
 
   test('rejects invalid image types before uploading', async () => {
@@ -58,7 +70,8 @@ describe('uploadProfilePhoto', () => {
       }),
     ).rejects.toThrow('Please upload a JPG, PNG or WebP image.');
 
-    expect(FileSystem.uploadAsync).not.toHaveBeenCalled();
+    expect(FileSystem.readAsStringAsync).not.toHaveBeenCalled();
+    expect(uploadString).not.toHaveBeenCalled();
     expect(getDownloadURL).not.toHaveBeenCalled();
   });
 
@@ -73,7 +86,8 @@ describe('uploadProfilePhoto', () => {
       }),
     ).rejects.toThrow('Profile image must be 5 MB or less.');
 
-    expect(FileSystem.uploadAsync).not.toHaveBeenCalled();
+    expect(FileSystem.readAsStringAsync).not.toHaveBeenCalled();
+    expect(uploadString).not.toHaveBeenCalled();
     expect(getDownloadURL).not.toHaveBeenCalled();
   });
 });

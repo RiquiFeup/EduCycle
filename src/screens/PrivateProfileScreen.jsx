@@ -128,6 +128,7 @@ export default function PrivateProfileScreen({ navigate }) {
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.7,
+        base64: true,
       });
     } else {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -138,8 +139,10 @@ export default function PrivateProfileScreen({ navigate }) {
 
       result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
-        allowsEditing: false,
+        allowsEditing: true,
+        aspect: [1, 1],
         quality: 0.8,
+        base64: true,
         selectionLimit: 1,
       });
     }
