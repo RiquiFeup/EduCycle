@@ -76,13 +76,27 @@ export default function HomeScreen({ navigate }) {
     fetchListings();
   }, []);
 
-//preocessedListings combines Filtering and Searching
-const processedListings = useMemo(() => {
-    // 1. Text Filtering
+  // processedListings combines Filtering and Searching
+  const filteredListings = useMemo(() => {
     let result = listings;
+
+    // filtros
+    if (filters.category) {
+      result = result.filter(listing => listing.subject === filters.category);
+    }
+    if (filters.academicLevel) {
+      result = result.filter(listing => listing.campus === filters.academicLevel);
+    }
+    if (filters.minPrice) {
+      result = result.filter(listing => parseFloat(listing.price) >= parseFloat(filters.minPrice));
+    }
+    if (filters.maxPrice) {
+      result = result.filter(listing => parseFloat(listing.price) <= parseFloat(filters.maxPrice));
+    }
+    //texto
     if (queryText.trim()) {
       const q = queryText.toLowerCase();
-      result = listings.filter((listing) =>
+      result = result.filter((listing) =>
         listing.title?.toLowerCase().includes(q) ||
         listing.campus?.toLowerCase().includes(q) ||
         listing.institution?.toLowerCase().includes(q) ||
@@ -91,14 +105,20 @@ const processedListings = useMemo(() => {
       );
     }
 
-    // 2. Universal Sorting (Now using our pure utility function)
-    result = sortListingsData(result, sortField, sortDirection);
+    return result;
+  }, [listings, queryText, filters]);
 
-    // 3. Pagination Slicing
-    return queryText.trim() ? result : result.slice(0, page * PAGE_SIZE);
-  }, [listings, queryText, sortField, sortDirection, page]);
+  const processedListings = useMemo(() => {
+    const sorted = sortListingsData(filteredListings, sortField, sortDirection);
 
-  const hasMore = !queryText.trim() && page * PAGE_SIZE < listings.length;
+    const isSearchingOrFiltering = queryText.trim() || Object.values(filters).some(Boolean);
+    return isSearchingOrFiltering ? sorted : sorted.slice(0, page * PAGE_SIZE);
+  }, [filteredListings, sortField, sortDirection, page, queryText, filters]);
+
+  const hasMore = useMemo(() => {
+    const isSearchingOrFiltering = queryText.trim() || Object.values(filters).some(Boolean);
+    return !isSearchingOrFiltering && page * PAGE_SIZE < filteredListings.length;
+  }, [filteredListings.length, page, queryText, filters]);
 
   const handleToggleFavourite = (id) => {
     setListings((prev) =>
