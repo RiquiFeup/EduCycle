@@ -12,16 +12,16 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { db } from '../utils/firebase';
-import { sortListingsData } from '../utils/sorting';
+import { db } from '../../utils/firebase';
+import { sortListingsData } from '../../utils/sorting';
 
-import SearchBar from '../components/SearchBar';
-import DropdownField from './listing/components/DropdownField';
-import ListingCard from '../components/ListingCard';
-import SectionHeader from '../components/SectionHeader';
-import FilterModal from '../components/FilterModal';
-import { COLORS, SPACING } from '../utils/theme';
-import { PAGE_SIZE } from '../data/listings';
+import SearchBar from '../../components/SearchBar';
+import DropdownField from '../listing/components/DropdownField';
+import ListingCard from '../../components/ListingCard';
+import SectionHeader from '../../components/SectionHeader';
+import FilterModal from '../../components/FilterModal';
+import { COLORS, SPACING } from '../../utils/theme';
+import { PAGE_SIZE } from '../../data/listings';
 
 export default function HomeScreen({ navigate }) {
   const [queryText, setQueryText] = useState('');

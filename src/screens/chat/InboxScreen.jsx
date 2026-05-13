@@ -10,8 +10,8 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING } from '../utils/theme';
-import { CONVERSATIONS } from '../data/conversations';
+import { COLORS, SPACING } from '../../utils/theme';
+import { CONVERSATIONS } from '../../data/conversations';
 
 export default function InboxScreen({ navigate }) {
   const renderConversation = ({ item }) => (

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import AuthCard from '../components/AuthCard';
-import { COLORS, SPACING, RADIUS } from '../utils/theme';
+import AuthCard from '../../components/AuthCard';
+import { COLORS, SPACING, RADIUS } from '../../utils/theme';
 
 export default function WelcomeScreen({ onGetStarted, onLoginPress }) {
   return (

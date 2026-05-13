@@ -9,16 +9,16 @@ import {
   PanResponder,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import NewListingScreen from './listing/NewListingScreen';
-import ListingDetailsScreen from './listing/ListingDetailsScreen';
+import NewListingScreen from '../listing/NewListingScreen.jsx';
+import ListingDetailsScreen from '../listing/ListingDetailsScreen.jsx';
 import HomeScreen from './HomeScreen.jsx';
-import WishlistScreen from './WishlistScreen';
-import PrivateProfileScreen from './PrivateProfileScreen';
-import PublicProfileScreen from './PublicProfileScreen';
-import InboxScreen from './InboxScreen';
-import ChatScreen from './ChatScreen';
-import { UserProvider } from '../contexts/UserContext';
-import { COLORS, SPACING, RADIUS } from '../utils/theme';
+import WishlistScreen from '../listing/WishlistScreen.jsx';
+import PrivateProfileScreen from '../profile/PrivateProfileScreen';
+import PublicProfileScreen from '../profile/PublicProfileScreen';
+import InboxScreen from '../chat/InboxScreen';
+import ChatScreen from '../chat/ChatScreen';
+import { UserProvider } from '../../contexts/UserContext.jsx';
+import { COLORS, SPACING, RADIUS } from '../../utils/theme.js';
 
 function PlaceholderTabScreen({
   title,

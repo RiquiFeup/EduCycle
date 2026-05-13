@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent, screen, act } from '@testing-library/react-native';
-import ChatScreen from '../../../src/screens/ChatScreen';
+import ChatScreen from '../../../../src/screens/chat/ChatScreen';
 
 describe('ChatScreen Tests', () => {
   beforeEach(() => {
