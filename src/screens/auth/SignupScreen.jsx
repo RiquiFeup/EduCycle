@@ -7,11 +7,15 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
-import AuthCard from '../components/AuthCard';
-import { validateLoginForm } from '../utils/validation';
-import { COLORS, SPACING, RADIUS } from '../utils/theme';
+import AuthCard from '../../components/AuthCard';
+import { validateSignupForm } from '../../utils/validation';
+import { COLORS, SPACING, RADIUS } from '../../utils/theme';
 
-export default function LoginScreen({ onLoginSuccess, onBack, onNavigateToSignup }) {
+export default function SignupScreen({
+  onSignupSuccess,
+  onBack,
+  onNavigateToLogin,
+}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
@@ -20,8 +24,8 @@ export default function LoginScreen({ onLoginSuccess, onBack, onNavigateToSignup
 
   const formValues = useMemo(() => ({ email, password }), [email, password]);
 
-  const handleLogin = async () => {
-    const validationErrors = validateLoginForm(formValues);
+  const handleSignup = async () => {
+    const validationErrors = validateSignupForm(formValues);
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
@@ -32,9 +36,9 @@ export default function LoginScreen({ onLoginSuccess, onBack, onNavigateToSignup
     setLoading(true);
 
     try {
-      await onLoginSuccess({ email, password });
+      await onSignupSuccess({ email, password });
     } catch (error) {
-      setSubmitError(error?.message || 'Could not log in. Please try again.');
+      setSubmitError(error?.message || 'Could not create the account. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -42,23 +46,23 @@ export default function LoginScreen({ onLoginSuccess, onBack, onNavigateToSignup
 
   return (
     <AuthCard
-      title="Welcome back"
-      subtitle="Log in with the email and password you used to register."
+      title="Create account"
+      subtitle="Create your account to start exchanging materials on EduCycle."
       footer={
         <View style={styles.footerLinks}>
-          <Pressable testID="login-back-button" onPress={onBack}>
+          <Pressable testID="signup-back-button" onPress={onBack}>
             <Text style={styles.footerLink}>Back</Text>
           </Pressable>
-          <Pressable testID="login-go-to-signup-button" onPress={onNavigateToSignup}>
-            <Text style={styles.footerLink}>Create account</Text>
+          <Pressable testID="signup-go-to-login-button" onPress={onNavigateToLogin}>
+            <Text style={styles.footerLink}>I already have an account</Text>
           </Pressable>
         </View>
       }
     >
-      <View testID="login-screen">
+      <View testID="signup-screen">
         <Text style={styles.label}>Email</Text>
         <TextInput
-          testID="login-email-input"
+          testID="signup-email-input"
           placeholder="name@email.com"
           placeholderTextColor={COLORS.textMuted}
           keyboardType="email-address"
@@ -69,14 +73,14 @@ export default function LoginScreen({ onLoginSuccess, onBack, onNavigateToSignup
           style={[styles.input, errors.email && styles.inputError]}
         />
         {errors.email ? (
-          <Text testID="login-email-input-error" style={styles.error}>
+          <Text testID="signup-email-input-error" style={styles.error}>
             {errors.email}
           </Text>
         ) : null}
 
         <Text style={styles.label}>Password</Text>
         <TextInput
-          testID="login-password-input"
+          testID="signup-password-input"
           placeholder="At least 6 characters"
           placeholderTextColor={COLORS.textMuted}
           secureTextEntry
@@ -85,31 +89,31 @@ export default function LoginScreen({ onLoginSuccess, onBack, onNavigateToSignup
           style={[styles.input, errors.password && styles.inputError]}
         />
         {errors.password ? (
-          <Text testID="login-password-input-error" style={styles.error}>
+          <Text testID="signup-password-input-error" style={styles.error}>
             {errors.password}
           </Text>
         ) : null}
 
         {submitError ? (
-          <Text testID="login-error-message" style={styles.error}>
+          <Text testID="signup-error-message" style={styles.error}>
             {submitError}
           </Text>
         ) : null}
 
         <Pressable
-          testID="login-submit-button"
+          testID="signup-submit-button"
           style={({ pressed }) => [
             styles.button,
             loading && styles.buttonDisabled,
             pressed && !loading && styles.pressed,
           ]}
-          onPress={handleLogin}
+          onPress={handleSignup}
           disabled={loading}
         >
           {loading ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <Text style={styles.buttonText}>Log in</Text>
+            <Text style={styles.buttonText}>Create account</Text>
           )}
         </Pressable>
       </View>

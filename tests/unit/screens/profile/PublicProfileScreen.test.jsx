@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react-native';
-import PublicProfileScreen from '../../../src/screens/PublicProfileScreen';
-import { UserContext } from '../../../src/contexts/UserContext';
+import PublicProfileScreen from '../../../../src/screens/profile/PublicProfileScreen';
+import { UserContext } from '../../../../src/contexts/UserContext';
 
 const mockUser = { id: 'user-123', name: 'João Silva', photo: 'uri', course: 'Engenharia', communities: [] };
 

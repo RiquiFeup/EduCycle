@@ -275,28 +275,18 @@ During the Sprint 0 Review, the teaching staff identified the following issues t
 | 4   | **PBIs must be well specified**                  | Each PBI was rewritten with clear, testable acceptance criteria (Given/When/Then format) and linked to the corresponding feature branch and pull request.    |
 | 5   | **Not sure about the CI pipeline**               | The pipeline was stabilised: a merge-blocking error was fixed, flaky timeout tests were removed, and the full unit-test suite was merged into `development`. |
 
-#### Retrospective
+#### Sprint Retrospective
 
 **What went well**
-All six planned PBIs were delivered and merged into `development` before the review deadline. Firebase Authentication and profile management were successfully integrated end-to-end. The CI pipeline was stabilised, unblocking the team from merge conflicts that plagued Sprint 0. Test coverage improved across authentication and profile flows.
+All six planned PBIs were delivered and merged into development before the review deadline. Firebase Authentication and profile management were successfully integrated end-to-end. The CI pipeline was stabilised, unblocking the team from merge conflicts that plagued Sprint 0. Test coverage improved across authentication and profile flows.
 
-**Issues identified in the Sprint 1 Review**
+Retrospective includes suggestions for improvement and a strategy including verifiable action points:
 
-The Sprint 1 Review session surfaced the following problems that the team committed to addressing in Sprint 2.
-
-| #   | Issue                                                                                                                                                                                   | Root Cause                                                                                                                           | Action Point for Sprint 2                                                                                                                                                                                                                            |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | **Sprint tags missing on issues** — issues on the GitHub Projects board were not labelled with the corresponding sprint tag, making traceability and filtering difficult                | Labels were never systematically applied when issues were created or moved across sprints                                            | Add `sprint-1`, `sprint-2`, … labels to the repository and retroactively tag all existing issues. Enforce tagging as a mandatory step in the Definition of Ready for all new issues.                                                                 |
-| 2   | **Back button does not work** — the back navigation button in several screens fails to navigate or crashes the app                                                                      | Navigation stack configuration is inconsistent; some screens were pushed without a proper parent route in the React Navigation stack | Audit every screen in the navigator. Ensure all detail/edit screens are nested inside a Stack navigator with a header back button enabled. Add a Maestro or Jest acceptance test that verifies back navigation before merging any screen-related PR. |
-| 3   | **No GitHub automation for deployment and metrics** — the project lacks automated deployment to a staging environment and has no visibility into build health or test metrics over time | The CI workflow only runs tests; no CD step or reporting job was ever configured                                                     | Extend `.github/workflows/ci.yml` with (a) an EAS build step triggered on merges to `development`, and (b) a test-results summary step that posts coverage and pass/fail counts as a PR comment.                                                     |
-
-**Strategy & verifiable action points**
-
-| Action Point                                               | Owner      | Verifiable Outcome                                                                                                                   |
-| ---------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Create and apply sprint-scoped labels to all issues        | Whole team | All open issues carry exactly one sprint label; confirmed via GitHub Issues filter `label:sprint-2` returning only Sprint 2 items    |
-| Fix back navigation on all screens and add regression test | Whole team | `npx maestro test .maestro/back_navigation.yaml` passes in CI without manual intervention                                            |
-| Add CD + metrics step to GitHub Actions workflow           | Whole team | A new `deploy` job appears in the Actions tab after every merge to `development`; PR comments show test pass rate and coverage delta |
+| Suggestion for Improvement | Strategy / Action Point | Verifiable Outcome |
+|---|---|---|
+| **Sprint tags on issues** | Add sprint tags to each issue in GitHub. | All open issues carry exactly one sprint label. |
+| **Back button not working** | The back button does not function; fix the navigation routing. | Back button is fixed and an automated navigation test passes. |
+| **Automation, pipeline & tests** | Set up GitHub automation for app deployment and metrics, improve testing, document bugs/fixes, and enhance the pipeline. | Deploy jobs run on Actions; tests are improved, and PRs document metrics/fixes. |
 
 ---
 
@@ -322,13 +312,22 @@ During the Sprint 1 Review, the teaching staff and team identified the following
 | 2 | **Back button does not work** | All stack screens were audited. Swipe-right back navigation was implemented (`feat/swipeBack`, PR #129). |
 | 3 | **No GitHub automation for deployment and metrics** | A two-phase CI/CD pipeline was configured: Phase 1 runs lint + test coverage on every PR; Phase 2 triggers an EAS Android APK build on every merge to `main` (`feature/deployment-pipeline`, PR #126). |
 
-**Strategy & verifiable action points**
+#### Sprint Retrospective
 
-| Action Point | Owner | Verifiable Outcome |
+**What went well**
+The listing discovery experience was significantly expanded and delivered on time. Multi-photo uploads, mandatory condition validation, and ISBN tagging were successfully delivered. Feed sorting, wishlist saving functionalities, and a native swipe-right navigation were securely integrated, greatly improving the fluidity of the user experience.
+
+Retrospective includes suggestions for improvement and a strategy including verifiable action points:
+
+| Suggestion for Improvement | Strategy / Action Point | Verifiable Outcome |
 |---|---|---|
-| Correct README architecture section to reflect React Native stack | Whole team | README no longer references Flutter; all technology references match the actual codebase |
-| Investigate Firestore real-time listeners for the feed | Whole team | Feed screen uses `onSnapshot`; a manual refresh button is no longer necessary |
-| Design wishlist alert mechanism | Whole team | A user who has wishlisted an item receives a notification when a matching listing is published |
+| **Wishlist photos missing** | The wishlist does not fetch listing photos (Update queries to fetch images). | Wishlist screen successfully displays the correct listing images. |
+| **Top bar height incorrect** | The header bar on a listing needs to be moved lower (Add appropriate padding/margin). | Listing header aligns perfectly with other screens in the app. |
+| **Back button route wrong** | The "back" button doesn't return to the last tab, but goes to the homepage instead (Fix navigation stack). | Back button correctly restores the previously active tab or screen. |
+| **PR Reviews needed** | Pull requests must be approved by someone other than the author (Require reviewers). | Branch protection rules block merges without at least 1 approval. |
+| **Test Commits** | Keep up the practice: every push must include a commit containing tests for that feature. | All feature PRs include corresponding unit/e2e tests in their commits. |
+| **UI Responsiveness & Consistency**| Make the UI more responsive and consistent (Audit components and layout). | Screens adapt fluidly and use uniform dimensions, spacing, and styles. |
+| **Subject Selection Dropdown** | Change the subject selection in a listing to a searchable dropdown menu. | The 'Subject' field in New Listing is a searchable dropdown component. |
 
 ---
 

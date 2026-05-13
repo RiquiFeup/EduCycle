@@ -10,9 +10,9 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import ListingCard from '../components/ListingCard';
-import { UserContext } from '../contexts/UserContext';
-import { COLORS, SPACING, RADIUS } from '../utils/theme';
+import ListingCard from '../../components/ListingCard';
+import { UserContext } from '../../contexts/UserContext';
+import { COLORS, SPACING, RADIUS } from '../../utils/theme';
 
 export default function WishlistScreen({ navigate }) {
   const wishlistContext = useContext(UserContext) ?? {};

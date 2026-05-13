@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import SignupScreen from './src/screens/SignupScreen';
-import LoginScreen from './src/screens/LoginScreen';
-import WelcomeScreen from './src/screens/WelcomeScreen';
-import MainAppScreen from './src/screens/MainAppScreen';
+import SignupScreen from './src/screens/auth/SignupScreen';
+import LoginScreen from './src/screens/auth/LoginScreen';
+import WelcomeScreen from './src/screens/auth/WelcomeScreen';
+import MainAppScreen from './src/screens/main/MainAppScreen';
 import {
   registerUser,
   loginUser,

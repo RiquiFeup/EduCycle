@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
-import InboxScreen from '../../../src/screens/InboxScreen';
+import InboxScreen from '../../../../src/screens/chat/InboxScreen';
 
 describe('InboxScreen Tests', () => {
   /*

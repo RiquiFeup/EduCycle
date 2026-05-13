@@ -7,15 +7,11 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
-import AuthCard from '../components/AuthCard';
-import { validateSignupForm } from '../utils/validation';
-import { COLORS, SPACING, RADIUS } from '../utils/theme';
+import AuthCard from '../../components/AuthCard';
+import { validateLoginForm } from '../../utils/validation';
+import { COLORS, SPACING, RADIUS } from '../../utils/theme';
 
-export default function SignupScreen({
-  onSignupSuccess,
-  onBack,
-  onNavigateToLogin,
-}) {
+export default function LoginScreen({ onLoginSuccess, onBack, onNavigateToSignup }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
@@ -24,8 +20,8 @@ export default function SignupScreen({
 
   const formValues = useMemo(() => ({ email, password }), [email, password]);
 
-  const handleSignup = async () => {
-    const validationErrors = validateSignupForm(formValues);
+  const handleLogin = async () => {
+    const validationErrors = validateLoginForm(formValues);
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) {
@@ -36,9 +32,9 @@ export default function SignupScreen({
     setLoading(true);
 
     try {
-      await onSignupSuccess({ email, password });
+      await onLoginSuccess({ email, password });
     } catch (error) {
-      setSubmitError(error?.message || 'Could not create the account. Please try again.');
+      setSubmitError(error?.message || 'Could not log in. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -46,23 +42,23 @@ export default function SignupScreen({
 
   return (
     <AuthCard
-      title="Create account"
-      subtitle="Create your account to start exchanging materials on EduCycle."
+      title="Welcome back"
+      subtitle="Log in with the email and password you used to register."
       footer={
         <View style={styles.footerLinks}>
-          <Pressable testID="signup-back-button" onPress={onBack}>
+          <Pressable testID="login-back-button" onPress={onBack}>
             <Text style={styles.footerLink}>Back</Text>
           </Pressable>
-          <Pressable testID="signup-go-to-login-button" onPress={onNavigateToLogin}>
-            <Text style={styles.footerLink}>I already have an account</Text>
+          <Pressable testID="login-go-to-signup-button" onPress={onNavigateToSignup}>
+            <Text style={styles.footerLink}>Create account</Text>
           </Pressable>
         </View>
       }
     >
-      <View testID="signup-screen">
+      <View testID="login-screen">
         <Text style={styles.label}>Email</Text>
         <TextInput
-          testID="signup-email-input"
+          testID="login-email-input"
           placeholder="name@email.com"
           placeholderTextColor={COLORS.textMuted}
           keyboardType="email-address"
@@ -73,14 +69,14 @@ export default function SignupScreen({
           style={[styles.input, errors.email && styles.inputError]}
         />
         {errors.email ? (
-          <Text testID="signup-email-input-error" style={styles.error}>
+          <Text testID="login-email-input-error" style={styles.error}>
             {errors.email}
           </Text>
         ) : null}
 
         <Text style={styles.label}>Password</Text>
         <TextInput
-          testID="signup-password-input"
+          testID="login-password-input"
           placeholder="At least 6 characters"
           placeholderTextColor={COLORS.textMuted}
           secureTextEntry
@@ -89,31 +85,31 @@ export default function SignupScreen({
           style={[styles.input, errors.password && styles.inputError]}
         />
         {errors.password ? (
-          <Text testID="signup-password-input-error" style={styles.error}>
+          <Text testID="login-password-input-error" style={styles.error}>
             {errors.password}
           </Text>
         ) : null}
 
         {submitError ? (
-          <Text testID="signup-error-message" style={styles.error}>
+          <Text testID="login-error-message" style={styles.error}>
             {submitError}
           </Text>
         ) : null}
 
         <Pressable
-          testID="signup-submit-button"
+          testID="login-submit-button"
           style={({ pressed }) => [
             styles.button,
             loading && styles.buttonDisabled,
             pressed && !loading && styles.pressed,
           ]}
-          onPress={handleSignup}
+          onPress={handleLogin}
           disabled={loading}
         >
           {loading ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <Text style={styles.buttonText}>Create account</Text>
+            <Text style={styles.buttonText}>Log in</Text>
           )}
         </Pressable>
       </View>
