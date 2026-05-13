@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
-import LoginScreen from '../../../src/screens/LoginScreen';
-import { validateLoginForm } from '../../../src/utils/validation';
+import LoginScreen from '../../../../src/screens/auth/LoginScreen';
+import { validateLoginForm } from '../../../../src/utils/validation';
 
 // Mock do utilitário
-jest.mock('../../../src/utils/validation', () => ({
+jest.mock('../../../../src/utils/validation', () => ({
   validateLoginForm: jest.fn(),
 }));
 

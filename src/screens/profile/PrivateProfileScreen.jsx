@@ -17,14 +17,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../utils/firebase';
-import ListingCard from '../components/ListingCard';
-import CommunityBadge from '../components/CommunityBadge';
-import SectionHeader from '../components/SectionHeader';
-import { COLORS, SPACING } from '../utils/theme';
-import { UserContext } from '../contexts/UserContext';
-import { uploadProfilePhoto } from '../services/profileService';
-import { validateProfileDisplayName } from '../utils/validation';
+import { db } from '../../utils/firebase';
+import ListingCard from '../../components/ListingCard';
+import CommunityBadge from '../../components/CommunityBadge';
+import SectionHeader from '../../components/SectionHeader';
+import { COLORS, SPACING } from '../../utils/theme';
+import { UserContext } from '../../contexts/UserContext';
+import { uploadProfilePhoto } from '../../services/profileService';
+import { validateProfileDisplayName } from '../../utils/validation';
 
 export default function PrivateProfileScreen({ navigate }) {
   const { currentUser, updateUser, logout } = useContext(UserContext);

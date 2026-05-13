@@ -8,8 +8,8 @@ import {
   StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { UserProvider } from '../contexts/UserContext';
-import HomeScreen from './HomeScreen';
+import { UserProvider } from '../../contexts/UserContext';
+import HomeScreen from '../main/HomeScreen';
 import PublicProfileScreen from './PublicProfileScreen';
 import PrivateProfileScreen from './PrivateProfileScreen';
 

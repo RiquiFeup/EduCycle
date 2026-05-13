@@ -13,13 +13,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../utils/firebase';
+import { db } from '../../utils/firebase';
 
-import ListingCard from '../components/ListingCard';
-import CommunityBadge from '../components/CommunityBadge';
-import SectionHeader from '../components/SectionHeader';
-import { COLORS, SPACING, RADIUS } from '../utils/theme';
-import { UserContext } from '../contexts/UserContext';
+import ListingCard from '../../components/ListingCard';
+import CommunityBadge from '../../components/CommunityBadge';
+import SectionHeader from '../../components/SectionHeader';
+import { COLORS, SPACING, RADIUS } from '../../utils/theme';
+import { UserContext } from '../../contexts/UserContext';
 
 export default function PublicProfileScreen({ isPreview, sellerId, navigate }) {
   const { currentUser } = useContext(UserContext);

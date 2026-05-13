@@ -13,8 +13,8 @@ import {
   Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS } from '../utils/theme';
-import { MESSAGES, CONVERSATIONS } from '../data/conversations';
+import { COLORS, SPACING, RADIUS } from '../../utils/theme';
+import { MESSAGES, CONVERSATIONS } from '../../data/conversations';
 
 export default function ChatScreen({ conversationId, navigate }) {
   const conversation = CONVERSATIONS.find((c) => c.id === conversationId);

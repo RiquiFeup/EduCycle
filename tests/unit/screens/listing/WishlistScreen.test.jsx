@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react-native';
-import WishlistScreen from '../../../src/screens/WishlistScreen';
-import { UserContext } from '../../../src/contexts/UserContext';
+import WishlistScreen from '../../../../src/screens/listing/WishlistScreen';
+import { UserContext } from '../../../../src/contexts/UserContext';
 
 const savedListings = [
   {

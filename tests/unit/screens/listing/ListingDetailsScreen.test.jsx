@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react-native';
-import ListingDetailsScreen from '../../../src/screens/listing/ListingDetailsScreen';
+import ListingDetailsScreen from '../../../../src/screens/listing/ListingDetailsScreen';
 
 describe('ListingDetailsScreen - Testes UAT e Renderização Visual', () => {
   
