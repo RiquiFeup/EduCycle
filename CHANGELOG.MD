@@ -149,6 +149,11 @@ This release significantly expands the listing and discovery experience. Users c
   - Pure utility functions for sort logic were covered by unit tests.
   - _Commits:_ `11dff2b` (PR #131 — `feat/sorting-listings`)
 
+- **Filter listings**
+  - Implemented a filter popup allowing users to filter listings by category and condition.
+  - Integrated filtering logic with the home screen search and feed.
+  - _Commits:_ `719cd53`, `e7bdc85`, `0db7131` (PR #137 — `feat/filterListings`)
+
 #### User Features
 
 - **Wishlist**
@@ -156,10 +161,10 @@ This release significantly expands the listing and discovery experience. Users c
   - Wishlist state is persisted in Firestore under the user's document.
   - _Commits:_ `6cf2117`, `efb58f5`, `42ca328`
 
-- **Profile name change**
-  - Implemented the ability for users to update their display name from the profile screen.
-  - Name updates are persisted to Firestore and reflected in the UI immediately.
-  - _Commits:_ `fcc8b03` (PR #135 — `feat/ProfileChanges`)
+- **Profile updates**
+  - Implemented the ability for users to update their display name and profile photo.
+  - Fixed reliability issues with profile photo uploads by using Firestore-safe data URIs.
+  - _Commits:_ `fcc8b03`, `b3c7f94`, `2df5bc5` (PR #135, PR #138 — `feat/ProfileChanges`)
 
 #### Navigation & UX
 
@@ -182,6 +187,8 @@ This release significantly expands the listing and discovery experience. Users c
 - Fixed missing `testEnvironment` declaration in Jest configuration causing test environment errors (`f5d22fe`).
 - Fixed syntax error in Jest setup Firestore mock, which prevented the entire test suite from running (`87c9be7`).
 - Fixed wishlist logic errors and profile name change not correctly persisting to Firestore (`fcc8b03`).
+- Fixed profile photo upload reliability and Firestore storage persistence (`b3c7f94`).
+- Fixed HomeScreen search tests and empty state messaging after UI changes (`88063af`).
 - Resolved directory rename conflicts during `tests/` folder restructure (`f31a017`).
 
 ---

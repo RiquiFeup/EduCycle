@@ -16,6 +16,8 @@ This document records the bugs and infrastructure issues encountered during **Sp
 | 6 | Jest environment not declared, causing test failures | `f5d22fe` | ✅ Fixed |
 | 7 | Syntax error in Jest setup Firestore mock | `87c9be7` | ✅ Fixed |
 | 8 | Wishlist errors and profile name change not working correctly | `fcc8b03` | ✅ Fixed |
+| 9 | Profile photo upload fails or does not persist correctly | `b3c7f94` | ✅ Fixed |
+| 10 | HomeScreen search tests failing after UI changes | `88063af` | ✅ Fixed |
 
 ---
 
@@ -124,6 +126,32 @@ Two related issues were found during the integration of wishlist and profile fea
 
 **Resolution:**  
 Corrected the wishlist logic errors and implemented the profile name change flow, ensuring that name updates are persisted to Firestore and reflected in the UI immediately after the user submits the form.
+
+---
+
+### Bug 9 — Profile photo upload fails or does not persist correctly
+
+**Identified in:** `feat/ProfileChanges` branch (PR #138)  
+**Commits:** `b3c7f94`, `2df5bc5`
+
+**Description:**  
+The initial implementation of profile photo uploads using Firebase Storage was unreliable and occasionally failed to return a valid download URL, or the URL was not correctly persisted to the user's Firestore document.
+
+**Resolution:**  
+Refactored the `uploadProfilePhoto` service to convert the selected image into a Firestore-safe data URI (base64). Added size validation to ensure the data URI fits within Firestore's document size limits. This simplified the persistence logic and improved reliability.
+
+---
+
+### Bug 10 — HomeScreen search tests failing after UI changes
+
+**Identified in:** `feat/filterListings` branch (PR #137)  
+**Commits:** `88063af`
+
+**Description:**  
+After implementing the filtering system and updating the empty state messaging, the unit tests for `HomeScreen` started failing because they were looking for the old "No results found for" text. Additionally, some async state updates in the search bar were not being correctly wrapped in `act()`.
+
+**Resolution:**  
+Updated the `HomeScreen` tests to match the new empty state text ("No results found for your filters") and wrapped the search text change events in `act()` to ensure all state updates are processed before assertions.
 
 ---
 

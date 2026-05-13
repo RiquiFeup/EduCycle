@@ -304,7 +304,13 @@ The Sprint 1 Review session surfaced the following problems that the team commit
 
 #### Scrum Board
 
-_Sprint 2 GitHub Projects board screenshot to be added here._
+<p align="center">
+  <img src="docs/imgs/Sprint2_ScrumBoard.png" alt="Sprint 1 Scrum Board" width="900"/>
+</p>
+
+<p align="center">
+  <img src="docs/imgs/Sprint2_ScrumBoard_end.png" alt="Sprint 1 Scrum Board" width="900"/>
+</p>
 
 #### Sprint 1 Review — Feedback Addressed
 
