@@ -1,8 +1,8 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import { ScrollView, Text } from 'react-native';
-import styles from './styles';
+import { useTheme } from '../../contexts/ThemeContext';
+import createStyles from './styles';
 
-// Components
 import PhotoUpload from './components/PhotoUpload';
 import InputField from './components/InputField';
 import DropdownField from './components/DropdownField';
@@ -18,11 +18,13 @@ const CAMPUSES = ['FEUP', 'ISEP', 'UP Law', 'Colégio Dom Dinis', 'Other'];
 const LISTING_TYPES = ['Sell', 'Swap'];
 
 export default function NewListingScreen({ onPublish }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { currentUser } = useContext(UserContext);
 
   const [photos, setPhotos]             = useState([]);
   const [title, setTitle]               = useState('');
-  const [description, setDescription]   = useState(''); // Novo campo de descrição
+  const [description, setDescription]   = useState('');
   const [subject, setSubject]           = useState('');
   const [condition, setCondition]       = useState('');
   const [campus, setCampus]             = useState('');
@@ -37,7 +39,7 @@ export default function NewListingScreen({ onPublish }) {
     const e = {};
     if (photos.length === 0)    e.photos      = 'At least one photo is required.';
     if (!title.trim())          e.title       = 'Title is required.';
-    if (!description.trim())    e.description = 'Description is required.'; // Validação da descrição
+    if (!description.trim())    e.description = 'Description is required.';
     if (!subject)               e.subject     = 'Please select a subject.';
     if (!condition)             e.condition   = 'Please select a condition.';
     else if (!CONDITIONS.includes(condition)) e.condition = 'Invalid condition selected.';
@@ -61,8 +63,7 @@ export default function NewListingScreen({ onPublish }) {
       );
       setPublished(true);
       if (onPublish) onPublish({ title, description, subject, condition, campus, listingType, price, isbn });
-      
-      // Limpar formulário após sucesso
+
       setTitle('');
       setDescription('');
       setPrice('');
@@ -71,7 +72,7 @@ export default function NewListingScreen({ onPublish }) {
       setSubject('');
       setCondition('');
       setCampus('');
-      
+
     } catch (error) {
       setErrors({ ...e, submit: 'Não foi possível publicar o anúncio. Tenta novamente.' });
     } finally {
@@ -90,10 +91,10 @@ export default function NewListingScreen({ onPublish }) {
     >
       <Text testID="screen-title" accessible={true} accessibilityLabel="New Listing" style={styles.screenTitle}>New Listing</Text>
 
-      <PhotoUpload 
-        photos={photos} 
-        setPhotos={setPhotos} 
-        error={errors.photos} 
+      <PhotoUpload
+        photos={photos}
+        setPhotos={setPhotos}
+        error={errors.photos}
       />
 
       <InputField
@@ -106,7 +107,6 @@ export default function NewListingScreen({ onPublish }) {
         accessibilityLabel="Title"
       />
 
-      {/* Novo Input para a Descrição */}
       <InputField
         label="Description"
         value={description}

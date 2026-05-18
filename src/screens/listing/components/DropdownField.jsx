@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import styles from '../styles';
+import { useTheme } from '../../../contexts/ThemeContext';
+import createStyles from '../styles';
 
 export default function DropdownField({
   label,
@@ -13,6 +14,9 @@ export default function DropdownField({
   isRequired = false,
   isCampus = false,
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <View>
       <Text style={styles.label}>

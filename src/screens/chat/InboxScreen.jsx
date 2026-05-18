@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,10 +10,14 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING } from '../../utils/theme';
+import { useTheme } from '../../contexts/ThemeContext';
+import { SPACING } from '../../utils/theme';
 import { CONVERSATIONS } from '../../data/conversations';
 
 export default function InboxScreen({ navigate }) {
+  const { colors, isDark } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const renderConversation = ({ item }) => (
     <TouchableOpacity
       style={styles.conversationCard}
@@ -71,7 +75,7 @@ export default function InboxScreen({ navigate }) {
 
   return (
     <SafeAreaView style={styles.safeArea} testID="inbox-screen">
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
 
       <View style={styles.header}>
         <Text style={styles.logo}>EduCycle</Text>
@@ -101,148 +105,150 @@ export default function InboxScreen({ navigate }) {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.horizontal,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  logo: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: COLORS.primary,
-    letterSpacing: -0.5,
-  },
-  headerTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: COLORS.text,
-  },
-  headerRight: {
-    width: 60,
-  },
-  listContent: {
-    flexGrow: 1,
-  },
-  conversationCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.horizontal,
-    paddingVertical: 14,
-  },
-  avatarContainer: {
-    position: 'relative',
-    marginRight: 14,
-  },
-  avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: COLORS.border,
-  },
-  unreadDot: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: COLORS.primary,
-    borderWidth: 2,
-    borderColor: COLORS.background,
-  },
-  conversationContent: {
-    flex: 1,
-  },
-  conversationHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  userName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.text,
-    flex: 1,
-    marginRight: 8,
-  },
-  userNameUnread: {
-    fontWeight: '800',
-  },
-  timestamp: {
-    fontSize: 13,
-    color: COLORS.textMuted,
-  },
-  timestampUnread: {
-    color: COLORS.primary,
-    fontWeight: '600',
-  },
-  messageRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  lastMessage: {
-    fontSize: 14,
-    color: COLORS.textMuted,
-    flex: 1,
-    marginRight: 8,
-  },
-  lastMessageUnread: {
-    color: COLORS.textSecondary,
-    fontWeight: '600',
-  },
-  unreadBadge: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 6,
-  },
-  unreadBadgeText: {
-    color: '#FFFFFF',
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  separator: {
-    height: 1,
-    backgroundColor: COLORS.border,
-    marginLeft: SPACING.horizontal + 52 + 14,
-    marginRight: SPACING.horizontal,
-  },
-  emptyContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: SPACING.lg,
-    paddingTop: 80,
-  },
-  emptyIcon: {
-    fontSize: 48,
-    marginBottom: SPACING.md,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: COLORS.text,
-    marginBottom: 8,
-  },
-  emptyDescription: {
-    fontSize: 15,
-    color: COLORS.textMuted,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-});
+function createStyles(colors) {
+  return StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: colors.background,
+      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.horizontal,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    logo: {
+      fontSize: 22,
+      fontWeight: '800',
+      color: colors.primary,
+      letterSpacing: -0.5,
+    },
+    headerTitle: {
+      fontSize: 17,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    headerRight: {
+      width: 60,
+    },
+    listContent: {
+      flexGrow: 1,
+    },
+    conversationCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: SPACING.horizontal,
+      paddingVertical: 14,
+    },
+    avatarContainer: {
+      position: 'relative',
+      marginRight: 14,
+    },
+    avatar: {
+      width: 52,
+      height: 52,
+      borderRadius: 26,
+      backgroundColor: colors.border,
+    },
+    unreadDot: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      width: 14,
+      height: 14,
+      borderRadius: 7,
+      backgroundColor: colors.primary,
+      borderWidth: 2,
+      borderColor: colors.background,
+    },
+    conversationContent: {
+      flex: 1,
+    },
+    conversationHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 4,
+    },
+    userName: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.text,
+      flex: 1,
+      marginRight: 8,
+    },
+    userNameUnread: {
+      fontWeight: '800',
+    },
+    timestamp: {
+      fontSize: 13,
+      color: colors.textMuted,
+    },
+    timestampUnread: {
+      color: colors.primary,
+      fontWeight: '600',
+    },
+    messageRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    lastMessage: {
+      fontSize: 14,
+      color: colors.textMuted,
+      flex: 1,
+      marginRight: 8,
+    },
+    lastMessageUnread: {
+      color: colors.textSecondary,
+      fontWeight: '600',
+    },
+    unreadBadge: {
+      backgroundColor: colors.primary,
+      borderRadius: 10,
+      minWidth: 20,
+      height: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 6,
+    },
+    unreadBadgeText: {
+      color: '#FFFFFF',
+      fontSize: 11,
+      fontWeight: '700',
+    },
+    separator: {
+      height: 1,
+      backgroundColor: colors.border,
+      marginLeft: SPACING.horizontal + 52 + 14,
+      marginRight: SPACING.horizontal,
+    },
+    emptyContainer: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: SPACING.lg,
+      paddingTop: 80,
+    },
+    emptyIcon: {
+      fontSize: 48,
+      marginBottom: SPACING.md,
+    },
+    emptyTitle: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: 8,
+    },
+    emptyDescription: {
+      fontSize: 15,
+      color: colors.textMuted,
+      textAlign: 'center',
+      lineHeight: 22,
+    },
+  });
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import {
   View,
   Text,
@@ -18,22 +18,25 @@ import { db } from '../../utils/firebase';
 import ListingCard from '../../components/ListingCard';
 import CommunityBadge from '../../components/CommunityBadge';
 import SectionHeader from '../../components/SectionHeader';
-import { COLORS, SPACING, RADIUS } from '../../utils/theme';
+import { SPACING, RADIUS } from '../../utils/theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import { UserContext } from '../../contexts/UserContext';
 
 export default function PublicProfileScreen({ isPreview, sellerId, navigate }) {
+  const { colors, isDark } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const { currentUser } = useContext(UserContext);
 
   const [displayedUser, setDisplayedUser] = useState(isPreview ? currentUser : null);
   const [loading, setLoading] = useState(true);
-  const [userListings, setUserListings] = useState([]); // Agora começa vazio
+  const [userListings, setUserListings] = useState([]);
 
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
         let targetUserId = sellerId;
 
-        // 1. Carregar os dados do utilizador
         if (isPreview) {
           targetUserId = currentUser?.id;
           setDisplayedUser(currentUser);
@@ -45,7 +48,6 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate }) {
           }
         }
 
-        // 2. Carregar os anúncios reais do utilizador
         if (targetUserId) {
           const q = query(collection(db, 'listings'), where('sellerId', '==', targetUserId));
           const querySnapshot = await getDocs(q);
@@ -78,7 +80,7 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate }) {
   if (loading) {
     return (
       <SafeAreaView style={styles.stateContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.stateText}>A carregar perfil...</Text>
       </SafeAreaView>
     );
@@ -97,7 +99,10 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate }) {
 
   return (
     <SafeAreaView style={styles.safeArea} testID="public-profile-screen">
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.background}
+      />
 
       {isPreview ? (
         <View style={[styles.header, styles.previewHeader]}>
@@ -177,7 +182,7 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate }) {
                 />
               ))
             ) : (
-              <Text style={{ color: COLORS.textMuted, marginTop: 10 }}>Este utilizador ainda não tem anúncios ativos.</Text>
+              <Text style={{ color: colors.textMuted, marginTop: 10 }}>Este utilizador ainda não tem anúncios ativos.</Text>
             )}
             {userListings.length === 1 ? <View style={styles.emptySlot} /> : null}
           </View>
@@ -187,136 +192,138 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate }) {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-  },
-  stateContainer: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.lg,
-  },
-  stateText: {
-    marginTop: SPACING.sm,
-    color: COLORS.textMuted,
-    fontSize: 15,
-  },
-  stateButton: {
-    marginTop: SPACING.lg,
-    paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.md,
-    backgroundColor: COLORS.surface,
-    borderRadius: RADIUS.button,
-    borderWidth: 1,
-    borderColor: COLORS.borderDark,
-  },
-  stateButtonText: {
-    color: COLORS.primary,
-    fontWeight: '600',
-    fontSize: 15,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.horizontal,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  backBtn: { padding: 4 },
-  backIcon: { fontSize: 24, color: COLORS.text },
-  headerTitle: { fontSize: 17, fontWeight: '700', color: COLORS.text },
-  placeholder: { width: 32 },
-  previewHeader: {
-    backgroundColor: COLORS.primarySoft,
-    borderBottomColor: COLORS.borderDark,
-  },
-  previewTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: COLORS.text,
-  },
-  exitPreviewBtn: {
-    backgroundColor: COLORS.text,
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-  },
-  exitPreviewText: {
-    color: COLORS.background,
-    fontWeight: '700',
-    fontSize: 13,
-  },
-  scrollContent: { paddingBottom: SPACING.xl },
-  profileHeaderContainer: { paddingTop: SPACING.lg },
-  topSection: {
-    flexDirection: 'row',
-    paddingHorizontal: SPACING.horizontal,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: COLORS.border,
-  },
-  nameContainer: { flex: 1, marginLeft: SPACING.horizontal },
-  userName: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: COLORS.text,
-    marginBottom: 4,
-  },
-  userCourse: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    marginBottom: 8,
-    fontWeight: '500',
-  },
-  tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm },
-  actionsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: SPACING.horizontal,
-    gap: SPACING.cardGap,
-    marginBottom: 20,
-  },
-  actionButton: {
-    flex: 1,
-    height: 44,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  primaryButton: { backgroundColor: COLORS.primary },
-  primaryButtonText: { color: COLORS.background, fontWeight: '600', fontSize: 15 },
-  secondaryButton: {
-    backgroundColor: COLORS.background,
-    borderWidth: 1,
-    borderColor: COLORS.primary,
-  },
-  secondaryButtonText: { color: COLORS.primary, fontWeight: '600', fontSize: 15 },
-  phoneContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: SPACING.horizontal,
-    alignItems: 'center',
-    marginBottom: SPACING.lg,
-    gap: SPACING.sm,
-  },
-  phoneLabel: { fontSize: 14, color: COLORS.textMuted },
-  phoneValue: { fontSize: 14, fontWeight: '600', color: COLORS.text },
-  row: {
-    flexDirection: 'row',
-    flexWrap: 'wrap', // Permite que os cards passem para a linha de baixo se houver mais de 2
-    paddingHorizontal: SPACING.horizontal,
-    gap: SPACING.cardGap,
-    marginBottom: SPACING.md,
-  },
-  emptySlot: { flex: 1 },
-});
+function createStyles(colors) {
+  return StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: colors.background,
+      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    },
+    stateContainer: {
+      flex: 1,
+      backgroundColor: colors.background,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingHorizontal: SPACING.lg,
+    },
+    stateText: {
+      marginTop: SPACING.sm,
+      color: colors.textMuted,
+      fontSize: 15,
+    },
+    stateButton: {
+      marginTop: SPACING.lg,
+      paddingVertical: SPACING.sm,
+      paddingHorizontal: SPACING.md,
+      backgroundColor: colors.surface,
+      borderRadius: RADIUS.button,
+      borderWidth: 1,
+      borderColor: colors.borderDark,
+    },
+    stateButtonText: {
+      color: colors.primary,
+      fontWeight: '600',
+      fontSize: 15,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.horizontal,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    backBtn: { padding: 4 },
+    backIcon: { fontSize: 24, color: colors.text },
+    headerTitle: { fontSize: 17, fontWeight: '700', color: colors.text },
+    placeholder: { width: 32 },
+    previewHeader: {
+      backgroundColor: colors.primarySoft,
+      borderBottomColor: colors.borderDark,
+    },
+    previewTitle: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    exitPreviewBtn: {
+      backgroundColor: colors.text,
+      paddingVertical: 6,
+      paddingHorizontal: 16,
+      borderRadius: 20,
+    },
+    exitPreviewText: {
+      color: colors.background,
+      fontWeight: '700',
+      fontSize: 13,
+    },
+    scrollContent: { paddingBottom: SPACING.xl },
+    profileHeaderContainer: { paddingTop: SPACING.lg },
+    topSection: {
+      flexDirection: 'row',
+      paddingHorizontal: SPACING.horizontal,
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    profileImage: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      backgroundColor: colors.border,
+    },
+    nameContainer: { flex: 1, marginLeft: SPACING.horizontal },
+    userName: {
+      fontSize: 22,
+      fontWeight: '800',
+      color: colors.text,
+      marginBottom: 4,
+    },
+    userCourse: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginBottom: 8,
+      fontWeight: '500',
+    },
+    tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm },
+    actionsContainer: {
+      flexDirection: 'row',
+      paddingHorizontal: SPACING.horizontal,
+      gap: 12,
+      marginBottom: 20,
+    },
+    actionButton: {
+      flex: 1,
+      height: 44,
+      borderRadius: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'row',
+    },
+    primaryButton: { backgroundColor: colors.primary },
+    primaryButtonText: { color: colors.background, fontWeight: '600', fontSize: 15 },
+    secondaryButton: {
+      backgroundColor: colors.background,
+      borderWidth: 1,
+      borderColor: colors.primary,
+    },
+    secondaryButtonText: { color: colors.primary, fontWeight: '600', fontSize: 15 },
+    phoneContainer: {
+      flexDirection: 'row',
+      paddingHorizontal: SPACING.horizontal,
+      alignItems: 'center',
+      marginBottom: SPACING.lg,
+      gap: SPACING.sm,
+    },
+    phoneLabel: { fontSize: 14, color: colors.textMuted },
+    phoneValue: { fontSize: 14, fontWeight: '600', color: colors.text },
+    row: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      paddingHorizontal: SPACING.horizontal,
+      gap: 12,
+      marginBottom: SPACING.md,
+    },
+    emptySlot: { flex: 1 },
+  });
+}
