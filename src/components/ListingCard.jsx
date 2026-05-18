@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { UserContext } from '../contexts/UserContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 const CARD_GAP = 12;
 const HORIZONTAL_PADDING = 16;
@@ -28,6 +29,9 @@ const MODE_COLORS = {
 };
 
 export default function ListingCard({ listing, onToggleFavourite, onPress }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const wishlistContext = useContext(UserContext) ?? {};
   const {
     currentUser,
@@ -43,10 +47,7 @@ export default function ListingCard({ listing, onToggleFavourite, onPress }) {
     }
 
     if (!currentUser?.id || !toggleWishlist) {
-      Alert.alert(
-        'Login required',
-        'Log in to save listings to your wishlist.',
-      );
+      Alert.alert('Login required', 'Log in to save listings to your wishlist.');
       return;
     }
 
@@ -54,10 +55,7 @@ export default function ListingCard({ listing, onToggleFavourite, onPress }) {
       await toggleWishlist(listing);
       onToggleFavourite?.(listing.id, listing);
     } catch (error) {
-      Alert.alert(
-        'Wishlist',
-        error.message || 'Não foi possível atualizar a wishlist.',
-      );
+      Alert.alert('Wishlist', error.message || 'Não foi possível atualizar a wishlist.');
     }
   };
 
@@ -72,7 +70,6 @@ export default function ListingCard({ listing, onToggleFavourite, onPress }) {
       onPress={onPress}
       disabled={!onPress}
     >
-      {/* Image */}
       <View style={styles.imageContainer}>
         {listing.imageUrls && listing.imageUrls.length > 0 ? (
           <Image source={{ uri: listing.imageUrls[0] }} style={styles.image} resizeMode="cover" />
@@ -83,26 +80,21 @@ export default function ListingCard({ listing, onToggleFavourite, onPress }) {
         )}
       </View>
 
-      {/* Body */}
       <View style={styles.body}>
-        {/* Badge (swap / lend only) */}
         {badge ? (
           <View style={[styles.badge, { backgroundColor: badgeColor }]}>
             <Text style={styles.badgeText}>{badge}</Text>
           </View>
         ) : null}
 
-        {/* Title */}
         <Text style={styles.title} numberOfLines={2}>
           {listing.title}
         </Text>
 
-        {/* Price */}
         {hasPrice ? (
           <Text style={styles.price}>€ {listing.price}</Text>
         ) : null}
 
-        {/* Footer: institution + heart */}
         <View style={styles.footer}>
           <View style={styles.institutionRow}>
             <View style={styles.locationDot} />
@@ -125,87 +117,89 @@ export default function ListingCard({ listing, onToggleFavourite, onPress }) {
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    width: CARD_WIDTH,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 3,
-    marginBottom: CARD_GAP,
-  },
-  imageContainer: {
-    width: '100%',
-    height: IMAGE_HEIGHT,
-    backgroundColor: '#EFEFEF',
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-  },
-  imagePlaceholder: {
-    flex: 1,
-    backgroundColor: '#E8EDF0',
-  },
-  body: {
-    padding: 8,
-    paddingBottom: 10,
-  },
-  badge: {
-    alignSelf: 'flex-start',
-    borderRadius: 20,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    marginBottom: 4,
-  },
-  badgeText: {
-    color: '#FFFFFF',
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  title: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#1A1A1A',
-    lineHeight: 16,
-    marginBottom: 4,
-  },
-  price: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#1A1A1A',
-    marginBottom: 6,
-  },
-  footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  institutionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  locationDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#E53E3E',
-  },
-  institution: {
-    fontSize: 11,
-    color: '#888888',
-    fontWeight: '500',
-  },
-  heart: {
-    fontSize: 18,
-    color: '#CCCCCC',
-  },
-  heartActive: {
-    color: '#E53E3E',
-  },
-});
+function createStyles(colors) {
+  return StyleSheet.create({
+    card: {
+      width: CARD_WIDTH,
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      overflow: 'hidden',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.08,
+      shadowRadius: 6,
+      elevation: 3,
+      marginBottom: CARD_GAP,
+    },
+    imageContainer: {
+      width: '100%',
+      height: IMAGE_HEIGHT,
+      backgroundColor: colors.borderDark,
+    },
+    image: {
+      width: '100%',
+      height: '100%',
+    },
+    imagePlaceholder: {
+      flex: 1,
+      backgroundColor: colors.border,
+    },
+    body: {
+      padding: 8,
+      paddingBottom: 10,
+    },
+    badge: {
+      alignSelf: 'flex-start',
+      borderRadius: 20,
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      marginBottom: 4,
+    },
+    badgeText: {
+      color: '#FFFFFF',
+      fontSize: 10,
+      fontWeight: '700',
+    },
+    title: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: colors.text,
+      lineHeight: 16,
+      marginBottom: 4,
+    },
+    price: {
+      fontSize: 14,
+      fontWeight: '800',
+      color: colors.text,
+      marginBottom: 6,
+    },
+    footer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    institutionRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    locationDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: '#E53E3E',
+    },
+    institution: {
+      fontSize: 11,
+      color: colors.textMuted,
+      fontWeight: '500',
+    },
+    heart: {
+      fontSize: 18,
+      color: colors.borderDark,
+    },
+    heartActive: {
+      color: '#E53E3E',
+    },
+  });
+}
