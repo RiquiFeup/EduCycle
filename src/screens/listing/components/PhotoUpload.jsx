@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import styles from '../styles';
+import { useTheme } from '../../../contexts/ThemeContext';
+import createStyles from '../styles';
 
 export default function PhotoUpload({ photos = [], setPhotos, error }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const pickImages = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -20,7 +24,7 @@ export default function PhotoUpload({ photos = [], setPhotos, error }) {
 
     if (!result.canceled) {
       const selected = result.assets.map(asset => asset.uri);
-      const newPhotos = [...photos, ...selected].slice(0, 5); // Max 5
+      const newPhotos = [...photos, ...selected].slice(0, 5);
       setPhotos(newPhotos);
     }
   };

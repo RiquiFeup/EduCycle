@@ -76,6 +76,40 @@ jest.mock('../../src/utils/firebase', () => ({
   storage: { app: { options: { storageBucket: 'mock-bucket.appspot.com' } } },
 }));
 
+// Mock do ThemeContext useTheme hook
+const LIGHT_COLORS = {
+  primary: '#2F7657',
+  primarySoft: '#E5EFE9',
+  primaryBorder: '#8EBAA4',
+  background: '#FFFFFF',
+  page: '#ECE8E3',
+  surface: '#F8F6F3',
+  cardInput: '#FFFEFC',
+  text: '#274936',
+  textSecondary: '#63756A',
+  textMuted: '#919B95',
+  border: '#E7E3DE',
+  borderSoft: '#EBE7E1',
+  borderDark: '#D8DDD9',
+  badgeBackground: '#F5F5F5',
+  danger: '#C54B45',
+  dangerBackground: '#FFF5F5',
+  dangerBorder: '#F2C4C1',
+  toggleActive: '#A8D5BA',
+  toggleInactive: '#F4F3F1',
+  buttonGray: '#F9F9F9',
+};
+
+jest.mock('../../src/contexts/ThemeContext', () => ({
+  useTheme: jest.fn(() => ({
+    colors: LIGHT_COLORS,
+    isDark: false,
+    toggleTheme: jest.fn(),
+  })),
+  ThemeContext: jest.fn(),
+  ThemeProvider: ({ children }) => children,
+}));
+
 const originalWarn = console.warn;
 jest.spyOn(console, 'warn').mockImplementation((...args) => {
   if (

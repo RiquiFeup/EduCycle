@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions, Alert } from 'react-native';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../utils/firebase';
-import { COLORS, SPACING, RADIUS } from '../../utils/theme';
+import { SPACING, RADIUS } from '../../utils/theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import { UserContext } from '../../contexts/UserContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -19,6 +20,9 @@ const MODE_COLORS = {
 };
 
 export default function ListingDetailsScreen({ listing, navigate }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const wishlistContext = useContext(UserContext) ?? {};
   const {
     currentUser,
@@ -61,10 +65,7 @@ export default function ListingDetailsScreen({ listing, navigate }) {
     }
 
     if (!currentUser?.id || !toggleWishlist) {
-      Alert.alert(
-        'Login required',
-        'Log in to save listings to your wishlist.',
-      );
+      Alert.alert('Login required', 'Log in to save listings to your wishlist.');
       return;
     }
 
@@ -72,10 +73,7 @@ export default function ListingDetailsScreen({ listing, navigate }) {
       setIsSavingWishlist(true);
       await toggleWishlist(listing);
     } catch (error) {
-      Alert.alert(
-        'Wishlist',
-        error.message || 'Não foi possível atualizar a wishlist.',
-      );
+      Alert.alert('Wishlist', error.message || 'Não foi possível atualizar a wishlist.');
     } finally {
       setIsSavingWishlist(false);
     }
@@ -122,7 +120,6 @@ export default function ListingDetailsScreen({ listing, navigate }) {
             <Text style={styles.institution}>{listing?.institution || listing?.campus}</Text>
           </View>
 
-          {/* Subject & ISBN (from development branch) */}
           {listing?.subject ? (
             <View style={styles.detailRow} testID="listing-subject">
               <Text style={styles.detailLabel}>Subject</Text>
@@ -139,17 +136,15 @@ export default function ListingDetailsScreen({ listing, navigate }) {
             </View>
           ) : null}
 
-          {/* Condition Display */}
           {listing?.condition ? (
             <View style={styles.detailRow} testID="listing-condition">
               <Text style={styles.detailLabel}>Condition</Text>
-              <View style={[styles.subjectBadge, { backgroundColor: '#F0F4F8' }]}>
-                <Text style={[styles.subjectBadgeText, { color: '#2D3748' }]}>{listing.condition}</Text>
+              <View style={[styles.subjectBadge, { backgroundColor: colors.surface }]}>
+                <Text style={[styles.subjectBadgeText, { color: colors.text }]}>{listing.condition}</Text>
               </View>
             </View>
           ) : null}
 
-          {/* Descrição (from func/create-listing-db branch) */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Descrição</Text>
             <Text style={styles.description}>
@@ -157,17 +152,17 @@ export default function ListingDetailsScreen({ listing, navigate }) {
             </Text>
           </View>
 
-          <TouchableOpacity 
-            style={styles.vendorCard} 
+          <TouchableOpacity
+            style={styles.vendorCard}
             onPress={() => navigate('PublicProfile', { sellerId: listing?.sellerId })}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               {displaySellerPhoto ? (
-                <Image source={{ uri: displaySellerPhoto }} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: COLORS.surface }} />
+                <Image source={{ uri: displaySellerPhoto }} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: colors.surface }} />
               ) : (
-                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: COLORS.border }} />
+                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: colors.border }} />
               )}
-              
+
               <View>
                 <Text style={styles.vendorName}>{displaySellerName}</Text>
                 <Text style={styles.vendorSubtext}>Ver Perfil Público →</Text>
@@ -199,39 +194,41 @@ export default function ListingDetailsScreen({ listing, navigate }) {
   );
 }
 
-const styles = StyleSheet.create({
-  mainContainer: { flex: 1, backgroundColor: COLORS.background },
-  header: { height: 60, backgroundColor: COLORS.background, borderBottomWidth: 1, borderBottomColor: COLORS.borderSoft, flexDirection: 'row', alignItems: 'center', paddingHorizontal: SPACING.md, paddingTop: 10 },
-  backButton: { paddingRight: 15 },
-  backButtonText: { color: COLORS.primary, fontSize: 16, fontWeight: '600' },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: COLORS.text, flex: 1, textAlign: 'center', marginRight: 60 },
-  container: { flex: 1 },
-  imageContainer: { width: '100%', height: SCREEN_WIDTH * 0.8, backgroundColor: COLORS.surface },
-  image: { width: '100%', height: '100%' },
-  imagePlaceholder: { flex: 1, backgroundColor: '#E8EDF0' },
-  content: { padding: SPACING.lg },
-  badge: { alignSelf: 'flex-start', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 4, marginBottom: SPACING.sm },
-  badgeText: { color: COLORS.background, fontSize: 12, fontWeight: '700' },
-  title: { fontSize: 24, fontWeight: '700', color: COLORS.text, marginBottom: SPACING.sm },
-  price: { fontSize: 22, fontWeight: '800', color: COLORS.primary, marginBottom: SPACING.md },
-  institutionRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: SPACING.lg },
-  locationDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#E53E3E' },
-  institution: { fontSize: 14, color: COLORS.textSecondary, fontWeight: '500' },
-  section: { marginTop: SPACING.md, marginBottom: SPACING.lg },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: COLORS.text, marginBottom: SPACING.sm },
-  description: { fontSize: 16, color: COLORS.textSecondary, lineHeight: 24 },
-  vendorCard: { backgroundColor: COLORS.surface, padding: SPACING.md, borderRadius: RADIUS.panel, marginBottom: SPACING.xl, borderWidth: 1, borderColor: COLORS.border },
-  vendorName: { fontSize: 16, fontWeight: '700', color: COLORS.text },
-  vendorSubtext: { fontSize: 14, color: COLORS.textMuted, marginTop: 4 },
-  detailRow: { flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm, gap: SPACING.sm },
-  detailLabel: { fontSize: 14, fontWeight: '600', color: COLORS.textSecondary, minWidth: 60 },
-  detailValue: { fontSize: 14, color: COLORS.text, fontWeight: '500' },
-  subjectBadge: { backgroundColor: COLORS.primarySoft, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3 },
-  subjectBadgeText: { fontSize: 13, fontWeight: '600', color: COLORS.primary },
-  wishlistButton: { backgroundColor: COLORS.surface, paddingVertical: 16, borderRadius: RADIUS.button, alignItems: 'center', marginBottom: SPACING.sm, borderWidth: 1, borderColor: COLORS.primaryBorder },
-  wishlistButtonActive: { backgroundColor: COLORS.primarySoft },
-  wishlistButtonText: { color: COLORS.primary, fontSize: 16, fontWeight: '700' },
-  wishlistButtonTextActive: { color: COLORS.text },
-  actionButton: { backgroundColor: COLORS.primary, paddingVertical: 16, borderRadius: RADIUS.button, alignItems: 'center' },
-  actionButtonText: { color: COLORS.background, fontSize: 16, fontWeight: '700' },
-});
+function createStyles(colors) {
+  return StyleSheet.create({
+    mainContainer: { flex: 1, backgroundColor: colors.background },
+    header: { height: 60, backgroundColor: colors.background, borderBottomWidth: 1, borderBottomColor: colors.borderSoft, flexDirection: 'row', alignItems: 'center', paddingHorizontal: SPACING.md, paddingTop: 10 },
+    backButton: { paddingRight: 15 },
+    backButtonText: { color: colors.primary, fontSize: 16, fontWeight: '600' },
+    headerTitle: { fontSize: 18, fontWeight: '700', color: colors.text, flex: 1, textAlign: 'center', marginRight: 60 },
+    container: { flex: 1 },
+    imageContainer: { width: '100%', height: SCREEN_WIDTH * 0.8, backgroundColor: colors.surface },
+    image: { width: '100%', height: '100%' },
+    imagePlaceholder: { flex: 1, backgroundColor: colors.borderDark },
+    content: { padding: SPACING.lg },
+    badge: { alignSelf: 'flex-start', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 4, marginBottom: SPACING.sm },
+    badgeText: { color: '#FFFFFF', fontSize: 12, fontWeight: '700' },
+    title: { fontSize: 24, fontWeight: '700', color: colors.text, marginBottom: SPACING.sm },
+    price: { fontSize: 22, fontWeight: '800', color: colors.primary, marginBottom: SPACING.md },
+    institutionRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: SPACING.lg },
+    locationDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#E53E3E' },
+    institution: { fontSize: 14, color: colors.textSecondary, fontWeight: '500' },
+    section: { marginTop: SPACING.md, marginBottom: SPACING.lg },
+    sectionTitle: { fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: SPACING.sm },
+    description: { fontSize: 16, color: colors.textSecondary, lineHeight: 24 },
+    vendorCard: { backgroundColor: colors.surface, padding: SPACING.md, borderRadius: RADIUS.panel, marginBottom: SPACING.xl, borderWidth: 1, borderColor: colors.border },
+    vendorName: { fontSize: 16, fontWeight: '700', color: colors.text },
+    vendorSubtext: { fontSize: 14, color: colors.textMuted, marginTop: 4 },
+    detailRow: { flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm, gap: SPACING.sm },
+    detailLabel: { fontSize: 14, fontWeight: '600', color: colors.textSecondary, minWidth: 60 },
+    detailValue: { fontSize: 14, color: colors.text, fontWeight: '500' },
+    subjectBadge: { backgroundColor: colors.primarySoft, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3 },
+    subjectBadgeText: { fontSize: 13, fontWeight: '600', color: colors.primary },
+    wishlistButton: { backgroundColor: colors.surface, paddingVertical: 16, borderRadius: RADIUS.button, alignItems: 'center', marginBottom: SPACING.sm, borderWidth: 1, borderColor: colors.primaryBorder },
+    wishlistButtonActive: { backgroundColor: colors.primarySoft },
+    wishlistButtonText: { color: colors.primary, fontSize: 16, fontWeight: '700' },
+    wishlistButtonTextActive: { color: colors.text },
+    actionButton: { backgroundColor: colors.primary, paddingVertical: 16, borderRadius: RADIUS.button, alignItems: 'center' },
+    actionButtonText: { color: colors.background, fontSize: 16, fontWeight: '700' },
+  });
+}
