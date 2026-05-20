@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../utils/firebase';
+import { Ionicons } from '@expo/vector-icons';
 import ListingCard from '../../components/ListingCard';
 import CommunityBadge from '../../components/CommunityBadge';
 import SectionHeader from '../../components/SectionHeader';
@@ -218,7 +219,7 @@ export default function PrivateProfileScreen({ navigate }) {
       <View style={styles.header}>
         <Text style={styles.logo}>EduCycle</Text>
         <TouchableOpacity style={styles.themeToggleBtn} onPress={toggleTheme}>
-          <Text style={styles.themeToggleIcon}>{isDark ? '☀️' : '🌙'}</Text>
+          <Ionicons name={isDark ? 'sunny-outline' : 'moon-outline'} size={18} color={colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -265,7 +266,10 @@ export default function PrivateProfileScreen({ navigate }) {
               style={[styles.actionButton, { backgroundColor: colors.buttonGray }]}
               onPress={() => navigate('PublicProfile', { isPreview: true })}
             >
-              <Text style={styles.actionButtonText}>{String.fromCodePoint(0x1F441, 0xFE0F)} Preview Public</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Ionicons name="eye-outline" size={16} color={colors.text} />
+                <Text style={styles.actionButtonText}>Preview Public</Text>
+              </View>
             </TouchableOpacity>
           </View>
 
@@ -440,7 +444,6 @@ function createStyles(colors) {
       borderWidth: 1,
       borderColor: colors.border,
     },
-    themeToggleIcon: { fontSize: 18 },
     scrollContent: { paddingBottom: SPACING.xl },
     profileHeaderContainer: { paddingTop: SPACING.lg },
     topSection: {

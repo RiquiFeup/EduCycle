@@ -7,6 +7,7 @@ import {
   Platform,
   StatusBar,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { UserProvider } from '../../contexts/UserContext';
 import HomeScreen from '../main/HomeScreen';
@@ -34,16 +35,19 @@ export default function DevProfileFlow() {
           <SafeAreaView style={styles.devMenuContainer}>
             <Text style={styles.devMenuTitle}>Dev Directory</Text>
             
-            <TouchableOpacity style={styles.devButton} onPress={() => navigate('Home')}>
-              <Text style={styles.devButtonText}>🏠 Go to Home Screen</Text>
+            <TouchableOpacity style={[styles.devButton, { flexDirection: 'row', gap: 8 }]} onPress={() => navigate('Home')}>
+              <Ionicons name="home-outline" size={18} color="#FFF" />
+              <Text style={styles.devButtonText}>Go to Home Screen</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.devButton} onPress={() => navigate('PublicProfile')}>
-              <Text style={styles.devButtonText}>👤 Go to Public Profile (Seller View)</Text>
+            <TouchableOpacity style={[styles.devButton, { flexDirection: 'row', gap: 8 }]} onPress={() => navigate('PublicProfile')}>
+              <Ionicons name="person-outline" size={18} color="#FFF" />
+              <Text style={styles.devButtonText}>Go to Public Profile (Seller View)</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.devButton} onPress={() => navigate('PrivateProfile')}>
-              <Text style={styles.devButtonText}>⚙️ Go to Private Profile</Text>
+            <TouchableOpacity style={[styles.devButton, { flexDirection: 'row', gap: 8 }]} onPress={() => navigate('PrivateProfile')}>
+              <Ionicons name="settings-outline" size={18} color="#FFF" />
+              <Text style={styles.devButtonText}>Go to Private Profile</Text>
             </TouchableOpacity>
           </SafeAreaView>
         );

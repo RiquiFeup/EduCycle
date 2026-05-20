@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ListingCard from '../../components/ListingCard';
 import { UserContext } from '../../contexts/UserContext';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { SPACING, RADIUS } from '../../utils/theme';
 
@@ -36,7 +37,7 @@ export default function WishlistScreen({ navigate }) {
     return (
       <SafeAreaView style={styles.stateContainer} testID="wishlist-blocked-state">
         <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
-        <Text style={styles.stateIcon}>🔒</Text>
+        <Ionicons name="lock-closed-outline" size={36} color={colors.textMuted} style={{ marginBottom: SPACING.md }} />
         <Text style={styles.stateTitle}>Inicia sessão para veres a tua wishlist</Text>
         <Text style={styles.stateText}>
           Guardar anúncios é uma funcionalidade associada à tua conta. Anonimato aqui não ganha prémios, pelos vistos.
@@ -96,7 +97,7 @@ export default function WishlistScreen({ navigate }) {
         )}
         ListEmptyComponent={
           <View style={styles.empty} testID="wishlist-empty-state">
-            <Text style={styles.emptyIcon}>♡</Text>
+            <Ionicons name="heart-outline" size={44} color={colors.textMuted} style={{ marginBottom: 12 }} />
             <Text style={styles.emptyTitle}>Ainda não guardaste anúncios.</Text>
             <Text style={styles.emptyHint}>
               Toca no coração de um anúncio para o adicionar aqui. Tecnologia de ponta: uma lista.
@@ -121,10 +122,6 @@ function createStyles(colors) {
       justifyContent: 'center',
       alignItems: 'center',
       paddingHorizontal: SPACING.lg,
-    },
-    stateIcon: {
-      fontSize: 36,
-      marginBottom: SPACING.md,
     },
     stateTitle: {
       color: colors.text,
@@ -201,11 +198,6 @@ function createStyles(colors) {
       alignItems: 'center',
       paddingTop: 48,
       paddingHorizontal: SPACING.lg,
-    },
-    emptyIcon: {
-      fontSize: 44,
-      color: colors.textMuted,
-      marginBottom: 12,
     },
     emptyTitle: {
       color: colors.text,

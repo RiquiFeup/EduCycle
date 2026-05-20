@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../../contexts/ThemeContext';
 import createStyles from '../styles';
 
@@ -26,12 +27,19 @@ export default function SegmentedControl({
             ]}
             onPress={() => onSelect(type)}
           >
-            <Text style={[
-              styles.segmentText,
-              selectedValue === type && styles.segmentTextActive,
-            ]}>
-              {type === 'Sell' ? '💰 Sell' : '🔄 Swap'}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Ionicons
+                name={type === 'Sell' ? 'cash-outline' : 'swap-horizontal-outline'}
+                size={14}
+                color={selectedValue === type ? '#fff' : colors.textMuted}
+              />
+              <Text style={[
+                styles.segmentText,
+                selectedValue === type && styles.segmentTextActive,
+              ]}>
+                {type}
+              </Text>
+            </View>
           </TouchableOpacity>
         ))}
       </View>

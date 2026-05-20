@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../utils/firebase';
 
+import { Ionicons } from '@expo/vector-icons';
 import ListingCard from '../../components/ListingCard';
 import CommunityBadge from '../../components/CommunityBadge';
 import SectionHeader from '../../components/SectionHeader';
@@ -106,7 +107,10 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate }) {
 
       {isPreview ? (
         <View style={[styles.header, styles.previewHeader]}>
-          <Text style={styles.previewTitle}>👁️ Preview Mode</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Ionicons name="eye-outline" size={16} color={colors.text} />
+            <Text style={styles.previewTitle}>Preview Mode</Text>
+          </View>
           <TouchableOpacity
             style={styles.exitPreviewBtn}
             onPress={() => navigate('PrivateProfile')}
@@ -150,14 +154,20 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate }) {
                 style={[styles.actionButton, styles.primaryButton]}
                 onPress={() => navigate('Chat', { conversationId: 'conv-1' })}
               >
-                <Text style={styles.primaryButtonText}>💬 Message</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Ionicons name="chatbubble-outline" size={15} color={colors.background} />
+                  <Text style={styles.primaryButtonText}>Message</Text>
+                </View>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={[styles.actionButton, styles.secondaryButton]}
                 onPress={() => Alert.alert('Email', `Email ${displayedUser.email} from your mail app later.`)}
               >
-                <Text style={styles.secondaryButtonText}>✉️ Email</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Ionicons name="mail-outline" size={15} color={colors.primary} />
+                  <Text style={styles.secondaryButtonText}>Email</Text>
+                </View>
               </TouchableOpacity>
             </View>
           ) : null}

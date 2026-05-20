@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { SPACING, RADIUS } from '../../utils/theme';
 import { MESSAGES, CONVERSATIONS } from '../../data/conversations';
@@ -137,7 +138,7 @@ export default function ChatScreen({ conversationId, navigate }) {
           }
           ListEmptyComponent={
             <View style={styles.emptyChat}>
-              <Text style={styles.emptyChatIcon}>👋</Text>
+              <Ionicons name="hand-left-outline" size={48} color={colors.textMuted} style={{ marginBottom: 12 }} />
               <Text style={styles.emptyChatText}>
                 Say hello to {otherUser.name}!
               </Text>
@@ -333,10 +334,6 @@ function createStyles(colors) {
       alignItems: 'center',
       justifyContent: 'center',
       paddingTop: 60,
-    },
-    emptyChatIcon: {
-      fontSize: 48,
-      marginBottom: 12,
     },
     emptyChatText: {
       fontSize: 16,

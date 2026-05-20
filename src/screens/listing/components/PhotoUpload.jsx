@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../../contexts/ThemeContext';
 import createStyles from '../styles';
 
@@ -60,7 +61,7 @@ export default function PhotoUpload({ photos = [], setPhotos, error }) {
           onPress={pickImages}
           accessibilityLabel="Tap to add photos"
         >
-          <Text style={styles.photoIcon}>📷</Text>
+          <Ionicons name="camera-outline" size={32} color={colors.textMuted} style={{ marginBottom: 8 }} />
           <Text
             testID="photo-upload-empty"
             style={styles.photoLabel}

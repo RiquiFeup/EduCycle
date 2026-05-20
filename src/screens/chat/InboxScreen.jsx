@@ -10,6 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { SPACING } from '../../utils/theme';
 import { CONVERSATIONS } from '../../data/conversations';
@@ -93,7 +94,7 @@ export default function InboxScreen({ navigate }) {
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListEmptyComponent={
           <View style={styles.emptyContainer} testID="inbox-empty-state">
-            <Text style={styles.emptyIcon}>💬</Text>
+            <Ionicons name="chatbubble-outline" size={48} color={colors.textMuted} style={{ marginBottom: SPACING.md }} />
             <Text style={styles.emptyTitle}>No messages yet</Text>
             <Text style={styles.emptyDescription}>
               When you contact a seller or receive a message, it will appear here.
@@ -233,10 +234,6 @@ function createStyles(colors) {
       justifyContent: 'center',
       paddingHorizontal: SPACING.lg,
       paddingTop: 80,
-    },
-    emptyIcon: {
-      fontSize: 48,
-      marginBottom: SPACING.md,
     },
     emptyTitle: {
       fontSize: 20,
