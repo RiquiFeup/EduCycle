@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import {
   View,
-  Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 
 export default function SearchBar({ value, onChangeText, placeholder, testID, onFilterPress }) {
@@ -15,7 +15,7 @@ export default function SearchBar({ value, onChangeText, placeholder, testID, on
 
   return (
     <View style={[styles.wrapper, focused && styles.wrapperFocused]}>
-      <Text style={styles.icon}>🔍</Text>
+      <Ionicons name="search-outline" size={16} color={colors.textMuted} style={{ marginRight: 8 }} />
       <TextInput
         style={styles.input}
         value={value}
@@ -28,7 +28,7 @@ export default function SearchBar({ value, onChangeText, placeholder, testID, on
         testID={testID ?? 'search-input'}
       />
       <TouchableOpacity style={styles.filterBtn} onPress={onFilterPress}>
-        <Text style={styles.filterIcon}>⚙</Text>
+        <Ionicons name="options-outline" size={18} color={colors.textSecondary} />
       </TouchableOpacity>
     </View>
   );
@@ -50,11 +50,6 @@ function createStyles(colors) {
       borderColor: colors.primary,
       backgroundColor: colors.cardInput,
     },
-    icon: {
-      fontSize: 16,
-      marginRight: 8,
-      color: colors.textMuted,
-    },
     input: {
       flex: 1,
       fontSize: 14,
@@ -63,10 +58,6 @@ function createStyles(colors) {
     filterBtn: {
       marginLeft: 8,
       padding: 4,
-    },
-    filterIcon: {
-      fontSize: 18,
-      color: colors.textSecondary,
     },
   });
 }
