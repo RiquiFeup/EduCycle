@@ -8,7 +8,7 @@ import { UserContext } from '../../contexts/UserContext';
 export default function ShoppingCartScreen({ navigate }) {
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { cartListings = [] } = useContext(UserContext) ?? {};
+  const { cartListings = [], removeFromCart = () => {} } = useContext(UserContext) ?? {};
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -50,6 +50,14 @@ export default function ShoppingCartScreen({ navigate }) {
                   <Text style={styles.itemPriceMuted}>Preço a combinar</Text>
                 )}
               </View>
+
+              <TouchableOpacity
+                style={styles.removeButton}
+                onPress={() => removeFromCart(listing.id)}
+                testID={`cart-remove-${listing.id}`}
+              >
+                <Text style={styles.removeButtonText}>Remover</Text>
+              </TouchableOpacity>
             </View>
           ))}
         </ScrollView>
@@ -162,6 +170,15 @@ function createStyles(colors) {
       fontSize: 13,
       fontWeight: '600',
       marginTop: 6,
+    },
+    removeButton: {
+      paddingHorizontal: SPACING.sm,
+      paddingVertical: SPACING.sm,
+    },
+    removeButtonText: {
+      color: colors.danger,
+      fontSize: 13,
+      fontWeight: '700',
     },
   });
 }

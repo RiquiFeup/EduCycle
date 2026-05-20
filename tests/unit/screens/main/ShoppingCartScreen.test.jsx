@@ -54,4 +54,28 @@ describe('ShoppingCartScreen Tests', () => {
     expect(getByText('Calculadora Gráfica')).toBeTruthy();
     expect(getByText('€ 50.00')).toBeTruthy();
   });
+
+  it('removes listings from the shopping cart', () => {
+    const removeFromCart = jest.fn();
+    const cartListings = [
+      {
+        id: 'listing-1',
+        title: 'Calculadora Gráfica',
+        price: 50,
+        institution: 'FEUP',
+      },
+    ];
+
+    const { getByTestId } = render(
+      <ThemeProvider>
+        <UserContext.Provider value={{ cartListings, removeFromCart }}>
+          <ShoppingCartScreen navigate={jest.fn()} />
+        </UserContext.Provider>
+      </ThemeProvider>
+    );
+
+    fireEvent.press(getByTestId('cart-remove-listing-1'));
+
+    expect(removeFromCart).toHaveBeenCalledWith('listing-1');
+  });
 });

@@ -184,6 +184,10 @@ export const UserProvider = ({ children, initialUser, onUserUpdate, onLogout }) 
     return cartListing;
   }, [currentUser?.id, isInCart]);
 
+  const removeFromCart = useCallback((listingId) => {
+    setCartListings((prev) => prev.filter((listing) => listing.id !== String(listingId)));
+  }, []);
+
   const contextValue = useMemo(
     () => ({
       currentUser,
@@ -198,6 +202,7 @@ export const UserProvider = ({ children, initialUser, onUserUpdate, onLogout }) 
       toggleWishlist,
       cartListings,
       addToCart,
+      removeFromCart,
       isInCart,
     }),
     [
@@ -213,6 +218,7 @@ export const UserProvider = ({ children, initialUser, onUserUpdate, onLogout }) 
       toggleWishlist,
       cartListings,
       addToCart,
+      removeFromCart,
       isInCart,
     ],
   );
