@@ -4,12 +4,23 @@ import { UserContext, UserProvider } from '../../../src/contexts/UserContext';
 import { Text, Button } from 'react-native';
 
 const TestComponent = () => {
-  const { currentUser, updateUser, logout } = useContext(UserContext);
+  const { currentUser, updateUser, logout, cartListings, addToCart } = useContext(UserContext);
   return (
     <>
       <Text testID="username">{currentUser?.name}</Text>
+      <Text testID="cart-count">{cartListings.length}</Text>
       <Button testID="update-btn" title="Update" onPress={() => updateUser({ name: 'Maria' })} />
       <Button testID="logout-btn" title="Logout" onPress={logout} />
+      <Button
+        testID="add-cart-btn"
+        title="Add to cart"
+        onPress={() => addToCart({ id: 'listing-1', title: 'Livro', price: 10, status: 'active' })}
+      />
+      <Button
+        testID="add-unavailable-cart-btn"
+        title="Add unavailable"
+        onPress={() => addToCart({ id: 'listing-2', title: 'Vendido', price: 10, status: 'sold' })}
+      />
     </>
   );
 };
@@ -40,5 +51,43 @@ describe('UserContext', () => {
 
     fireEvent.press(screen.getByTestId('logout-btn'));
     expect(onLogoutMock).toHaveBeenCalled();
+  });
+
+  it('adds available listings to the shopping cart', () => {
+    render(
+      <UserProvider>
+        <TestComponent />
+      </UserProvider>
+    );
+
+    fireEvent.press(screen.getByTestId('add-cart-btn'));
+
+    expect(screen.getByTestId('cart-count').props.children).toBe(1);
+  });
+
+  it('prevents duplicate listings in the shopping cart', () => {
+    render(
+      <UserProvider>
+        <TestComponent />
+      </UserProvider>
+    );
+
+    fireEvent.press(screen.getByTestId('add-cart-btn'));
+
+    expect(() => fireEvent.press(screen.getByTestId('add-cart-btn'))).toThrow('Este anúncio já está no teu carrinho.');
+    expect(screen.getByTestId('cart-count').props.children).toBe(1);
+  });
+
+  it('does not add unavailable listings to the shopping cart', () => {
+    render(
+      <UserProvider>
+        <TestComponent />
+      </UserProvider>
+    );
+
+    expect(() => fireEvent.press(screen.getByTestId('add-unavailable-cart-btn'))).toThrow(
+      'Este anúncio já não está disponível e não foi adicionado ao carrinho.',
+    );
+    expect(screen.getByTestId('cart-count').props.children).toBe(0);
   });
 });
