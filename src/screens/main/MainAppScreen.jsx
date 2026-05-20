@@ -76,8 +76,8 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
   const goBack = () => {
     setScreenHistory((prev) => {
       if (prev.length === 0) return prev;
+      const previous = prev[prev.length - 1];
       const newHistory = prev.slice(0, -1);
-      const previous = newHistory[newHistory.length - 1] ?? { screen: 'Home', params: {} };
       setActiveScreen(previous.screen);
       setScreenParams(previous.params);
       return newHistory;
