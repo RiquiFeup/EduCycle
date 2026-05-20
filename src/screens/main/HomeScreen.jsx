@@ -189,15 +189,15 @@ export default function HomeScreen({ navigate }) {
       <View style={styles.header}>
         <Text style={styles.logo}>EduCycle</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-          <TouchableOpacity 
-            style={styles.notifBtn} 
+          <TouchableOpacity
+            style={styles.notifBtn}
             testID="home-cart-button"
             onPress={() => navigate('ShoppingCart')}
           >
-            <Text style={styles.notifIcon}>🛒</Text>
+            <Ionicons name="cart-outline" size={22} color={colors.text} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.notifBtn} testID="home-notifications-button">
-            <Text style={styles.notifIcon}>🔔</Text>
+            <Ionicons name="notifications-outline" size={22} color={colors.text} />
             <View style={styles.notifBadge}>
               <Text style={styles.notifBadgeText}>2</Text>
             </View>
