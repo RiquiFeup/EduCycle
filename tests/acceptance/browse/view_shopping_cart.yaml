@@ -1,0 +1,33 @@
+appId: com.educycle.app
+---
+- launchApp
+
+- extendedWaitUntil:
+    visible: "EduCycle"
+    timeout: 10000
+
+# O feed já carregou e estamos na HomeScreen
+- assertVisible:
+    id: "home-cart-button"
+
+# Navegamos para o carrinho
+- tapOn:
+    id: "home-cart-button"
+
+# Esperamos que o carrinho abra
+- extendedWaitUntil:
+    visible: "Carrinho"
+    timeout: 5000
+
+# Verificamos os elementos iniciais (carrinho vazio)
+- assertVisible: "O teu carrinho está vazio"
+- assertVisible: "Adiciona itens para os comprares mais tarde."
+- assertVisible: "← Voltar"
+
+# Testamos o botão de voltar
+- tapOn: "← Voltar"
+
+# Garantimos que regressamos à HomeScreen
+- extendedWaitUntil:
+    visible: "EduCycle"
+    timeout: 5000
