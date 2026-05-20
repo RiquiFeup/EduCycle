@@ -104,4 +104,18 @@ describe('HomeScreen Tests', () => {
     });
   });
 
+  it('navigates to the shopping cart when the cart icon is pressed', async () => {
+    const navigateMock = jest.fn();
+    render(<HomeScreen navigate={navigateMock} />);
+
+    await waitFor(() => screen.getByTestId('home-cart-button'));
+    const cartButton = screen.getByTestId('home-cart-button');
+    
+    await act(async () => {
+      fireEvent.press(cartButton);
+    });
+
+    expect(navigateMock).toHaveBeenCalledWith('ShoppingCart');
+  });
+
 });
