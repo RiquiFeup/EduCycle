@@ -188,12 +188,21 @@ export default function HomeScreen({ navigate }) {
 
       <View style={styles.header}>
         <Text style={styles.logo}>EduCycle</Text>
-        <TouchableOpacity style={styles.notifBtn} testID="home-notifications-button">
-          <Ionicons name="notifications-outline" size={22} color={colors.text} />
-          <View style={styles.notifBadge}>
-            <Text style={styles.notifBadgeText}>2</Text>
-          </View>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+          <TouchableOpacity 
+            style={styles.notifBtn} 
+            testID="home-cart-button"
+            onPress={() => navigate('ShoppingCart')}
+          >
+            <Text style={styles.notifIcon}>🛒</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.notifBtn} testID="home-notifications-button">
+            <Text style={styles.notifIcon}>🔔</Text>
+            <View style={styles.notifBadge}>
+              <Text style={styles.notifBadgeText}>2</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <FlatList

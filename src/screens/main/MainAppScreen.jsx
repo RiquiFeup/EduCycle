@@ -17,6 +17,7 @@ import PrivateProfileScreen from '../profile/PrivateProfileScreen';
 import PublicProfileScreen from '../profile/PublicProfileScreen';
 import InboxScreen from '../chat/InboxScreen';
 import ChatScreen from '../chat/ChatScreen';
+import ShoppingCartScreen from './ShoppingCartScreen';
 import { UserProvider } from '../../contexts/UserContext.jsx';
 import { useTheme } from '../../contexts/ThemeContext';
 import { SPACING, RADIUS } from '../../utils/theme.js';
@@ -126,6 +127,13 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
       return;
     }
 
+    if (screen === 'ShoppingCart') {
+      setScreenHistory((prev) => [...prev, { screen: activeScreen, params: screenParams }]);
+      setActiveScreen('ShoppingCart');
+      setScreenParams(params);
+      return;
+    }
+
     setActiveScreen(screen);
     setScreenParams(params);
     if (!ROOT_TABS.has(screen)) {
@@ -201,6 +209,9 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
             navigate={navigate}
           />
         );
+
+      case 'ShoppingCart':
+        return <ShoppingCartScreen navigate={navigate} />;
 
       case 'Home':
       default:

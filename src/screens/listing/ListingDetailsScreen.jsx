@@ -185,6 +185,14 @@ export default function ListingDetailsScreen({ listing, navigate }) {
             </Text>
           </TouchableOpacity>
 
+          <TouchableOpacity
+            style={[styles.wishlistButton, { marginBottom: SPACING.sm }]}
+            onPress={() => Alert.alert('Carrinho', 'Funcionalidade de adicionar ao carrinho em breve!')}
+            testID="listing-add-cart-button"
+          >
+            <Text style={styles.wishlistButtonText}>Adicionar ao Carrinho</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.actionButton} onPress={() => navigate('Chat', { conversationId: 'c1' })}>
             <Text style={styles.actionButtonText}>Enviar Mensagem</Text>
           </TouchableOpacity>
