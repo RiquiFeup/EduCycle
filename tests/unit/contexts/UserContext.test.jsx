@@ -4,7 +4,7 @@ import { UserContext, UserProvider } from '../../../src/contexts/UserContext';
 import { Text, Button } from 'react-native';
 
 const TestComponent = () => {
-  const { currentUser, updateUser, logout, cartListings, addToCart } = useContext(UserContext);
+  const { currentUser, updateUser, logout, cartListings, addToCart, removeFromCart } = useContext(UserContext);
   return (
     <>
       <Text testID="username">{currentUser?.name}</Text>
@@ -21,6 +21,7 @@ const TestComponent = () => {
         title="Add unavailable"
         onPress={() => addToCart({ id: 'listing-2', title: 'Vendido', price: 10, status: 'sold' })}
       />
+      <Button testID="remove-cart-btn" title="Remove from cart" onPress={() => removeFromCart('listing-1')} />
     </>
   );
 };
@@ -88,6 +89,19 @@ describe('UserContext', () => {
     expect(() => fireEvent.press(screen.getByTestId('add-unavailable-cart-btn'))).toThrow(
       'Este anúncio já não está disponível e não foi adicionado ao carrinho.',
     );
+    expect(screen.getByTestId('cart-count').props.children).toBe(0);
+  });
+
+  it('removes listings from the shopping cart', () => {
+    render(
+      <UserProvider>
+        <TestComponent />
+      </UserProvider>
+    );
+
+    fireEvent.press(screen.getByTestId('add-cart-btn'));
+    fireEvent.press(screen.getByTestId('remove-cart-btn'));
+
     expect(screen.getByTestId('cart-count').props.children).toBe(0);
   });
 });
