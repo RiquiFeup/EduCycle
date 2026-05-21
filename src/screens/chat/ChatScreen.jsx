@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,46 +10,116 @@ import {
   StatusBar,
   Platform,
   KeyboardAvoidingView,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../contexts/ThemeContext';
 import { SPACING, RADIUS } from '../../utils/theme';
-import { MESSAGES, CONVERSATIONS } from '../../data/conversations';
+import { CONVERSATIONS, MESSAGES } from '../../data/conversations';
+import {
+  getOrCreateConversation,
+  loadConversationMessages,
+  sendDirectMessage,
+} from '../../services/chatService';
 
-export default function ChatScreen({ conversationId, navigate }) {
+export default function ChatScreen({ conversationId, recipientId, navigate, currentUser }) {
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
-  const conversation = CONVERSATIONS.find((c) => c.id === conversationId);
-  const initialMessages = MESSAGES[conversationId] || [];
-
-  const [messages, setMessages] = useState(initialMessages);
+  const [activeConversationId, setActiveConversationId] = useState(conversationId || null);
+  const [otherUser, setOtherUser] = useState(null);
+  const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
+  const [loading, setLoading] = useState(Boolean(recipientId || conversationId));
+  const [sending, setSending] = useState(false);
   const flatListRef = useRef(null);
 
-  const otherUser = conversation?.otherUser || {
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadChat = async () => {
+      try {
+        setLoading(true);
+
+        if (recipientId) {
+          const conversation = await getOrCreateConversation({ currentUser, recipientId });
+          if (!isMounted) return;
+
+          setActiveConversationId(conversation.id);
+          setOtherUser(conversation.otherUser);
+          setMessages(await loadConversationMessages(conversation.id));
+          return;
+        }
+
+        if (conversationId) {
+          const fallbackConversation = CONVERSATIONS.find((conversation) => conversation.id === conversationId);
+          const loadedMessages = await loadConversationMessages(conversationId);
+
+          if (!isMounted) return;
+
+          setOtherUser(fallbackConversation?.otherUser || {
+            name: 'Unknown User',
+            photo: 'https://i.pravatar.cc/150?u=unknown',
+          });
+          setMessages(loadedMessages.length > 0 ? loadedMessages : MESSAGES[conversationId] || []);
+        }
+      } catch (error) {
+        Alert.alert('Message', error.message || 'Could not open this conversation.');
+        navigate('Messages');
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    loadChat();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [conversationId, currentUser, navigate, recipientId]);
+
+  const displayOtherUser = otherUser || {
     name: 'Unknown User',
     photo: 'https://i.pravatar.cc/150?u=unknown',
   };
 
-  const handleSend = useCallback(() => {
+  const handleSend = useCallback(async () => {
     const trimmed = inputText.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      Alert.alert('Message', 'Message cannot be empty.');
+      return;
+    }
 
-    const newMessage = {
-      id: `msg-${Date.now()}`,
-      text: trimmed,
-      senderId: 'me',
-      timestamp: Date.now(),
-    };
+    try {
+      setSending(true);
 
-    setMessages((prev) => [...prev, newMessage]);
-    setInputText('');
+      let targetConversationId = activeConversationId;
+      if (!targetConversationId && recipientId) {
+        const conversation = await getOrCreateConversation({ currentUser, recipientId });
+        targetConversationId = conversation.id;
+        setActiveConversationId(conversation.id);
+        setOtherUser(conversation.otherUser);
+      }
 
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
-  }, [inputText]);
+      const newMessage = await sendDirectMessage({
+        conversationId: targetConversationId,
+        senderId: currentUser?.id,
+        text: trimmed,
+      });
+
+      setMessages((prev) => [...prev, newMessage]);
+      setInputText('');
+
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    } catch (error) {
+      Alert.alert('Message', error.message || 'Could not send this message.');
+    } finally {
+      setSending(false);
+    }
+  }, [activeConversationId, currentUser, inputText, recipientId]);
 
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
@@ -59,9 +129,9 @@ export default function ChatScreen({ conversationId, navigate }) {
   };
 
   const renderMessage = ({ item, index }) => {
-    const isMe = item.senderId === 'me';
+    const isMe = item.senderId === currentUser?.id || item.senderId === 'me';
     const prevMessage = index > 0 ? messages[index - 1] : null;
-    const showAvatar = !isMe && (!prevMessage || prevMessage.senderId === 'me');
+    const showAvatar = !isMe && (!prevMessage || prevMessage.senderId === currentUser?.id || prevMessage.senderId === 'me');
 
     return (
       <View
@@ -73,7 +143,7 @@ export default function ChatScreen({ conversationId, navigate }) {
         {!isMe && (
           <View style={styles.avatarSlot}>
             {showAvatar ? (
-              <Image source={{ uri: otherUser.photo }} style={styles.messageAvatar} />
+              <Image source={{ uri: displayOtherUser.photo }} style={styles.messageAvatar} />
             ) : null}
           </View>
         )}
@@ -109,10 +179,10 @@ export default function ChatScreen({ conversationId, navigate }) {
         </TouchableOpacity>
 
         <View style={styles.headerCenter}>
-          <Image source={{ uri: otherUser.photo }} style={styles.headerAvatar} />
+          <Image source={{ uri: displayOtherUser.photo }} style={styles.headerAvatar} />
           <View>
-            <Text style={styles.headerName} numberOfLines={1}>{otherUser.name}</Text>
-            <Text style={styles.headerStatus}>Online</Text>
+            <Text style={styles.headerName} numberOfLines={1}>{displayOtherUser.name}</Text>
+            <Text style={styles.headerStatus}>{loading ? 'Loading...' : 'Online'}</Text>
           </View>
         </View>
 
@@ -124,26 +194,32 @@ export default function ChatScreen({ conversationId, navigate }) {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          keyExtractor={(item) => item.id}
-          renderItem={renderMessage}
-          contentContainerStyle={styles.messageList}
-          showsVerticalScrollIndicator={false}
-          keyboardDismissMode="on-drag"
-          onContentSizeChange={() =>
-            flatListRef.current?.scrollToEnd({ animated: false })
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyChat}>
-              <Text style={styles.emptyChatIcon}>👋</Text>
-              <Text style={styles.emptyChatText}>
-                Say hello to {otherUser.name}!
-              </Text>
-            </View>
-          }
-        />
+        {loading ? (
+          <View style={styles.emptyChat}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        ) : (
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            keyExtractor={(item) => item.id}
+            renderItem={renderMessage}
+            contentContainerStyle={styles.messageList}
+            showsVerticalScrollIndicator={false}
+            keyboardDismissMode="on-drag"
+            onContentSizeChange={() =>
+              flatListRef.current?.scrollToEnd({ animated: false })
+            }
+            ListEmptyComponent={
+              <View style={styles.emptyChat}>
+                <Text style={styles.emptyChatIcon}>👋</Text>
+                <Text style={styles.emptyChatText}>
+                  Say hello to {displayOtherUser.name}!
+                </Text>
+              </View>
+            }
+          />
+        )}
 
         <View style={styles.inputContainer}>
           <TextInput
@@ -159,10 +235,10 @@ export default function ChatScreen({ conversationId, navigate }) {
           <TouchableOpacity
             style={[
               styles.sendButton,
-              !inputText.trim() && styles.sendButtonDisabled,
+              (!inputText.trim() || sending) && styles.sendButtonDisabled,
             ]}
             onPress={handleSend}
-            disabled={!inputText.trim()}
+            disabled={!inputText.trim() || sending}
             testID="chat-send-button"
           >
             <Text style={styles.sendButtonText}>➤</Text>

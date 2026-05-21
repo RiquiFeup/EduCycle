@@ -180,13 +180,15 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
         );
 
       case 'Messages':
-        return <InboxScreen navigate={navigate} />;
+        return <InboxScreen navigate={navigate} currentUser={user} />;
 
       case 'Chat':
         return (
           <ChatScreen
             conversationId={screenParams?.conversationId}
+            recipientId={screenParams?.recipientId}
             navigate={navigate}
+            currentUser={user}
           />
         );
 
@@ -199,6 +201,7 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
             isPreview={screenParams?.isPreview}
             sellerId={screenParams?.sellerId}
             navigate={navigate}
+            currentUser={user}
           />
         );
 
@@ -207,6 +210,7 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
           <ListingDetailsScreen
             listing={screenParams?.listing}
             navigate={navigate}
+            currentUser={user}
           />
         );
 

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,15 +8,42 @@ import {
   StyleSheet,
   StatusBar,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../contexts/ThemeContext';
 import { SPACING } from '../../utils/theme';
 import { CONVERSATIONS } from '../../data/conversations';
+import { loadUserConversations } from '../../services/chatService';
 
-export default function InboxScreen({ navigate }) {
+export default function InboxScreen({ navigate, currentUser }) {
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+  const [conversations, setConversations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadConversations = async () => {
+      try {
+        setLoading(true);
+        const realConversations = await loadUserConversations(currentUser);
+        if (isMounted) setConversations(realConversations.length > 0 ? realConversations : CONVERSATIONS);
+      } catch (error) {
+        console.error('Erro ao carregar conversas:', error);
+        if (isMounted) setConversations(CONVERSATIONS);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    loadConversations();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentUser]);
 
   const renderConversation = ({ item }) => (
     <TouchableOpacity
@@ -83,24 +110,30 @@ export default function InboxScreen({ navigate }) {
         <View style={styles.headerRight} />
       </View>
 
-      <FlatList
-        data={CONVERSATIONS}
-        keyExtractor={(item) => item.id}
-        renderItem={renderConversation}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        keyboardDismissMode="on-drag"
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer} testID="inbox-empty-state">
-            <Text style={styles.emptyIcon}>💬</Text>
-            <Text style={styles.emptyTitle}>No messages yet</Text>
-            <Text style={styles.emptyDescription}>
-              When you contact a seller or receive a message, it will appear here.
-            </Text>
-          </View>
-        }
-      />
+      {loading ? (
+        <View style={styles.emptyContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : (
+        <FlatList
+          data={conversations}
+          keyExtractor={(item) => item.id}
+          renderItem={renderConversation}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          keyboardDismissMode="on-drag"
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer} testID="inbox-empty-state">
+              <Text style={styles.emptyIcon}>💬</Text>
+              <Text style={styles.emptyTitle}>No messages yet</Text>
+              <Text style={styles.emptyDescription}>
+                When you contact a seller or receive a message, it will appear here.
+              </Text>
+            </View>
+          }
+        />
+      )}
     </SafeAreaView>
   );
 }

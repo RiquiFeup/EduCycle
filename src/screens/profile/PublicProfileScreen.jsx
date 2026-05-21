@@ -22,11 +22,12 @@ import { SPACING, RADIUS } from '../../utils/theme';
 import { useTheme } from '../../contexts/ThemeContext';
 import { UserContext } from '../../contexts/UserContext';
 
-export default function PublicProfileScreen({ isPreview, sellerId, navigate }) {
+export default function PublicProfileScreen({ isPreview, sellerId, navigate, currentUser: propCurrentUser }) {
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
-  const { currentUser } = useContext(UserContext);
+  const { currentUser: contextCurrentUser } = useContext(UserContext);
+  const currentUser = contextCurrentUser || propCurrentUser;
 
   const [displayedUser, setDisplayedUser] = useState(isPreview ? currentUser : null);
   const [loading, setLoading] = useState(true);
@@ -148,7 +149,24 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate }) {
             <View style={styles.actionsContainer}>
               <TouchableOpacity
                 style={[styles.actionButton, styles.primaryButton]}
-                onPress={() => navigate('Chat', { conversationId: 'conv-1' })}
+                onPress={() => {
+                  if (!currentUser?.id) {
+                    Alert.alert('Login required', 'Log in to send messages.');
+                    return;
+                  }
+
+                  if (!sellerId) {
+                    Alert.alert('Message', 'This user cannot receive messages right now.');
+                    return;
+                  }
+
+                  if (sellerId === currentUser.id) {
+                    Alert.alert('Message', 'You cannot message yourself.');
+                    return;
+                  }
+
+                  navigate('Chat', { recipientId: sellerId });
+                }}
               >
                 <Text style={styles.primaryButtonText}>💬 Message</Text>
               </TouchableOpacity>
