@@ -5,7 +5,13 @@
 
 import mockAsyncStorage from '@react-native-async-storage/async-storage/jest/async-storage-mock';
 
-process.env.RNTL_SKIP_AUTO_CLEANUP = 'true';
+import { cleanup } from '@testing-library/react-native';
+
+afterEach(() => {
+  cleanup();
+  jest.clearAllMocks();
+});
+
 jest.setTimeout(30000);
 
 jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);

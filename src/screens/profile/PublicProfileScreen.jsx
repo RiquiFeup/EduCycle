@@ -34,17 +34,28 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate, cur
   const [userListings, setUserListings] = useState([]);
 
   useEffect(() => {
+    let isMounted = true;
+
+    if (!isPreview && !sellerId) {
+      setDisplayedUser(null);
+      setUserListings([]);
+      setLoading(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
     const fetchProfileData = async () => {
       try {
         let targetUserId = sellerId;
 
         if (isPreview) {
           targetUserId = currentUser?.id;
-          setDisplayedUser(currentUser);
+          if (isMounted) setDisplayedUser(currentUser);
         } else if (sellerId) {
           const docRef = doc(db, 'users', sellerId);
           const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
+          if (isMounted && docSnap.exists()) {
             setDisplayedUser(docSnap.data());
           }
         }
@@ -56,16 +67,22 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate, cur
             id: doc.id,
             ...doc.data()
           }));
-          setUserListings(realListings);
+          if (isMounted) setUserListings(realListings);
+        } else if (isMounted) {
+          setUserListings([]);
         }
       } catch (error) {
         console.error("Erro ao carregar perfil e anúncios:", error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchProfileData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [sellerId, isPreview, currentUser]);
 
   const handleToggleFavourite = (id) => {

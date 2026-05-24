@@ -19,11 +19,18 @@ import { loadUserConversations } from '../../services/chatService';
 export default function InboxScreen({ navigate, currentUser }) {
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const [conversations, setConversations] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const hasCurrentUser = Boolean(currentUser?.id);
+  const [conversations, setConversations] = useState(hasCurrentUser ? [] : CONVERSATIONS);
+  const [loading, setLoading] = useState(hasCurrentUser);
 
   useEffect(() => {
     let isMounted = true;
+
+    if (!hasCurrentUser) {
+      setConversations(CONVERSATIONS);
+      setLoading(false);
+      return undefined;
+    }
 
     const loadConversations = async () => {
       try {
@@ -43,7 +50,7 @@ export default function InboxScreen({ navigate, currentUser }) {
     return () => {
       isMounted = false;
     };
-  }, [currentUser]);
+  }, [currentUser, hasCurrentUser]);
 
   const renderConversation = ({ item }) => (
     <TouchableOpacity

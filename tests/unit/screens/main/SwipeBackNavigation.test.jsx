@@ -34,6 +34,10 @@ describe('Swipe-right back navigation', () => {
       fireEvent.press(screen.getByTestId('tab-messages'));
     });
 
+    await waitFor(() => {
+      expect(screen.getAllByTestId(/conversation-/).length).toBeGreaterThan(0);
+    });
+
     // 3. The PanResponder is only active when screenHistory.length > 0.
     //    Verify it is wired to the container when a non-root screen was pushed.
     //    We simulate a swipe right by firing the onResponderRelease event on the
