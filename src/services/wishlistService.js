@@ -2,8 +2,21 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../utils/firebase';
 
 const userDocRef = (userId) => doc(db, 'users', userId);
+const listingDocRef = (listingId) => doc(db, 'listings', listingId);
 
 const cleanValue = (value, fallback = null) => (value === undefined ? fallback : value);
+
+const normalizeImageUrls = (listing) => {
+  if (Array.isArray(listing?.imageUrls)) {
+    return listing.imageUrls.filter(Boolean);
+  }
+
+  if (listing?.image) {
+    return [listing.image];
+  }
+
+  return [];
+};
 
 const getSavedAtValue = (savedAt) => {
   if (!savedAt) {
@@ -32,6 +45,32 @@ const markAsFavourited = (listing) => ({
 const sortWishlist = (listings) =>
   [...listings].sort((a, b) => getSavedAtValue(b.savedAt) - getSavedAtValue(a.savedAt));
 
+const getFreshListingData = async (storedListing) => {
+  const listingId = String(storedListing?.listingId ?? storedListing?.id ?? '');
+
+  if (!listingId) {
+    return storedListing;
+  }
+
+  try {
+    const snapshot = await getDoc(listingDocRef(listingId));
+
+    if (!snapshot.exists()) {
+      return storedListing;
+    }
+
+    return {
+      ...storedListing,
+      ...snapshot.data(),
+      id: listingId,
+      listingId,
+      savedAt: storedListing.savedAt,
+    };
+  } catch (error) {
+    return storedListing;
+  }
+};
+
 const readWishlistFromUserDocument = async (userId) => {
   const snapshot = await getDoc(userDocRef(userId));
 
@@ -45,7 +84,9 @@ const readWishlistFromUserDocument = async (userId) => {
     return [];
   }
 
-  return sortWishlist(storedWishlist.map(markAsFavourited));
+  const freshWishlist = await Promise.all(storedWishlist.map(getFreshListingData));
+
+  return sortWishlist(freshWishlist.map(markAsFavourited));
 };
 
 const updateWishlistInUserDocument = async (userId, updater) => {
@@ -79,7 +120,8 @@ export const normalizeListingForWishlist = (listing) => {
     campus: cleanValue(listing.campus ?? listing.institution, ''),
     subject: cleanValue(listing.subject),
     isbn: cleanValue(listing.isbn),
-    image: cleanValue(listing.image),
+    image: cleanValue(listing.image ?? listing.imageUrls?.[0]),
+    imageUrls: normalizeImageUrls(listing),
     description: cleanValue(listing.description, ''),
     sellerId: cleanValue(listing.sellerId),
     sellerName: cleanValue(listing.sellerName),
