@@ -128,10 +128,10 @@ describe('ListingDetailsScreen - Testes UAT e Renderização Visual', () => {
      */
     it('navega para o chat ao clicar no botão de enviar mensagem', () => {
       const mockNavigate = jest.fn();
-      render(<ListingDetailsScreen listing={baseListing} navigate={mockNavigate} />);
+      renderWithUserContext(<ListingDetailsScreen listing={baseListing} navigate={mockNavigate} />);
 
       fireEvent.press(screen.getByText('Enviar Mensagem'));
-      expect(mockNavigate).toHaveBeenCalledWith('Chat', { conversationId: 'c1' }); // Ajusta 'c1' se o teu botão usar outro id
+      expect(mockNavigate).toHaveBeenCalledWith('Chat', { recipientId: 'seller-1' });
     });
 
     /*

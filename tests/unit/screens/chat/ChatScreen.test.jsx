@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, screen, act } from '@testing-library/react-native';
+import { render, fireEvent, screen, waitFor, cleanup, act } from '@testing-library/react-native';
 import ChatScreen from '../../../../src/screens/chat/ChatScreen';
 
 describe('ChatScreen Tests', () => {
@@ -8,6 +8,7 @@ describe('ChatScreen Tests', () => {
   });
 
   afterEach(() => {
+    cleanup();
     jest.useRealTimers();
   });
 
@@ -17,12 +18,11 @@ describe('ChatScreen Tests', () => {
    * Não há simulação de fluxo de utilizador ou cliques, apenas a validação de que os 
    * elementos visuais (campos e botões) são injetados no DOM corretamente.
    */
-  it('renders the chat screen and essential elements', () => {
-    // Pass a valid conversation id that exists in data, e.g. "1" or none
-    render(<ChatScreen conversationId="1" navigate={jest.fn()} />);
+  it('renders the chat screen and essential elements', async () => {
+    render(<ChatScreen conversationId="conv-1" navigate={jest.fn()} currentUser={{ id: 'me' }} />);
 
-    act(() => {
-      jest.runOnlyPendingTimers();
+    await waitFor(() => {
+      expect(screen.getByText('Online')).toBeTruthy();
     });
 
     expect(screen.getByTestId('chat-screen')).toBeTruthy();
@@ -37,8 +37,12 @@ describe('ChatScreen Tests', () => {
    * mensagem no input de chat, clicar no botão de enviar e verificar se o sistema
    * processou a ação limpando a caixa de texto.
    */
-  it('input text enables send button', () => {
-    render(<ChatScreen conversationId="1" navigate={jest.fn()} />);
+  it('input text enables send button', async () => {
+    render(<ChatScreen conversationId="conv-1" navigate={jest.fn()} currentUser={{ id: 'me' }} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Online')).toBeTruthy();
+    });
 
     const input = screen.getByTestId('chat-message-input');
     const sendButton = screen.getByTestId('chat-send-button');
@@ -46,14 +50,16 @@ describe('ChatScreen Tests', () => {
     fireEvent.changeText(input, 'Hello World');
     expect(input.props.value).toBe('Hello World');
     
-    // We can also fire press
-    fireEvent.press(sendButton);
+    await act(async () => {
+      fireEvent.press(sendButton);
+    });
 
     act(() => {
       jest.runOnlyPendingTimers();
     });
 
-    // the text should reset to empty after sending
-    expect(input.props.value).toBe('');
+    await waitFor(() => {
+      expect(screen.getByTestId('chat-message-input').props.value).toBe('');
+    });
   });
 });
