@@ -29,14 +29,16 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate, cur
   const { currentUser: contextCurrentUser } = useContext(UserContext);
   const currentUser = contextCurrentUser || propCurrentUser;
 
+  const hasTargetUser = isPreview || Boolean(sellerId);
+
   const [displayedUser, setDisplayedUser] = useState(isPreview ? currentUser : null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(hasTargetUser);
   const [userListings, setUserListings] = useState([]);
 
   useEffect(() => {
     let isMounted = true;
 
-    if (!isPreview && !sellerId) {
+    if (!hasTargetUser) {
       setDisplayedUser(null);
       setUserListings([]);
       setLoading(false);
@@ -83,7 +85,7 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate, cur
     return () => {
       isMounted = false;
     };
-  }, [sellerId, isPreview, currentUser]);
+  }, [sellerId, isPreview, currentUser, hasTargetUser]);
 
   const handleToggleFavourite = (id) => {
     setUserListings((prev) =>
