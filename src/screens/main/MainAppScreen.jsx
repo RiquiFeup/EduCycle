@@ -5,7 +5,6 @@ import {
   Pressable,
   StyleSheet,
   StatusBar,
-  Platform,
   PanResponder,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -319,7 +318,6 @@ function createStyles(colors) {
     placeholderSafeArea: {
       flex: 1,
       backgroundColor: colors.background,
-      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
     placeholderContainer: {
       flex: 1,

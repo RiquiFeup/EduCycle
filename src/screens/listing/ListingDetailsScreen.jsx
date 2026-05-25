@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions, Alert } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions, Alert, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../utils/firebase';
 import { SPACING, RADIUS } from '../../utils/theme';
@@ -104,10 +106,12 @@ export default function ListingDetailsScreen({ listing, navigate, currentUser: p
   };
 
   return (
-    <View style={styles.mainContainer}>
+    <SafeAreaView style={styles.mainContainer}>
+      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigate('Home')}>
-          <Text style={styles.backButtonText}>← Voltar</Text>
+          <Ionicons name="arrow-back" size={24} color={colors.primary} />
+          <Text style={styles.backButtonText}>Voltar</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Detalhes do Produto</Text>
       </View>
@@ -189,7 +193,10 @@ export default function ListingDetailsScreen({ listing, navigate, currentUser: p
 
               <View>
                 <Text style={styles.vendorName}>{displaySellerName}</Text>
-                <Text style={styles.vendorSubtext}>Ver Perfil Público →</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <Text style={styles.vendorSubtext}>Ver Perfil Público</Text>
+                  <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
+                </View>
               </View>
             </View>
           </TouchableOpacity>
@@ -248,15 +255,15 @@ export default function ListingDetailsScreen({ listing, navigate, currentUser: p
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 function createStyles(colors) {
   return StyleSheet.create({
     mainContainer: { flex: 1, backgroundColor: colors.background },
-    header: { height: 60, backgroundColor: colors.background, borderBottomWidth: 1, borderBottomColor: colors.borderSoft, flexDirection: 'row', alignItems: 'center', paddingHorizontal: SPACING.md, paddingTop: 10 },
-    backButton: { paddingRight: 15 },
+    header: { height: 60, backgroundColor: colors.background, borderBottomWidth: 1, borderBottomColor: colors.borderSoft, flexDirection: 'row', alignItems: 'center', paddingHorizontal: SPACING.md },
+    backButton: { paddingRight: 15, flexDirection: 'row', alignItems: 'center', gap: 4 },
     backButtonText: { color: colors.primary, fontSize: 16, fontWeight: '600' },
     headerTitle: { fontSize: 18, fontWeight: '700', color: colors.text, flex: 1, textAlign: 'center', marginRight: 60 },
     container: { flex: 1 },

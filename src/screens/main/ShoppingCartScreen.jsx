@@ -1,6 +1,7 @@
 import React, { useContext, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, Platform, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { SPACING, RADIUS } from '../../utils/theme';
 import { useTheme } from '../../contexts/ThemeContext';
 import { UserContext } from '../../contexts/UserContext';
@@ -16,14 +17,15 @@ export default function ShoppingCartScreen({ navigate }) {
       
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigate('Home')}>
-          <Text style={styles.backButtonText}>← Voltar</Text>
+          <Ionicons name="arrow-back" size={24} color={colors.primary} />
+          <Text style={styles.backButtonText}>Voltar</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Carrinho</Text>
       </View>
 
       {cartListings.length === 0 ? (
         <View style={styles.container}>
-          <Text style={styles.emptyIcon}>🛒</Text>
+          <Ionicons name="cart-outline" size={60} color={colors.textMuted} style={{ marginBottom: SPACING.md }} />
           <Text style={styles.emptyTitle}>O teu carrinho está vazio</Text>
           <Text style={styles.emptyHint}>Adiciona itens para os comprares mais tarde.</Text>
         </View>
@@ -68,10 +70,9 @@ export default function ShoppingCartScreen({ navigate }) {
 
 function createStyles(colors) {
   return StyleSheet.create({
-    safeArea: { 
-      flex: 1, 
+    safeArea: {
+      flex: 1,
       backgroundColor: colors.background,
-      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
     header: {
       height: 60,
@@ -84,6 +85,9 @@ function createStyles(colors) {
     },
     backButton: {
       paddingRight: 15,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
     },
     backButtonText: {
       color: colors.primary,
@@ -103,10 +107,6 @@ function createStyles(colors) {
       justifyContent: 'center',
       alignItems: 'center',
       paddingHorizontal: SPACING.lg,
-    },
-    emptyIcon: {
-      fontSize: 60,
-      marginBottom: SPACING.md,
     },
     emptyTitle: {
       fontSize: 20,

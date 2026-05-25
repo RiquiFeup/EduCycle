@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
-  Platform,
   ActivityIndicator,
   ScrollView,
 } from 'react-native';
@@ -275,9 +274,7 @@ export default function HomeScreen({ navigate }) {
                     marginLeft: 4
                   }}
                 >
-                  <Text style={{ fontSize: 16, color: colors.text, fontWeight: 'bold' }}>
-                    {sortDirection === 'asc' ? '↑' : '↓'}
-                  </Text>
+                  <Ionicons name={sortDirection === 'asc' ? 'arrow-up' : 'arrow-down'} size={16} color={colors.text} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -331,7 +328,7 @@ export default function HomeScreen({ navigate }) {
 
 function createStyles(colors) {
   return StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: colors.background, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
+    safeArea: { flex: 1, backgroundColor: colors.background },
     stateContainer: { flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' },
     stateText: { marginTop: SPACING.md, color: colors.textMuted, fontSize: 15 },
     header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SPACING.horizontal, paddingVertical: 12, backgroundColor: colors.background, borderBottomWidth: 1, borderBottomColor: colors.border },
