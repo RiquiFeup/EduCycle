@@ -3,13 +3,8 @@ import { render, fireEvent, screen, waitFor, cleanup, act } from '@testing-libra
 import ChatScreen from '../../../../src/screens/chat/ChatScreen';
 
 describe('ChatScreen Tests', () => {
-  beforeEach(() => {
-    jest.useFakeTimers();
-  });
-
   afterEach(() => {
     cleanup();
-    jest.useRealTimers();
   });
 
   /*
@@ -54,9 +49,6 @@ describe('ChatScreen Tests', () => {
       fireEvent.press(sendButton);
     });
 
-    act(() => {
-      jest.runOnlyPendingTimers();
-    });
 
     await waitFor(() => {
       expect(screen.getByTestId('chat-message-input').props.value).toBe('');
