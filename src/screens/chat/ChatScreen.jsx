@@ -18,9 +18,13 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { SPACING, RADIUS } from '../../utils/theme';
 import { CONVERSATIONS, MESSAGES } from '../../data/conversations';
 import {
+  deleteConversation,
+  getConversationDetails,
   getOrCreateConversation,
   loadConversationMessages,
   sendDirectMessage,
+  subscribeToConversationDetails,
+  subscribeToConversationMessages,
 } from '../../services/chatService';
 
 export default function ChatScreen({ conversationId, recipientId, navigate, currentUser }) {
@@ -33,36 +37,109 @@ export default function ChatScreen({ conversationId, recipientId, navigate, curr
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(Boolean(recipientId || conversationId));
   const [sending, setSending] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const flatListRef = useRef(null);
+  const scrollTimeoutRef = useRef(null);
 
   useEffect(() => {
     let isMounted = true;
+    let unsubscribeMessages = null;
+    let unsubscribeConversation = null;
+
+    const fallbackForConversation = (targetConversationId) => {
+      const fallbackConversation = CONVERSATIONS.find((conversation) => conversation.id === targetConversationId);
+
+      return {
+        otherUser: fallbackConversation?.otherUser || {
+          id: recipientId || 'unknown',
+          name: 'Unknown User',
+          photo: 'https://i.pravatar.cc/150?u=unknown',
+        },
+        messages: MESSAGES[targetConversationId] || [],
+      };
+    };
+
+    const attachRealtimeListeners = (targetConversationId, fallbackMessages = [], listenToConversation = true) => {
+      unsubscribeMessages?.();
+      unsubscribeConversation?.();
+
+      unsubscribeMessages = subscribeToConversationMessages(
+        targetConversationId,
+        (liveMessages) => {
+          if (!isMounted) return;
+          setMessages(liveMessages.length > 0 ? liveMessages : fallbackMessages);
+        },
+        (error) => {
+          console.error('Erro ao acompanhar mensagens:', error);
+          if (isMounted && fallbackMessages.length > 0) setMessages(fallbackMessages);
+        },
+      );
+
+      if (listenToConversation) {
+        unsubscribeConversation = subscribeToConversationDetails(
+          targetConversationId,
+          currentUser,
+          (conversation) => {
+            if (!isMounted) return;
+
+            if (!conversation) {
+              Alert.alert('Message', 'This conversation was deleted.');
+              navigate('Messages');
+              return;
+            }
+
+            setOtherUser(conversation.otherUser);
+          },
+          (error) => {
+            console.error('Erro ao acompanhar conversa:', error);
+          },
+        );
+      }
+    };
 
     const loadChat = async () => {
       try {
         setLoading(true);
 
+        let targetConversationId = conversationId;
+        let loadedOtherUser = null;
+        let fallbackMessages = [];
+        let hasRealConversation = false;
+
         if (recipientId) {
           const conversation = await getOrCreateConversation({ currentUser, recipientId });
-          if (!isMounted) return;
+          targetConversationId = conversation.id;
+          loadedOtherUser = conversation.otherUser;
+          hasRealConversation = true;
+        } else if (conversationId) {
+          const conversation = await getConversationDetails({ conversationId, currentUser });
 
-          setActiveConversationId(conversation.id);
-          setOtherUser(conversation.otherUser);
-          setMessages(await loadConversationMessages(conversation.id));
-          return;
+          if (conversation) {
+            loadedOtherUser = conversation.otherUser;
+            hasRealConversation = true;
+          } else {
+            const fallback = fallbackForConversation(conversationId);
+            loadedOtherUser = fallback.otherUser;
+            fallbackMessages = fallback.messages;
+          }
         }
 
-        if (conversationId) {
-          const fallbackConversation = CONVERSATIONS.find((conversation) => conversation.id === conversationId);
-          const loadedMessages = await loadConversationMessages(conversationId);
+        if (!isMounted) return;
 
-          if (!isMounted) return;
+        setActiveConversationId(targetConversationId || null);
+        setOtherUser(loadedOtherUser);
 
-          setOtherUser(fallbackConversation?.otherUser || {
-            name: 'Unknown User',
-            photo: 'https://i.pravatar.cc/150?u=unknown',
-          });
-          setMessages(loadedMessages.length > 0 ? loadedMessages : MESSAGES[conversationId] || []);
+        const loadedMessages = targetConversationId
+          ? await loadConversationMessages(targetConversationId)
+          : [];
+
+        if (!isMounted) return;
+
+        const initialMessages = loadedMessages.length > 0 ? loadedMessages : fallbackMessages;
+        setMessages(initialMessages);
+
+        if (targetConversationId) {
+          attachRealtimeListeners(targetConversationId, fallbackMessages, hasRealConversation);
         }
       } catch (error) {
         Alert.alert('Message', error.message || 'Could not open this conversation.');
@@ -76,6 +153,9 @@ export default function ChatScreen({ conversationId, recipientId, navigate, curr
 
     return () => {
       isMounted = false;
+      unsubscribeMessages?.();
+      unsubscribeConversation?.();
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
     };
   }, [conversationId, currentUser, navigate, recipientId]);
 
@@ -111,7 +191,8 @@ export default function ChatScreen({ conversationId, recipientId, navigate, curr
       setMessages((prev) => [...prev, newMessage]);
       setInputText('');
 
-      setTimeout(() => {
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+      scrollTimeoutRef.current = setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });
       }, 100);
     } catch (error) {
@@ -120,6 +201,48 @@ export default function ChatScreen({ conversationId, recipientId, navigate, curr
       setSending(false);
     }
   }, [activeConversationId, currentUser, inputText, recipientId]);
+
+  const handleOpenProfile = useCallback(() => {
+    const profileUserId = displayOtherUser?.id || recipientId;
+
+    if (!profileUserId || profileUserId === 'unknown') {
+      Alert.alert('Profile', 'This profile is not available.');
+      return;
+    }
+
+    navigate('PublicProfile', { sellerId: profileUserId });
+  }, [displayOtherUser?.id, navigate, recipientId]);
+
+  const handleDeleteConversation = useCallback(() => {
+    if (!activeConversationId) {
+      navigate('Messages');
+      return;
+    }
+
+    Alert.alert(
+      'Delete chat',
+      'This will delete the conversation for everyone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setDeleting(true);
+              await deleteConversation(activeConversationId);
+              setMessages([]);
+              navigate('Messages');
+            } catch (error) {
+              Alert.alert('Delete chat', error.message || 'Could not delete this conversation.');
+            } finally {
+              setDeleting(false);
+            }
+          },
+        },
+      ],
+    );
+  }, [activeConversationId, navigate]);
 
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
@@ -178,15 +301,28 @@ export default function ChatScreen({ conversationId, recipientId, navigate, curr
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
 
-        <View style={styles.headerCenter}>
+        <TouchableOpacity
+          style={styles.headerCenter}
+          activeOpacity={0.75}
+          onPress={handleOpenProfile}
+          testID="chat-profile-button"
+        >
           <Image source={{ uri: displayOtherUser.photo }} style={styles.headerAvatar} />
-          <View>
+          <View style={styles.headerTextContainer}>
             <Text style={styles.headerName} numberOfLines={1}>{displayOtherUser.name}</Text>
             <Text style={styles.headerStatus}>{loading ? 'Loading...' : 'Online'}</Text>
           </View>
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.headerRight} />
+        <TouchableOpacity
+          style={[styles.headerAction, deleting && styles.headerActionDisabled]}
+          onPress={handleDeleteConversation}
+          disabled={deleting}
+          testID="chat-delete-button"
+          accessibilityLabel="Delete chat"
+        >
+          <Text style={styles.headerActionText}>⌫</Text>
+        </TouchableOpacity>
       </View>
 
       <KeyboardAvoidingView
@@ -283,6 +419,9 @@ function createStyles(colors) {
       alignItems: 'center',
       gap: 10,
     },
+    headerTextContainer: {
+      flex: 1,
+    },
     headerAvatar: {
       width: 36,
       height: 36,
@@ -299,8 +438,23 @@ function createStyles(colors) {
       color: colors.primary,
       fontWeight: '500',
     },
-    headerRight: {
+    headerAction: {
       width: 36,
+      height: 36,
+      borderRadius: 18,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    headerActionDisabled: {
+      opacity: 0.5,
+    },
+    headerActionText: {
+      fontSize: 18,
+      color: colors.danger || colors.text,
+      fontWeight: '700',
     },
     messageList: {
       paddingHorizontal: SPACING.horizontal,
