@@ -42,6 +42,17 @@ jest.mock('firebase/firestore', () => ({
   setDoc: jest.fn(() => Promise.resolve()),
   deleteDoc: jest.fn(() => Promise.resolve()),
   getDoc: jest.fn(() => Promise.resolve({ exists: () => false, data: () => ({}) })),
+  onSnapshot: jest.fn((_, onNext) => {
+    if (typeof onNext === 'function') {
+      onNext({
+        docs: [],
+        exists: () => false,
+        data: () => ({}),
+      });
+    }
+
+    return jest.fn();
+  }),
   addDoc: jest.fn(() => Promise.resolve({ id: 'mock-id' })),
   updateDoc: jest.fn(() => Promise.resolve()),
   serverTimestamp: jest.fn(() => 'mock-server-timestamp'),
