@@ -4,8 +4,6 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Platform,
-  StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -64,7 +62,8 @@ export default function DevProfileFlow() {
             style={styles.floatingBackBtn} 
             onPress={() => navigate('Menu')}
           >
-            <Text style={styles.floatingBackText}>← Dev Menu</Text>
+            <Ionicons name="arrow-back" size={14} color="#FFF" />
+            <Text style={styles.floatingBackText}> Dev Menu</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -78,7 +77,6 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#F5F5F5',
     justifyContent: 'center',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   devMenuTitle: {
     fontSize: 24,
@@ -112,6 +110,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   floatingBackText: {
     color: '#FFF',

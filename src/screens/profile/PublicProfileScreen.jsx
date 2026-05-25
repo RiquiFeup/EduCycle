@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   StatusBar,
-  Platform,
   TouchableOpacity,
   Image,
   ScrollView,
@@ -141,7 +140,7 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate, cur
       ) : (
         <View style={styles.header}>
           <TouchableOpacity style={styles.backBtn} onPress={() => navigate('Home')}>
-            <Text style={styles.backIcon}>←</Text>
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Seller Profile</Text>
           <View style={styles.placeholder} />
@@ -244,7 +243,6 @@ function createStyles(colors) {
     safeArea: {
       flex: 1,
       backgroundColor: colors.background,
-      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
     stateContainer: {
       flex: 1,
@@ -282,7 +280,6 @@ function createStyles(colors) {
       borderBottomColor: colors.border,
     },
     backBtn: { padding: 4 },
-    backIcon: { fontSize: 24, color: colors.text },
     headerTitle: { fontSize: 17, fontWeight: '700', color: colors.text },
     placeholder: { width: 32 },
     previewHeader: {
