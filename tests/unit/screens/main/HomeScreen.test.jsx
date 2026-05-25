@@ -87,12 +87,12 @@ describe('HomeScreen Tests', () => {
     }, { timeout: 5000 });
 
     // 1. Check default state (Descending)
-    expect(screen.getByText('↓')).toBeTruthy();
+    expect(screen.getByLabelText('arrow-down')).toBeTruthy();
 
     // 2. Press the toggle button
-    const toggleButton = screen.getByText('↓');
-    
-    // Using act() tells Jest to wait for all internal FlatList background 
+    const toggleButton = screen.getByTestId('home-sort-toggle');
+
+    // Using act() tells Jest to wait for all internal FlatList background
     // updates to finish before moving on to the next line.
     await act(async () => {
       fireEvent.press(toggleButton);
@@ -100,7 +100,7 @@ describe('HomeScreen Tests', () => {
 
     // 3. Verify it changed to Ascending
     await waitFor(() => {
-      expect(screen.getByText('↑')).toBeTruthy();
+      expect(screen.getByLabelText('arrow-up')).toBeTruthy();
     });
   });
 
