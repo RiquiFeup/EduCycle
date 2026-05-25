@@ -25,7 +25,7 @@ export default function ShoppingCartScreen({ navigate }) {
 
       {cartListings.length === 0 ? (
         <View style={styles.container}>
-          <Ionicons name="cart-outline" size={60} color={colors.textMuted} style={{ marginBottom: SPACING.md }} />
+          <Ionicons testID="cart-empty-icon" name="cart-outline" size={60} color={colors.textMuted} style={{ marginBottom: SPACING.md }} />
           <Text style={styles.emptyTitle}>O teu carrinho está vazio</Text>
           <Text style={styles.emptyHint}>Adiciona itens para os comprares mais tarde.</Text>
         </View>

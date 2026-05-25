@@ -262,6 +262,7 @@ export default function HomeScreen({ navigate }) {
 
                 <TouchableOpacity
                   onPress={toggleSortDirection}
+                  testID="home-sort-toggle"
                   style={{
                     paddingHorizontal: 16,
                     paddingVertical: 8,
