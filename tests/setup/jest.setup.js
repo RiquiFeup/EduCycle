@@ -99,10 +99,18 @@ jest.mock('../../src/utils/firebase', () => ({
 }));
 
 jest.mock('react-native-safe-area-context', () => {
-  const actual = jest.requireActual('react-native-safe-area-context');
+  const React = require('react');
+  const { View } = require('react-native');
+  const insets = { top: 0, bottom: 0, left: 0, right: 0 };
+  const frame = { x: 0, y: 0, width: 390, height: 844 };
   return {
-    ...actual,
-    useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+    SafeAreaProvider: ({ children }) => React.createElement(React.Fragment, null, children),
+    SafeAreaView: ({ children, style, testID, edges }) =>
+      React.createElement(View, { style, testID }, children),
+    useSafeAreaInsets: () => insets,
+    SafeAreaConsumer: ({ children }) => children(insets),
+    SafeAreaInsetsContext: { Consumer: ({ children }) => children(insets) },
+    initialWindowMetrics: { insets, frame },
   };
 });
 

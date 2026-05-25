@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint src/ tests/",
-    "test:coverage": "jest --coverage --runInBand --forceExit",
+    "test:coverage": "jest --coverage --runInBand --detectOpenHandles",
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
