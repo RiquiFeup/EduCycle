@@ -1,12 +1,14 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, Platform } from 'react-native';
+import React, { useContext, useMemo } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar, Platform, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SPACING, RADIUS } from '../../utils/theme';
 import { useTheme } from '../../contexts/ThemeContext';
+import { UserContext } from '../../contexts/UserContext';
 
 export default function ShoppingCartScreen({ navigate }) {
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+  const { cartListings = [], removeFromCart = () => {} } = useContext(UserContext) ?? {};
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -19,11 +21,47 @@ export default function ShoppingCartScreen({ navigate }) {
         <Text style={styles.headerTitle}>Carrinho</Text>
       </View>
 
-      <View style={styles.container}>
-        <Text style={styles.emptyIcon}>🛒</Text>
-        <Text style={styles.emptyTitle}>O teu carrinho está vazio</Text>
-        <Text style={styles.emptyHint}>Adiciona itens para os comprares mais tarde.</Text>
-      </View>
+      {cartListings.length === 0 ? (
+        <View style={styles.container}>
+          <Text style={styles.emptyIcon}>🛒</Text>
+          <Text style={styles.emptyTitle}>O teu carrinho está vazio</Text>
+          <Text style={styles.emptyHint}>Adiciona itens para os comprares mais tarde.</Text>
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.listContent}>
+          {cartListings.map((listing) => (
+            <View key={listing.id} style={styles.cartItem} testID={`cart-item-${listing.id}`}>
+              {listing.image || listing.imageUrls?.[0] ? (
+                <Image
+                  source={{ uri: listing.image || listing.imageUrls[0] }}
+                  style={styles.itemImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.itemImagePlaceholder} />
+              )}
+
+              <View style={styles.itemContent}>
+                <Text style={styles.itemTitle} numberOfLines={2}>{listing.title}</Text>
+                <Text style={styles.itemMeta} numberOfLines={1}>{listing.institution || listing.campus}</Text>
+                {listing.price != null && listing.price !== '' ? (
+                  <Text style={styles.itemPrice}>€ {Number(listing.price).toFixed(2)}</Text>
+                ) : (
+                  <Text style={styles.itemPriceMuted}>Preço a combinar</Text>
+                )}
+              </View>
+
+              <TouchableOpacity
+                style={styles.removeButton}
+                onPress={() => removeFromCart(listing.id)}
+                testID={`cart-remove-${listing.id}`}
+              >
+                <Text style={styles.removeButtonText}>Remover</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
@@ -80,6 +118,67 @@ function createStyles(colors) {
       fontSize: 15,
       color: colors.textMuted,
       textAlign: 'center',
+    },
+    listContent: {
+      padding: SPACING.md,
+      gap: SPACING.md,
+    },
+    cartItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: RADIUS.input,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: SPACING.sm,
+      gap: SPACING.sm,
+    },
+    itemImage: {
+      width: 72,
+      height: 72,
+      borderRadius: RADIUS.input,
+      backgroundColor: colors.border,
+    },
+    itemImagePlaceholder: {
+      width: 72,
+      height: 72,
+      borderRadius: RADIUS.input,
+      backgroundColor: colors.borderDark,
+    },
+    itemContent: {
+      flex: 1,
+      minWidth: 0,
+    },
+    itemTitle: {
+      color: colors.text,
+      fontSize: 15,
+      fontWeight: '700',
+    },
+    itemMeta: {
+      color: colors.textMuted,
+      fontSize: 13,
+      marginTop: 3,
+    },
+    itemPrice: {
+      color: colors.primary,
+      fontSize: 15,
+      fontWeight: '800',
+      marginTop: 6,
+    },
+    itemPriceMuted: {
+      color: colors.textSecondary,
+      fontSize: 13,
+      fontWeight: '600',
+      marginTop: 6,
+    },
+    removeButton: {
+      paddingHorizontal: SPACING.sm,
+      paddingVertical: SPACING.sm,
+    },
+    removeButtonText: {
+      color: colors.danger,
+      fontSize: 13,
+      fontWeight: '700',
     },
   });
 }

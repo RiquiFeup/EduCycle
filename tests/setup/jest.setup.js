@@ -5,7 +5,10 @@
 
 import mockAsyncStorage from '@react-native-async-storage/async-storage/jest/async-storage-mock';
 
-process.env.RNTL_SKIP_AUTO_CLEANUP = 'true';
+afterEach(() => {
+  jest.clearAllMocks();
+});
+
 jest.setTimeout(30000);
 
 jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
@@ -39,6 +42,17 @@ jest.mock('firebase/firestore', () => ({
   setDoc: jest.fn(() => Promise.resolve()),
   deleteDoc: jest.fn(() => Promise.resolve()),
   getDoc: jest.fn(() => Promise.resolve({ exists: () => false, data: () => ({}) })),
+  onSnapshot: jest.fn((_, onNext) => {
+    if (typeof onNext === 'function') {
+      onNext({
+        docs: [],
+        exists: () => false,
+        data: () => ({}),
+      });
+    }
+
+    return jest.fn();
+  }),
   addDoc: jest.fn(() => Promise.resolve({ id: 'mock-id' })),
   updateDoc: jest.fn(() => Promise.resolve()),
   serverTimestamp: jest.fn(() => 'mock-server-timestamp'),

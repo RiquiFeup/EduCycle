@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,16 +8,105 @@ import {
   StyleSheet,
   StatusBar,
   Platform,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { SPACING } from '../../utils/theme';
 import { CONVERSATIONS } from '../../data/conversations';
+import {
+  deleteConversation,
+  loadUserConversations,
+  subscribeToUserConversations,
+} from '../../services/chatService';
 
-export default function InboxScreen({ navigate }) {
+export default function InboxScreen({ navigate, currentUser }) {
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+  const hasCurrentUser = Boolean(currentUser?.id);
+  const [conversations, setConversations] = useState(hasCurrentUser ? [] : CONVERSATIONS);
+  const [loading, setLoading] = useState(hasCurrentUser);
+
+  useEffect(() => {
+    let isMounted = true;
+    let unsubscribe = null;
+
+    if (!hasCurrentUser) {
+      setConversations(CONVERSATIONS);
+      setLoading(false);
+      return undefined;
+    }
+
+    const handleLoadedConversations = (realConversations) => {
+      if (!isMounted) return;
+      setConversations(realConversations.length > 0 ? realConversations : CONVERSATIONS);
+      setLoading(false);
+    };
+
+    const handleLoadError = (error) => {
+      console.error('Erro ao carregar conversas:', error);
+      if (isMounted) {
+        setConversations(CONVERSATIONS);
+        setLoading(false);
+      }
+    };
+
+    const loadConversations = async () => {
+      try {
+        setLoading(true);
+        const realConversations = await loadUserConversations(currentUser);
+        handleLoadedConversations(realConversations);
+
+        unsubscribe = subscribeToUserConversations(
+          currentUser,
+          handleLoadedConversations,
+          handleLoadError,
+        );
+      } catch (error) {
+        handleLoadError(error);
+      }
+    };
+
+    loadConversations();
+
+    return () => {
+      isMounted = false;
+      unsubscribe?.();
+    };
+  }, [currentUser, hasCurrentUser]);
+
+  const handleOpenProfile = useCallback((otherUserId) => {
+    if (!otherUserId || otherUserId === 'unknown') {
+      Alert.alert('Profile', 'This profile is not available.');
+      return;
+    }
+
+    navigate('PublicProfile', { sellerId: otherUserId });
+  }, [navigate]);
+
+  const handleDeleteConversation = useCallback((conversationId) => {
+    Alert.alert(
+      'Delete chat',
+      'This will delete the conversation for everyone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteConversation(conversationId);
+              setConversations((prev) => prev.filter((conversation) => conversation.id !== conversationId));
+            } catch (error) {
+              Alert.alert('Delete chat', error.message || 'Could not delete this conversation.');
+            }
+          },
+        },
+      ],
+    );
+  }, []);
 
   const renderConversation = ({ item }) => (
     <TouchableOpacity
@@ -26,12 +115,21 @@ export default function InboxScreen({ navigate }) {
       onPress={() => navigate('Chat', { conversationId: item.id })}
       testID={`conversation-${item.id}`}
     >
-      <View style={styles.avatarContainer}>
+      <TouchableOpacity
+        style={styles.avatarContainer}
+        activeOpacity={0.75}
+        onPress={(event) => {
+          event?.stopPropagation?.();
+          handleOpenProfile(item.otherUser.id);
+        }}
+        testID={`conversation-profile-${item.id}`}
+        accessibilityLabel={`Open ${item.otherUser.name} profile`}
+      >
         <Image source={{ uri: item.otherUser.photo }} style={styles.avatar} />
         {item.unreadCount > 0 && (
           <View style={styles.unreadDot} />
         )}
-      </View>
+      </TouchableOpacity>
 
       <View style={styles.conversationContent}>
         <View style={styles.conversationHeader}>
@@ -71,6 +169,18 @@ export default function InboxScreen({ navigate }) {
           )}
         </View>
       </View>
+
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={(event) => {
+          event?.stopPropagation?.();
+          handleDeleteConversation(item.id);
+        }}
+        testID={`conversation-delete-${item.id}`}
+        accessibilityLabel="Delete chat"
+      >
+        <Text style={styles.deleteButtonText}>⌫</Text>
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 
@@ -84,6 +194,7 @@ export default function InboxScreen({ navigate }) {
         <View style={styles.headerRight} />
       </View>
 
+<<<<<<< HEAD
       <FlatList
         data={CONVERSATIONS}
         keyExtractor={(item) => item.id}
@@ -102,6 +213,32 @@ export default function InboxScreen({ navigate }) {
           </View>
         }
       />
+=======
+      {loading ? (
+        <View style={styles.emptyContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : (
+        <FlatList
+          data={conversations}
+          keyExtractor={(item) => item.id}
+          renderItem={renderConversation}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          keyboardDismissMode="on-drag"
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer} testID="inbox-empty-state">
+              <Text style={styles.emptyIcon}>💬</Text>
+              <Text style={styles.emptyTitle}>No messages yet</Text>
+              <Text style={styles.emptyDescription}>
+                When you contact a seller or receive a message, it will appear here.
+              </Text>
+            </View>
+          }
+        />
+      )}
+>>>>>>> 44c57db57fa6f40d5bf8a43da55dc0886877b6b4
     </SafeAreaView>
   );
 }
@@ -168,6 +305,22 @@ function createStyles(colors) {
     },
     conversationContent: {
       flex: 1,
+    },
+    deleteButton: {
+      width: 34,
+      height: 34,
+      borderRadius: 17,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginLeft: 8,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    deleteButtonText: {
+      color: colors.danger || colors.text,
+      fontSize: 16,
+      fontWeight: '700',
     },
     conversationHeader: {
       flexDirection: 'row',

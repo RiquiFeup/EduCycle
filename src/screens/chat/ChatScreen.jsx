@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,47 +10,240 @@ import {
   StatusBar,
   Platform,
   KeyboardAvoidingView,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { SPACING, RADIUS } from '../../utils/theme';
-import { MESSAGES, CONVERSATIONS } from '../../data/conversations';
+import { CONVERSATIONS, MESSAGES } from '../../data/conversations';
+import {
+  deleteConversation,
+  getConversationDetails,
+  getOrCreateConversation,
+  loadConversationMessages,
+  sendDirectMessage,
+  subscribeToConversationDetails,
+  subscribeToConversationMessages,
+} from '../../services/chatService';
 
-export default function ChatScreen({ conversationId, navigate }) {
+export default function ChatScreen({ conversationId, recipientId, navigate, currentUser }) {
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
-  const conversation = CONVERSATIONS.find((c) => c.id === conversationId);
-  const initialMessages = MESSAGES[conversationId] || [];
-
-  const [messages, setMessages] = useState(initialMessages);
+  const [activeConversationId, setActiveConversationId] = useState(conversationId || null);
+  const [otherUser, setOtherUser] = useState(null);
+  const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
+  const [loading, setLoading] = useState(Boolean(recipientId || conversationId));
+  const [sending, setSending] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const flatListRef = useRef(null);
+  const scrollTimeoutRef = useRef(null);
 
-  const otherUser = conversation?.otherUser || {
+  useEffect(() => {
+    let isMounted = true;
+    let unsubscribeMessages = null;
+    let unsubscribeConversation = null;
+
+    const fallbackForConversation = (targetConversationId) => {
+      const fallbackConversation = CONVERSATIONS.find((conversation) => conversation.id === targetConversationId);
+
+      return {
+        otherUser: fallbackConversation?.otherUser || {
+          id: recipientId || 'unknown',
+          name: 'Unknown User',
+          photo: 'https://i.pravatar.cc/150?u=unknown',
+        },
+        messages: MESSAGES[targetConversationId] || [],
+      };
+    };
+
+    const attachRealtimeListeners = (targetConversationId, fallbackMessages = [], listenToConversation = true) => {
+      unsubscribeMessages?.();
+      unsubscribeConversation?.();
+
+      unsubscribeMessages = subscribeToConversationMessages(
+        targetConversationId,
+        (liveMessages) => {
+          if (!isMounted) return;
+          setMessages(liveMessages.length > 0 ? liveMessages : fallbackMessages);
+        },
+        (error) => {
+          console.error('Erro ao acompanhar mensagens:', error);
+          if (isMounted && fallbackMessages.length > 0) setMessages(fallbackMessages);
+        },
+      );
+
+      if (listenToConversation) {
+        unsubscribeConversation = subscribeToConversationDetails(
+          targetConversationId,
+          currentUser,
+          (conversation) => {
+            if (!isMounted) return;
+
+            if (!conversation) {
+              Alert.alert('Message', 'This conversation was deleted.');
+              navigate('Messages');
+              return;
+            }
+
+            setOtherUser(conversation.otherUser);
+          },
+          (error) => {
+            console.error('Erro ao acompanhar conversa:', error);
+          },
+        );
+      }
+    };
+
+    const loadChat = async () => {
+      try {
+        setLoading(true);
+
+        let targetConversationId = conversationId;
+        let loadedOtherUser = null;
+        let fallbackMessages = [];
+        let hasRealConversation = false;
+
+        if (recipientId) {
+          const conversation = await getOrCreateConversation({ currentUser, recipientId });
+          targetConversationId = conversation.id;
+          loadedOtherUser = conversation.otherUser;
+          hasRealConversation = true;
+        } else if (conversationId) {
+          const conversation = await getConversationDetails({ conversationId, currentUser });
+
+          if (conversation) {
+            loadedOtherUser = conversation.otherUser;
+            hasRealConversation = true;
+          } else {
+            const fallback = fallbackForConversation(conversationId);
+            loadedOtherUser = fallback.otherUser;
+            fallbackMessages = fallback.messages;
+          }
+        }
+
+        if (!isMounted) return;
+
+        setActiveConversationId(targetConversationId || null);
+        setOtherUser(loadedOtherUser);
+
+        const loadedMessages = targetConversationId
+          ? await loadConversationMessages(targetConversationId)
+          : [];
+
+        if (!isMounted) return;
+
+        const initialMessages = loadedMessages.length > 0 ? loadedMessages : fallbackMessages;
+        setMessages(initialMessages);
+
+        if (targetConversationId) {
+          attachRealtimeListeners(targetConversationId, fallbackMessages, hasRealConversation);
+        }
+      } catch (error) {
+        Alert.alert('Message', error.message || 'Could not open this conversation.');
+        navigate('Messages');
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    loadChat();
+
+    return () => {
+      isMounted = false;
+      unsubscribeMessages?.();
+      unsubscribeConversation?.();
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    };
+  }, [conversationId, currentUser, navigate, recipientId]);
+
+  const displayOtherUser = otherUser || {
     name: 'Unknown User',
     photo: 'https://i.pravatar.cc/150?u=unknown',
   };
 
-  const handleSend = useCallback(() => {
+  const handleSend = useCallback(async () => {
     const trimmed = inputText.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      Alert.alert('Message', 'Message cannot be empty.');
+      return;
+    }
 
-    const newMessage = {
-      id: `msg-${Date.now()}`,
-      text: trimmed,
-      senderId: 'me',
-      timestamp: Date.now(),
-    };
+    try {
+      setSending(true);
 
-    setMessages((prev) => [...prev, newMessage]);
-    setInputText('');
+      let targetConversationId = activeConversationId;
+      if (!targetConversationId && recipientId) {
+        const conversation = await getOrCreateConversation({ currentUser, recipientId });
+        targetConversationId = conversation.id;
+        setActiveConversationId(conversation.id);
+        setOtherUser(conversation.otherUser);
+      }
 
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
-  }, [inputText]);
+      const newMessage = await sendDirectMessage({
+        conversationId: targetConversationId,
+        senderId: currentUser?.id,
+        text: trimmed,
+      });
+
+      setMessages((prev) => [...prev, newMessage]);
+      setInputText('');
+
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+      scrollTimeoutRef.current = setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    } catch (error) {
+      Alert.alert('Message', error.message || 'Could not send this message.');
+    } finally {
+      setSending(false);
+    }
+  }, [activeConversationId, currentUser, inputText, recipientId]);
+
+  const handleOpenProfile = useCallback(() => {
+    const profileUserId = displayOtherUser?.id || recipientId;
+
+    if (!profileUserId || profileUserId === 'unknown') {
+      Alert.alert('Profile', 'This profile is not available.');
+      return;
+    }
+
+    navigate('PublicProfile', { sellerId: profileUserId });
+  }, [displayOtherUser?.id, navigate, recipientId]);
+
+  const handleDeleteConversation = useCallback(() => {
+    if (!activeConversationId) {
+      navigate('Messages');
+      return;
+    }
+
+    Alert.alert(
+      'Delete chat',
+      'This will delete the conversation for everyone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setDeleting(true);
+              await deleteConversation(activeConversationId);
+              setMessages([]);
+              navigate('Messages');
+            } catch (error) {
+              Alert.alert('Delete chat', error.message || 'Could not delete this conversation.');
+            } finally {
+              setDeleting(false);
+            }
+          },
+        },
+      ],
+    );
+  }, [activeConversationId, navigate]);
 
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
@@ -60,9 +253,9 @@ export default function ChatScreen({ conversationId, navigate }) {
   };
 
   const renderMessage = ({ item, index }) => {
-    const isMe = item.senderId === 'me';
+    const isMe = item.senderId === currentUser?.id || item.senderId === 'me';
     const prevMessage = index > 0 ? messages[index - 1] : null;
-    const showAvatar = !isMe && (!prevMessage || prevMessage.senderId === 'me');
+    const showAvatar = !isMe && (!prevMessage || prevMessage.senderId === currentUser?.id || prevMessage.senderId === 'me');
 
     return (
       <View
@@ -74,7 +267,7 @@ export default function ChatScreen({ conversationId, navigate }) {
         {!isMe && (
           <View style={styles.avatarSlot}>
             {showAvatar ? (
-              <Image source={{ uri: otherUser.photo }} style={styles.messageAvatar} />
+              <Image source={{ uri: displayOtherUser.photo }} style={styles.messageAvatar} />
             ) : null}
           </View>
         )}
@@ -109,15 +302,28 @@ export default function ChatScreen({ conversationId, navigate }) {
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
 
-        <View style={styles.headerCenter}>
-          <Image source={{ uri: otherUser.photo }} style={styles.headerAvatar} />
-          <View>
-            <Text style={styles.headerName} numberOfLines={1}>{otherUser.name}</Text>
-            <Text style={styles.headerStatus}>Online</Text>
+        <TouchableOpacity
+          style={styles.headerCenter}
+          activeOpacity={0.75}
+          onPress={handleOpenProfile}
+          testID="chat-profile-button"
+        >
+          <Image source={{ uri: displayOtherUser.photo }} style={styles.headerAvatar} />
+          <View style={styles.headerTextContainer}>
+            <Text style={styles.headerName} numberOfLines={1}>{displayOtherUser.name}</Text>
+            <Text style={styles.headerStatus}>{loading ? 'Loading...' : 'Online'}</Text>
           </View>
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.headerRight} />
+        <TouchableOpacity
+          style={[styles.headerAction, deleting && styles.headerActionDisabled]}
+          onPress={handleDeleteConversation}
+          disabled={deleting}
+          testID="chat-delete-button"
+          accessibilityLabel="Delete chat"
+        >
+          <Text style={styles.headerActionText}>⌫</Text>
+        </TouchableOpacity>
       </View>
 
       <KeyboardAvoidingView
@@ -125,6 +331,7 @@ export default function ChatScreen({ conversationId, navigate }) {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
+<<<<<<< HEAD
         <FlatList
           ref={flatListRef}
           data={messages}
@@ -145,6 +352,34 @@ export default function ChatScreen({ conversationId, navigate }) {
             </View>
           }
         />
+=======
+        {loading ? (
+          <View style={styles.emptyChat}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        ) : (
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            keyExtractor={(item) => item.id}
+            renderItem={renderMessage}
+            contentContainerStyle={styles.messageList}
+            showsVerticalScrollIndicator={false}
+            keyboardDismissMode="on-drag"
+            onContentSizeChange={() =>
+              flatListRef.current?.scrollToEnd({ animated: false })
+            }
+            ListEmptyComponent={
+              <View style={styles.emptyChat}>
+                <Text style={styles.emptyChatIcon}>👋</Text>
+                <Text style={styles.emptyChatText}>
+                  Say hello to {displayOtherUser.name}!
+                </Text>
+              </View>
+            }
+          />
+        )}
+>>>>>>> 44c57db57fa6f40d5bf8a43da55dc0886877b6b4
 
         <View style={styles.inputContainer}>
           <TextInput
@@ -160,10 +395,10 @@ export default function ChatScreen({ conversationId, navigate }) {
           <TouchableOpacity
             style={[
               styles.sendButton,
-              !inputText.trim() && styles.sendButtonDisabled,
+              (!inputText.trim() || sending) && styles.sendButtonDisabled,
             ]}
             onPress={handleSend}
-            disabled={!inputText.trim()}
+            disabled={!inputText.trim() || sending}
             testID="chat-send-button"
           >
             <Text style={styles.sendButtonText}>➤</Text>
@@ -208,6 +443,9 @@ function createStyles(colors) {
       alignItems: 'center',
       gap: 10,
     },
+    headerTextContainer: {
+      flex: 1,
+    },
     headerAvatar: {
       width: 36,
       height: 36,
@@ -224,8 +462,23 @@ function createStyles(colors) {
       color: colors.primary,
       fontWeight: '500',
     },
-    headerRight: {
+    headerAction: {
       width: 36,
+      height: 36,
+      borderRadius: 18,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    headerActionDisabled: {
+      opacity: 0.5,
+    },
+    headerActionText: {
+      fontSize: 18,
+      color: colors.danger || colors.text,
+      fontWeight: '700',
     },
     messageList: {
       paddingHorizontal: SPACING.horizontal,

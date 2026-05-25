@@ -85,8 +85,8 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
   const goBack = () => {
     setScreenHistory((prev) => {
       if (prev.length === 0) return prev;
+      const previous = prev[prev.length - 1];
       const newHistory = prev.slice(0, -1);
-      const previous = newHistory[newHistory.length - 1] ?? { screen: 'Home', params: {} };
       setActiveScreen(previous.screen);
       setScreenParams(previous.params);
       return newHistory;
@@ -182,13 +182,15 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
         );
 
       case 'Messages':
-        return <InboxScreen navigate={navigate} />;
+        return <InboxScreen navigate={navigate} currentUser={user} />;
 
       case 'Chat':
         return (
           <ChatScreen
             conversationId={screenParams?.conversationId}
+            recipientId={screenParams?.recipientId}
             navigate={navigate}
+            currentUser={user}
           />
         );
 
@@ -201,6 +203,7 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
             isPreview={screenParams?.isPreview}
             sellerId={screenParams?.sellerId}
             navigate={navigate}
+            currentUser={user}
           />
         );
 
@@ -209,6 +212,7 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
           <ListingDetailsScreen
             listing={screenParams?.listing}
             navigate={navigate}
+            currentUser={user}
           />
         );
 
