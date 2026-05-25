@@ -299,7 +299,7 @@ export default function ChatScreen({ conversationId, recipientId, navigate, curr
           onPress={() => navigate('Messages')}
           testID="chat-back-button"
         >
-          <Text style={styles.backIcon}>←</Text>
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -322,7 +322,7 @@ export default function ChatScreen({ conversationId, recipientId, navigate, curr
           testID="chat-delete-button"
           accessibilityLabel="Delete chat"
         >
-          <Text style={styles.headerActionText}>⌫</Text>
+          <Ionicons name="trash-outline" size={22} color={colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -331,28 +331,6 @@ export default function ChatScreen({ conversationId, recipientId, navigate, curr
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-<<<<<<< HEAD
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          keyExtractor={(item) => item.id}
-          renderItem={renderMessage}
-          contentContainerStyle={styles.messageList}
-          showsVerticalScrollIndicator={false}
-          keyboardDismissMode="on-drag"
-          onContentSizeChange={() =>
-            flatListRef.current?.scrollToEnd({ animated: false })
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyChat}>
-              <Ionicons name="hand-left-outline" size={48} color={colors.textMuted} style={{ marginBottom: 12 }} />
-              <Text style={styles.emptyChatText}>
-                Say hello to {otherUser.name}!
-              </Text>
-            </View>
-          }
-        />
-=======
         {loading ? (
           <View style={styles.emptyChat}>
             <ActivityIndicator size="large" color={colors.primary} />
@@ -371,7 +349,7 @@ export default function ChatScreen({ conversationId, recipientId, navigate, curr
             }
             ListEmptyComponent={
               <View style={styles.emptyChat}>
-                <Text style={styles.emptyChatIcon}>👋</Text>
+                <Ionicons name="hand-left-outline" size={48} color={colors.textMuted} style={{ marginBottom: 12 }} />
                 <Text style={styles.emptyChatText}>
                   Say hello to {displayOtherUser.name}!
                 </Text>
@@ -379,7 +357,6 @@ export default function ChatScreen({ conversationId, recipientId, navigate, curr
             }
           />
         )}
->>>>>>> 44c57db57fa6f40d5bf8a43da55dc0886877b6b4
 
         <View style={styles.inputContainer}>
           <TextInput
@@ -414,7 +391,6 @@ function createStyles(colors) {
     safeArea: {
       flex: 1,
       backgroundColor: colors.background,
-      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
     flex: {
       flex: 1,
@@ -432,10 +408,6 @@ function createStyles(colors) {
     backBtn: {
       padding: 4,
       width: 36,
-    },
-    backIcon: {
-      fontSize: 24,
-      color: colors.text,
     },
     headerCenter: {
       flex: 1,
@@ -474,11 +446,6 @@ function createStyles(colors) {
     },
     headerActionDisabled: {
       opacity: 0.5,
-    },
-    headerActionText: {
-      fontSize: 18,
-      color: colors.danger || colors.text,
-      fontWeight: '700',
     },
     messageList: {
       paddingHorizontal: SPACING.horizontal,

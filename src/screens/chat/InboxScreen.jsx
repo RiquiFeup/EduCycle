@@ -7,7 +7,6 @@ import {
   Image,
   StyleSheet,
   StatusBar,
-  Platform,
   ActivityIndicator,
   Alert,
 } from 'react-native';
@@ -179,7 +178,7 @@ export default function InboxScreen({ navigate, currentUser }) {
         testID={`conversation-delete-${item.id}`}
         accessibilityLabel="Delete chat"
       >
-        <Text style={styles.deleteButtonText}>⌫</Text>
+        <Ionicons name="trash-outline" size={18} color={colors.danger || colors.text} />
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -194,26 +193,6 @@ export default function InboxScreen({ navigate, currentUser }) {
         <View style={styles.headerRight} />
       </View>
 
-<<<<<<< HEAD
-      <FlatList
-        data={CONVERSATIONS}
-        keyExtractor={(item) => item.id}
-        renderItem={renderConversation}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        keyboardDismissMode="on-drag"
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer} testID="inbox-empty-state">
-            <Ionicons name="chatbubble-outline" size={48} color={colors.textMuted} style={{ marginBottom: SPACING.md }} />
-            <Text style={styles.emptyTitle}>No messages yet</Text>
-            <Text style={styles.emptyDescription}>
-              When you contact a seller or receive a message, it will appear here.
-            </Text>
-          </View>
-        }
-      />
-=======
       {loading ? (
         <View style={styles.emptyContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
@@ -229,7 +208,7 @@ export default function InboxScreen({ navigate, currentUser }) {
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           ListEmptyComponent={
             <View style={styles.emptyContainer} testID="inbox-empty-state">
-              <Text style={styles.emptyIcon}>💬</Text>
+              <Ionicons name="chatbubble-outline" size={48} color={colors.textMuted} style={{ marginBottom: SPACING.md }} />
               <Text style={styles.emptyTitle}>No messages yet</Text>
               <Text style={styles.emptyDescription}>
                 When you contact a seller or receive a message, it will appear here.
@@ -238,7 +217,6 @@ export default function InboxScreen({ navigate, currentUser }) {
           }
         />
       )}
->>>>>>> 44c57db57fa6f40d5bf8a43da55dc0886877b6b4
     </SafeAreaView>
   );
 }
@@ -248,7 +226,6 @@ function createStyles(colors) {
     safeArea: {
       flex: 1,
       backgroundColor: colors.background,
-      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
     header: {
       flexDirection: 'row',
@@ -316,11 +293,6 @@ function createStyles(colors) {
       backgroundColor: colors.surface,
       borderWidth: 1,
       borderColor: colors.border,
-    },
-    deleteButtonText: {
-      color: colors.danger || colors.text,
-      fontSize: 16,
-      fontWeight: '700',
     },
     conversationHeader: {
       flexDirection: 'row',
