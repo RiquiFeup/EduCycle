@@ -19,18 +19,20 @@ const MODE_COLORS = {
   lend: '#1565C0',
 };
 
-export default function ListingDetailsScreen({ listing, navigate }) {
+export default function ListingDetailsScreen({ listing, navigate, currentUser: propCurrentUser }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const wishlistContext = useContext(UserContext) ?? {};
   const {
-    currentUser,
+    currentUser: contextCurrentUser,
     isWishlisted = () => false,
     toggleWishlist,
     addToCart,
     isInCart = () => false,
   } = wishlistContext;
+
+  const currentUser = contextCurrentUser || propCurrentUser;
 
   const type = listing?.mode || listing?.listingType?.toLowerCase();
   const badge = MODE_LABELS[type];
@@ -221,7 +223,27 @@ export default function ListingDetailsScreen({ listing, navigate }) {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionButton} onPress={() => navigate('Chat', { conversationId: 'c1' })}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => {
+              if (!currentUser?.id) {
+                Alert.alert('Login required', 'Log in to send messages.');
+                return;
+              }
+
+              if (!listing?.sellerId) {
+                Alert.alert('Mensagem', 'Este anúncio não tem vendedor associado.');
+                return;
+              }
+
+              if (listing.sellerId === currentUser.id) {
+                Alert.alert('Mensagem', 'Não podes enviar mensagem a ti próprio.');
+                return;
+              }
+
+              navigate('Chat', { recipientId: listing.sellerId });
+            }}
+          >
             <Text style={styles.actionButtonText}>Enviar Mensagem</Text>
           </TouchableOpacity>
         </View>

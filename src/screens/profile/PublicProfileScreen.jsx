@@ -22,28 +22,42 @@ import { SPACING, RADIUS } from '../../utils/theme';
 import { useTheme } from '../../contexts/ThemeContext';
 import { UserContext } from '../../contexts/UserContext';
 
-export default function PublicProfileScreen({ isPreview, sellerId, navigate }) {
+export default function PublicProfileScreen({ isPreview, sellerId, navigate, currentUser: propCurrentUser }) {
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
-  const { currentUser } = useContext(UserContext);
+  const { currentUser: contextCurrentUser } = useContext(UserContext);
+  const currentUser = contextCurrentUser || propCurrentUser;
+
+  const hasTargetUser = isPreview || Boolean(sellerId);
 
   const [displayedUser, setDisplayedUser] = useState(isPreview ? currentUser : null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(hasTargetUser);
   const [userListings, setUserListings] = useState([]);
 
   useEffect(() => {
+    let isMounted = true;
+
+    if (!hasTargetUser) {
+      setDisplayedUser(null);
+      setUserListings([]);
+      setLoading(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
     const fetchProfileData = async () => {
       try {
         let targetUserId = sellerId;
 
         if (isPreview) {
           targetUserId = currentUser?.id;
-          setDisplayedUser(currentUser);
+          if (isMounted) setDisplayedUser(currentUser);
         } else if (sellerId) {
           const docRef = doc(db, 'users', sellerId);
           const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
+          if (isMounted && docSnap.exists()) {
             setDisplayedUser(docSnap.data());
           }
         }
@@ -55,17 +69,23 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate }) {
             id: doc.id,
             ...doc.data()
           }));
-          setUserListings(realListings);
+          if (isMounted) setUserListings(realListings);
+        } else if (isMounted) {
+          setUserListings([]);
         }
       } catch (error) {
         console.error("Erro ao carregar perfil e anúncios:", error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchProfileData();
-  }, [sellerId, isPreview, currentUser]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [sellerId, isPreview, currentUser, hasTargetUser]);
 
   const handleToggleFavourite = (id) => {
     setUserListings((prev) =>
@@ -148,7 +168,24 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate }) {
             <View style={styles.actionsContainer}>
               <TouchableOpacity
                 style={[styles.actionButton, styles.primaryButton]}
-                onPress={() => navigate('Chat', { conversationId: 'conv-1' })}
+                onPress={() => {
+                  if (!currentUser?.id) {
+                    Alert.alert('Login required', 'Log in to send messages.');
+                    return;
+                  }
+
+                  if (!sellerId) {
+                    Alert.alert('Message', 'This user cannot receive messages right now.');
+                    return;
+                  }
+
+                  if (sellerId === currentUser.id) {
+                    Alert.alert('Message', 'You cannot message yourself.');
+                    return;
+                  }
+
+                  navigate('Chat', { recipientId: sellerId });
+                }}
               >
                 <Text style={styles.primaryButtonText}>💬 Message</Text>
               </TouchableOpacity>
