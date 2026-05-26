@@ -4,6 +4,7 @@ import LoginScreen from './src/screens/auth/LoginScreen';
 import WelcomeScreen from './src/screens/auth/WelcomeScreen';
 import MainAppScreen from './src/screens/main/MainAppScreen';
 import { ThemeProvider } from './src/contexts/ThemeContext';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
   registerUser,
   loginUser,
@@ -111,8 +112,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }

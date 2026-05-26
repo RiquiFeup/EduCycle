@@ -243,7 +243,7 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
       >
         <View style={styles.screenContainer}>{renderCurrentScreen()}</View>
 
-        <View style={styles.tabBar} testID="main-tab-bar">
+        <SafeAreaView edges={['bottom']} style={styles.tabBar} testID="main-tab-bar">
           {TABS.map((tab) => {
             const isActive = selectedTabKey === tab.key;
 
@@ -267,7 +267,7 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
               </Pressable>
             );
           })}
-        </View>
+        </SafeAreaView>
       </View>
     </UserProvider>
   );
@@ -288,7 +288,7 @@ function createStyles(colors) {
       borderTopColor: colors.border,
       backgroundColor: colors.surface,
       paddingTop: 10,
-      paddingBottom: Platform.OS === 'ios' ? 24 : 12,
+      paddingBottom: 12,
       paddingHorizontal: SPACING.sm,
     },
     tabItem: {
