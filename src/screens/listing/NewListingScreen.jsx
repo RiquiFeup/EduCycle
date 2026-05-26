@@ -13,7 +13,7 @@ import PrimaryButton from './components/PrimaryButton';
 import { UserContext } from '../../contexts/UserContext';
 import { createListing } from '../../services/listingService';
 
-const SUBJECTS = ['Mathematics', 'Physics', 'Portuguese', 'History', 'Chemistry', 'Biology'];
+const SUBJECTS = ['Mathematics', 'Physics', 'Portuguese', 'History', 'Chemistry', 'Biology', 'Other'];
 const CONDITIONS = ['New', 'Good', 'Fair', 'Poor'];
 const CAMPUSES = ['FEUP', 'ISEP', 'UP Law', 'Colégio Dom Dinis', 'Other'];
 const LISTING_TYPES = ['Sell', 'Swap'];

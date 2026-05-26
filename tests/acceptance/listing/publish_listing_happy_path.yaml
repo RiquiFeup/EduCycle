@@ -37,27 +37,51 @@ appId: host.exp.exponent
 
 - hideKeyboard
 
+# --- Subject Dropdown Interaction ---
+- scrollUntilVisible:
+    element:
+      id: "dropdown-header-subject"
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: "dropdown-header-subject"
 - scrollUntilVisible:
     element:
       id: "subject-option-Physics"
     direction: DOWN
-    timeout: 20000
+    timeout: 10000
 - tapOn:
     id: "subject-option-Physics"
 
+# --- Condition Dropdown Interaction ---
+- scrollUntilVisible:
+    element:
+      id: "dropdown-header-condition"
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: "dropdown-header-condition"
 - scrollUntilVisible:
     element:
       id: "condition-option-Good"
     direction: DOWN
-    timeout: 20000
+    timeout: 10000
 - tapOn:
     id: "condition-option-Good"
 
+# --- Campus Dropdown Interaction ---
+- scrollUntilVisible:
+    element:
+      id: "dropdown-header-campus"
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: "dropdown-header-campus"
 - scrollUntilVisible:
     element:
       id: "campus-option-FEUP"
     direction: DOWN
-    timeout: 20000
+    timeout: 10000
 - tapOn:
     id: "campus-option-FEUP"
 
