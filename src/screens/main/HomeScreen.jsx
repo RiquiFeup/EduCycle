@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback , useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
-  Platform,
   ActivityIndicator,
   ScrollView,
 } from 'react-native';
@@ -20,20 +19,24 @@ import DropdownField from '../listing/components/DropdownField';
 import ListingCard from '../../components/ListingCard';
 import SectionHeader from '../../components/SectionHeader';
 import FilterModal from '../../components/FilterModal';
-import { COLORS, SPACING } from '../../utils/theme';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../contexts/ThemeContext';
+import { SPACING } from '../../utils/theme';
 import { PAGE_SIZE } from '../../data/listings';
 
 export default function HomeScreen({ navigate }) {
+  const { colors, isDark } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const [queryText, setQueryText] = useState('');
   const [listings, setListings] = useState([]);
   const [page, setPage] = useState(1);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [sortField, setSortField] = useState('Date'); 
-  const [sortDirection, setSortDirection] = useState('desc'); // 'asc' or 'desc'
+  const [sortField, setSortField] = useState('Date');
+  const [sortDirection, setSortDirection] = useState('desc');
   const SORT_FIELDS = ['Date', 'Price', 'Title', 'Subject'];
 
-  //sort helper toggle function
   const toggleSortDirection = () => {
     setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
   };
@@ -76,11 +79,9 @@ export default function HomeScreen({ navigate }) {
     fetchListings();
   }, []);
 
-  // processedListings combines Filtering and Searching
   const filteredListings = useMemo(() => {
     let result = listings;
 
-    // filtros
     if (filters.category) {
       result = result.filter(listing => listing.subject === filters.category);
     }
@@ -93,7 +94,6 @@ export default function HomeScreen({ navigate }) {
     if (filters.maxPrice) {
       result = result.filter(listing => parseFloat(listing.price) <= parseFloat(filters.maxPrice));
     }
-    //texto
     if (queryText.trim()) {
       const q = queryText.toLowerCase();
       result = result.filter((listing) =>
@@ -152,7 +152,7 @@ export default function HomeScreen({ navigate }) {
     if (isLoadingMore) {
       return (
         <View style={styles.loadingFooter}>
-          <ActivityIndicator size="small" color={COLORS.primary} />
+          <ActivityIndicator size="small" color={colors.primary} />
           <Text style={styles.loadingText}>Loading more...</Text>
         </View>
       );
@@ -161,7 +161,7 @@ export default function HomeScreen({ navigate }) {
     if (!hasMore && listings.length > 0 && !queryText.trim()) {
       return (
         <View style={styles.endFooter}>
-          <Text style={styles.endText}>You've seen all listings 🎉</Text>
+          <Text style={styles.endText}>You've seen all listings</Text>
         </View>
       );
     }
@@ -172,7 +172,7 @@ export default function HomeScreen({ navigate }) {
   if (initialLoading) {
     return (
       <SafeAreaView style={styles.stateContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.stateText}>A procurar anúncios...</Text>
       </SafeAreaView>
     );
@@ -180,16 +180,28 @@ export default function HomeScreen({ navigate }) {
 
   return (
     <SafeAreaView style={styles.safeArea} testID="home-feed-screen">
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.background}
+      />
 
       <View style={styles.header}>
         <Text style={styles.logo}>EduCycle</Text>
-        <TouchableOpacity style={styles.notifBtn} testID="home-notifications-button">
-          <Text style={styles.notifIcon}>🔔</Text>
-          <View style={styles.notifBadge}>
-            <Text style={styles.notifBadgeText}>2</Text>
-          </View>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+          <TouchableOpacity
+            style={styles.notifBtn}
+            testID="home-cart-button"
+            onPress={() => navigate('ShoppingCart')}
+          >
+            <Ionicons name="cart-outline" size={22} color={colors.text} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.notifBtn} testID="home-notifications-button">
+            <Ionicons name="notifications-outline" size={22} color={colors.text} />
+            <View style={styles.notifBadge}>
+              <Text style={styles.notifBadgeText}>2</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <FlatList
@@ -211,10 +223,10 @@ export default function HomeScreen({ navigate }) {
                 testID="search-bar"
                 onFilterPress={() => setFilterModalVisible(true)}
               />
-              
-             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, zIndex: 10 }}>
-                <ScrollView 
-                  horizontal 
+
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, zIndex: 10 }}>
+                <ScrollView
+                  horizontal
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={{ gap: 8, paddingRight: 8 }}
                 >
@@ -223,23 +235,23 @@ export default function HomeScreen({ navigate }) {
                       key={field}
                       onPress={() => {
                         if (sortField === field) {
-                            toggleSortDirection();
-                          } else {
-                            setSortField(field);
-                          }
-                        }}
+                          toggleSortDirection();
+                        } else {
+                          setSortField(field);
+                        }
+                      }}
                       style={{
                         paddingHorizontal: 16,
                         paddingVertical: 8,
                         borderRadius: 20,
-                        backgroundColor: sortField === field ? COLORS.primary : COLORS.background,
+                        backgroundColor: sortField === field ? colors.primary : colors.background,
                         borderWidth: 1,
-                        borderColor: sortField === field ? COLORS.primary : COLORS.border,
+                        borderColor: sortField === field ? colors.primary : colors.border,
                         justifyContent: 'center'
                       }}
                     >
-                      <Text style={{ 
-                        color: sortField === field ? '#FFF' : COLORS.text,
+                      <Text style={{
+                        color: sortField === field ? '#FFF' : colors.text,
                         fontWeight: sortField === field ? '600' : '400'
                       }}>
                         {field}
@@ -247,27 +259,25 @@ export default function HomeScreen({ navigate }) {
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
-                
+
                 <TouchableOpacity
                   onPress={toggleSortDirection}
-                  style={{ 
-                    paddingHorizontal: 16, 
-                    paddingVertical: 8, 
-                    backgroundColor: COLORS.background, 
-                    borderRadius: 20, 
-                    borderWidth: 1, 
-                    borderColor: COLORS.border,
+                  testID="home-sort-toggle"
+                  style={{
+                    paddingHorizontal: 16,
+                    paddingVertical: 8,
+                    backgroundColor: colors.background,
+                    borderRadius: 20,
+                    borderWidth: 1,
+                    borderColor: colors.border,
                     justifyContent: 'center',
                     alignItems: 'center',
                     marginLeft: 4
                   }}
                 >
-                  <Text style={{ fontSize: 16, color: COLORS.text, fontWeight: 'bold' }}>
-                    {sortDirection === 'asc' ? '↑' : '↓'}
-                  </Text>
+                  <Ionicons name={sortDirection === 'asc' ? 'arrow-up' : 'arrow-down'} size={16} color={colors.text} />
                 </TouchableOpacity>
               </View>
-
             </View>
             <SectionHeader
               title={getSectionTitle()}
@@ -291,7 +301,7 @@ export default function HomeScreen({ navigate }) {
         )}
         ListEmptyComponent={
           <View style={styles.empty} testID="empty-state">
-            <Text style={styles.emptyIcon}>📭</Text>
+            <Ionicons name="file-tray-outline" size={40} color={colors.textMuted} style={{ marginBottom: 12 }} />
             <Text style={styles.emptyTitle} testID="empty-state-text">
               {queryText.trim() || Object.values(filters).some(Boolean)
                 ? `No results found for your filters`
@@ -317,26 +327,26 @@ export default function HomeScreen({ navigate }) {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: COLORS.background, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
-  stateContainer: { flex: 1, backgroundColor: COLORS.background, justifyContent: 'center', alignItems: 'center' },
-  stateText: { marginTop: SPACING.md, color: COLORS.textMuted, fontSize: 15 },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SPACING.horizontal, paddingVertical: 12, backgroundColor: COLORS.background, borderBottomWidth: 1, borderBottomColor: COLORS.border },
-  logo: { fontSize: 22, fontWeight: '800', color: COLORS.primary, letterSpacing: -0.5 },
-  notifBtn: { position: 'relative', padding: 4 },
-  notifIcon: { fontSize: 22 },
-  notifBadge: { position: 'absolute', top: 0, right: 0, backgroundColor: COLORS.danger, borderRadius: 8, width: 16, height: 16, alignItems: 'center', justifyContent: 'center' },
-  notifBadgeText: { color: '#FFF', fontSize: 9, fontWeight: '700' },
-  scrollContent: { paddingBottom: SPACING.xl },
-  searchContainer: { paddingHorizontal: SPACING.horizontal, paddingVertical: 12 },
-  row: { flexDirection: 'row', paddingHorizontal: SPACING.horizontal, gap: SPACING.cardGap, marginBottom: 0 },
-  emptySlot: { flex: 1 },
-  empty: { alignItems: 'center', paddingTop: 48, paddingHorizontal: SPACING.lg },
-  emptyIcon: { fontSize: 40, marginBottom: 12 },
-  emptyTitle: { color: COLORS.text, fontSize: 16, fontWeight: '600', textAlign: 'center', marginBottom: 6 },
-  emptyHint: { color: COLORS.textMuted, fontSize: 13, textAlign: 'center' },
-  loadingFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: SPACING.md, gap: SPACING.sm },
-  loadingText: { color: COLORS.textMuted, fontSize: 13 },
-  endFooter: { alignItems: 'center', paddingVertical: 20 },
-  endText: { color: COLORS.textMuted, fontSize: 13 },
-});
+function createStyles(colors) {
+  return StyleSheet.create({
+    safeArea: { flex: 1, backgroundColor: colors.background },
+    stateContainer: { flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' },
+    stateText: { marginTop: SPACING.md, color: colors.textMuted, fontSize: 15 },
+    header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SPACING.horizontal, paddingVertical: 12, backgroundColor: colors.background, borderBottomWidth: 1, borderBottomColor: colors.border },
+    logo: { fontSize: 22, fontWeight: '800', color: colors.primary, letterSpacing: -0.5 },
+    notifBtn: { position: 'relative', padding: 4 },
+    notifBadge: { position: 'absolute', top: 0, right: 0, backgroundColor: colors.danger, borderRadius: 8, width: 16, height: 16, alignItems: 'center', justifyContent: 'center' },
+    notifBadgeText: { color: '#FFF', fontSize: 9, fontWeight: '700' },
+    scrollContent: { paddingBottom: SPACING.xl },
+    searchContainer: { paddingHorizontal: SPACING.horizontal, paddingVertical: 12 },
+    row: { flexDirection: 'row', paddingHorizontal: SPACING.horizontal, gap: 12, marginBottom: 0 },
+    emptySlot: { flex: 1 },
+    empty: { alignItems: 'center', paddingTop: 48, paddingHorizontal: SPACING.lg },
+    emptyTitle: { color: colors.text, fontSize: 16, fontWeight: '600', textAlign: 'center', marginBottom: 6 },
+    emptyHint: { color: colors.textMuted, fontSize: 13, textAlign: 'center' },
+    loadingFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: SPACING.md, gap: SPACING.sm },
+    loadingText: { color: colors.textMuted, fontSize: 13 },
+    endFooter: { alignItems: 'center', paddingVertical: 20 },
+    endText: { color: colors.textMuted, fontSize: 13 },
+  });
+}

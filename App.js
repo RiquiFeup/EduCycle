@@ -3,6 +3,8 @@ import SignupScreen from './src/screens/auth/SignupScreen';
 import LoginScreen from './src/screens/auth/LoginScreen';
 import WelcomeScreen from './src/screens/auth/WelcomeScreen';
 import MainAppScreen from './src/screens/main/MainAppScreen';
+import { ThemeProvider } from './src/contexts/ThemeContext';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
   registerUser,
   loginUser,
@@ -11,7 +13,7 @@ import {
   updateUserAccount,
 } from './src/services/authService';
 
-export default function App() {
+function AppContent() {
   const [screen, setScreen] = useState('welcome');
   const [currentUser, setCurrentUser] = useState(null);
   const [authReady, setAuthReady] = useState(false);
@@ -47,10 +49,8 @@ export default function App() {
   const handleUserUpdate = async (updatedUser) => {
     const previousUser = currentUser;
 
-    // 1. Optimistic local update
     setCurrentUser(updatedUser);
 
-    // 2. Persist to Firebase
     if (updatedUser.id) {
       try {
         await updateUserAccount(updatedUser.id, {
@@ -107,5 +107,15 @@ export default function App() {
       onGetStarted={() => setScreen('signup')}
       onLoginPress={() => setScreen('login')}
     />
+  );
+}
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }

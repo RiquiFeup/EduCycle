@@ -1,4 +1,4 @@
-export const COLORS = {
+export const LIGHT_COLORS = {
   primary: '#2F7657',
   primarySoft: '#E5EFE9',
   primaryBorder: '#8EBAA4',
@@ -20,6 +20,32 @@ export const COLORS = {
   toggleInactive: '#F4F3F1',
   buttonGray: '#F9F9F9',
 };
+
+export const DARK_COLORS = {
+  primary: '#4DBE8A',
+  primarySoft: '#1B3828',
+  primaryBorder: '#2F6848',
+  background: '#121512',
+  page: '#171B18',
+  surface: '#1C2320',
+  cardInput: '#202820',
+  text: '#DFF0E8',
+  textSecondary: '#8AB09C',
+  textMuted: '#506858',
+  border: '#242E28',
+  borderSoft: '#1E2822',
+  borderDark: '#2C3C32',
+  badgeBackground: '#1C2320',
+  danger: '#E57373',
+  dangerBackground: '#2A1212',
+  dangerBorder: '#4A2020',
+  toggleActive: '#4DBE8A',
+  toggleInactive: '#2C3C32',
+  buttonGray: '#1C2320',
+};
+
+// Backward-compat alias (auth screens still import this)
+export const COLORS = LIGHT_COLORS;
 
 export const SPACING = {
   horizontal: 16,

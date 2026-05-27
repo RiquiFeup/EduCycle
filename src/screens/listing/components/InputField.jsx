@@ -1,6 +1,7 @@
-import React from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native';
-import styles from '../styles';
+import React, { useMemo } from 'react';
+import { View, Text, TextInput } from 'react-native';
+import { useTheme } from '../../../contexts/ThemeContext';
+import createStyles from '../styles';
 
 export default function InputField({
   label,
@@ -14,6 +15,9 @@ export default function InputField({
   hint,
   accessibilityLabel
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <View>
       <Text style={styles.label}>
@@ -23,6 +27,7 @@ export default function InputField({
         testID={testID}
         style={[styles.input, error && styles.inputError]}
         placeholder={placeholder}
+        placeholderTextColor={colors.textMuted}
         keyboardType={keyboardType}
         value={value}
         onChangeText={onChangeText}

@@ -23,7 +23,7 @@ describe('DevProfileFlow Tests', () => {
     expect(screen.getByText('Dev Directory')).toBeTruthy();
 
     // 2. Clica no botão de navegação
-    fireEvent.press(screen.getByText('🏠 Go to Home Screen'));
+    fireEvent.press(screen.getByText('Go to Home Screen'));
 
     // 3. Espera que a Home carregue
     await waitFor(() => {

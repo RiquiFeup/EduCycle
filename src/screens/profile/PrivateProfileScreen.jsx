@@ -1,10 +1,9 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   StatusBar,
-  Platform,
   TouchableOpacity,
   Image,
   ScrollView,
@@ -18,16 +17,20 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../utils/firebase';
+import { Ionicons } from '@expo/vector-icons';
 import ListingCard from '../../components/ListingCard';
 import CommunityBadge from '../../components/CommunityBadge';
 import SectionHeader from '../../components/SectionHeader';
-import { COLORS, SPACING } from '../../utils/theme';
+import { SPACING } from '../../utils/theme';
 import { UserContext } from '../../contexts/UserContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { uploadProfilePhoto } from '../../services/profileService';
 import { validateProfileDisplayName } from '../../utils/validation';
 
 export default function PrivateProfileScreen({ navigate }) {
   const { currentUser, updateUser, logout } = useContext(UserContext);
+  const { colors, isDark, toggleTheme } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const [myListings, setMyListings] = useState([]);
   const [loadingListings, setLoadingListings] = useState(true);
@@ -207,15 +210,15 @@ export default function PrivateProfileScreen({ navigate }) {
 
   return (
     <SafeAreaView style={styles.safeArea} testID="private-profile-screen">
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.background}
+      />
 
       <View style={styles.header}>
         <Text style={styles.logo}>EduCycle</Text>
-        <TouchableOpacity
-          style={styles.settingsBtn}
-          onPress={() => Alert.alert('Settings', 'Settings screen coming soon!')}
-        >
-          <Text style={styles.settingsIcon}>{String.fromCodePoint(0x2699, 0xFE0F)}</Text>
+        <TouchableOpacity style={styles.themeToggleBtn} onPress={toggleTheme}>
+          <Ionicons name={isDark ? 'sunny-outline' : 'moon-outline'} size={18} color={colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -235,7 +238,7 @@ export default function PrivateProfileScreen({ navigate }) {
                 <Text style={styles.ratingText}>
                   {String.fromCodePoint(0x2B50)} {currentUser.rating} ({currentUser.reviewsCount})
                 </Text>
-                <Text style={styles.bulletPoint}>{'\u2022'}</Text>
+                <Text style={styles.bulletPoint}>{'•'}</Text>
                 <Text style={styles.joinedText}>Joined {currentUser.joinedDate}</Text>
               </View>
 
@@ -259,10 +262,13 @@ export default function PrivateProfileScreen({ navigate }) {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: COLORS.buttonGray }]}
+              style={[styles.actionButton, { backgroundColor: colors.buttonGray }]}
               onPress={() => navigate('PublicProfile', { isPreview: true })}
             >
-              <Text style={styles.actionButtonText}>{String.fromCodePoint(0x1F441, 0xFE0F)} Preview Public</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Ionicons name="eye-outline" size={16} color={colors.text} />
+                <Text style={styles.actionButtonText}>Preview Public</Text>
+              </View>
             </TouchableOpacity>
           </View>
 
@@ -277,9 +283,9 @@ export default function PrivateProfileScreen({ navigate }) {
               </View>
 
               <Switch
-                trackColor={{ false: COLORS.borderDark, true: COLORS.toggleActive }}
-                thumbColor={currentUser.isPhonePublic ? COLORS.primary : COLORS.toggleInactive}
-                ios_backgroundColor={COLORS.borderDark}
+                trackColor={{ false: colors.borderDark, true: colors.toggleActive }}
+                thumbColor={currentUser.isPhonePublic ? colors.primary : colors.toggleInactive}
+                ios_backgroundColor={colors.borderDark}
                 onValueChange={togglePhoneVisibility}
                 value={currentUser.isPhonePublic}
               />
@@ -289,7 +295,7 @@ export default function PrivateProfileScreen({ navigate }) {
           <SectionHeader title="My Active Listings" hasTopBorder />
 
           {loadingListings ? (
-            <ActivityIndicator size="small" color={COLORS.primary} style={{ marginTop: 20 }} />
+            <ActivityIndicator size="small" color={colors.primary} style={{ marginTop: 20 }} />
           ) : (
             <View style={styles.row}>
               {myListings.length > 0 ? (
@@ -302,7 +308,7 @@ export default function PrivateProfileScreen({ navigate }) {
                   />
                 ))
               ) : (
-                <Text style={{ color: COLORS.textMuted, marginTop: 10 }}>You do not have active listings yet.</Text>
+                <Text style={{ color: colors.textMuted, marginTop: 10 }}>You do not have active listings yet.</Text>
               )}
               {myListings.length === 1 ? <View style={styles.emptySlot} /> : null}
             </View>
@@ -337,7 +343,7 @@ export default function PrivateProfileScreen({ navigate }) {
                 <Image source={{ uri: currentUser.photo }} style={styles.editPhoto} />
                 {isUploadingPhoto ? (
                   <View style={styles.photoLoadingOverlay} testID="profile-photo-uploading">
-                    <ActivityIndicator size="small" color={COLORS.background} />
+                    <ActivityIndicator size="small" color={colors.background} />
                   </View>
                 ) : null}
               </View>
@@ -361,6 +367,7 @@ export default function PrivateProfileScreen({ navigate }) {
               onChangeText={handleNameChange}
               maxLength={50}
               placeholder="e.g. 02May02"
+              placeholderTextColor={colors.textMuted}
             />
 
             <Text style={styles.inputLabel}>Course (Max 50 chars)</Text>
@@ -371,6 +378,7 @@ export default function PrivateProfileScreen({ navigate }) {
               onChangeText={handleCourseChange}
               maxLength={50}
               placeholder="e.g. Informatics Engineering"
+              placeholderTextColor={colors.textMuted}
             />
 
             <Text style={styles.inputLabel}>Phone Number (Max 15 chars)</Text>
@@ -382,6 +390,7 @@ export default function PrivateProfileScreen({ navigate }) {
               onChangeText={handlePhoneChange}
               maxLength={15}
               placeholder="e.g. +351912345678"
+              placeholderTextColor={colors.textMuted}
             />
 
             <TouchableOpacity
@@ -391,7 +400,7 @@ export default function PrivateProfileScreen({ navigate }) {
               testID="save-profile-button"
             >
               {isSavingProfile ? (
-                <ActivityIndicator size="small" color={COLORS.background} />
+                <ActivityIndicator size="small" color={colors.background} />
               ) : (
                 <Text style={styles.saveButtonText}>Save Changes</Text>
               )}
@@ -405,185 +414,190 @@ export default function PrivateProfileScreen({ navigate }) {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.horizontal,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  logo: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: COLORS.primary,
-    letterSpacing: -0.5,
-  },
-  settingsBtn: { padding: 4 },
-  settingsIcon: { fontSize: 22 },
-  scrollContent: { paddingBottom: SPACING.xl },
-  profileHeaderContainer: { paddingTop: SPACING.lg },
-  topSection: {
-    flexDirection: 'row',
-    paddingHorizontal: SPACING.horizontal,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: COLORS.border,
-  },
-  nameContainer: { flex: 1, marginLeft: SPACING.horizontal },
-  userName: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: COLORS.text,
-    marginBottom: 2,
-  },
-  userEmail: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    marginBottom: 6,
-  },
-  statsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4, gap: 6 },
-  ratingText: { fontSize: 13, fontWeight: '600', color: COLORS.text },
-  bulletPoint: { color: '#CCCCCC', fontSize: 12 },
-  joinedText: { fontSize: 13, color: COLORS.textMuted },
-  userCourse: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    marginBottom: 8,
-    fontWeight: '500',
-  },
-  tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm },
-  actionsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: SPACING.horizontal,
-    gap: SPACING.cardGap,
-    marginBottom: SPACING.lg,
-  },
-  actionButton: {
-    flex: 1,
-    height: 44,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.background,
-    borderWidth: 1,
-    borderColor: COLORS.borderDark,
-  },
-  actionButtonText: { color: COLORS.text, fontWeight: '600', fontSize: 14 },
-  preferencesContainer: { paddingHorizontal: SPACING.horizontal, marginBottom: SPACING.lg },
-  preferencesTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 12,
-  },
-  settingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-  },
-  settingTextContent: { flex: 1, paddingRight: SPACING.horizontal },
-  settingLabel: { fontSize: 16, fontWeight: '600', color: COLORS.text, marginBottom: 4 },
-  settingDescription: { fontSize: 13, color: COLORS.textMuted },
-  row: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: SPACING.horizontal,
-    gap: SPACING.cardGap,
-    marginBottom: SPACING.md,
-  },
-  emptySlot: { flex: 1 },
-  logoutButton: {
-    marginHorizontal: SPACING.horizontal,
-    marginTop: 20,
-    paddingVertical: 14,
-    borderRadius: 8,
-    backgroundColor: COLORS.dangerBackground,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.dangerBorder,
-  },
-  logoutText: { color: COLORS.danger, fontWeight: '700', fontSize: 15 },
-  modalContainer: { flex: 1, backgroundColor: COLORS.background },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: SPACING.horizontal,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  modalTitle: { fontSize: 18, fontWeight: '700', color: COLORS.text },
-  modalClose: { fontSize: 16, color: COLORS.primary, fontWeight: '600' },
-  modalBody: { padding: SPACING.horizontal, paddingTop: SPACING.lg },
-  editPhotoContainer: { alignItems: 'center', marginBottom: 24 },
-  editPhotoWrapper: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 12,
-    overflow: 'hidden',
-  },
-  editPhoto: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: COLORS.border,
-  },
-  photoLoadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
-  },
-  changePhotoBtn: {
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    backgroundColor: COLORS.badgeBackground,
-    borderWidth: 1,
-    borderColor: COLORS.borderDark,
-  },
-  changePhotoText: { color: COLORS.text, fontWeight: '600', fontSize: 13 },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-    marginBottom: 8,
-  },
-  textInput: {
-    borderWidth: 1,
-    borderColor: COLORS.borderDark,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    marginBottom: 20,
-    color: COLORS.text,
-  },
-  saveButton: {
-    backgroundColor: COLORS.primary,
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  disabledButton: { opacity: 0.6 },
-  saveButtonText: { color: COLORS.background, fontSize: 16, fontWeight: '700' },
-});
-
-
+function createStyles(colors) {
+  return StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.horizontal,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    logo: {
+      fontSize: 22,
+      fontWeight: '800',
+      color: colors.primary,
+      letterSpacing: -0.5,
+    },
+    themeToggleBtn: {
+      padding: 6,
+      borderRadius: 20,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    scrollContent: { paddingBottom: SPACING.xl },
+    profileHeaderContainer: { paddingTop: SPACING.lg },
+    topSection: {
+      flexDirection: 'row',
+      paddingHorizontal: SPACING.horizontal,
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    profileImage: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      backgroundColor: colors.border,
+    },
+    nameContainer: { flex: 1, marginLeft: SPACING.horizontal },
+    userName: {
+      fontSize: 22,
+      fontWeight: '800',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    userEmail: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginBottom: 6,
+    },
+    statsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4, gap: 6 },
+    ratingText: { fontSize: 13, fontWeight: '600', color: colors.text },
+    bulletPoint: { color: colors.borderDark, fontSize: 12 },
+    joinedText: { fontSize: 13, color: colors.textMuted },
+    userCourse: {
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginBottom: 8,
+      fontWeight: '500',
+    },
+    tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm },
+    actionsContainer: {
+      flexDirection: 'row',
+      paddingHorizontal: SPACING.horizontal,
+      gap: 12,
+      marginBottom: SPACING.lg,
+    },
+    actionButton: {
+      flex: 1,
+      height: 44,
+      borderRadius: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background,
+      borderWidth: 1,
+      borderColor: colors.borderDark,
+    },
+    actionButtonText: { color: colors.text, fontWeight: '600', fontSize: 14 },
+    preferencesContainer: { paddingHorizontal: SPACING.horizontal, marginBottom: SPACING.lg },
+    preferencesTitle: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: colors.textMuted,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      marginBottom: 12,
+    },
+    settingRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 8,
+    },
+    settingTextContent: { flex: 1, paddingRight: SPACING.horizontal },
+    settingLabel: { fontSize: 16, fontWeight: '600', color: colors.text, marginBottom: 4 },
+    settingDescription: { fontSize: 13, color: colors.textMuted },
+    row: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      paddingHorizontal: SPACING.horizontal,
+      gap: 12,
+      marginBottom: SPACING.md,
+    },
+    emptySlot: { flex: 1 },
+    logoutButton: {
+      marginHorizontal: SPACING.horizontal,
+      marginTop: 20,
+      paddingVertical: 14,
+      borderRadius: 8,
+      backgroundColor: colors.dangerBackground,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.dangerBorder,
+    },
+    logoutText: { color: colors.danger, fontWeight: '700', fontSize: 15 },
+    modalContainer: { flex: 1, backgroundColor: colors.background },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: SPACING.horizontal,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    modalTitle: { fontSize: 18, fontWeight: '700', color: colors.text },
+    modalClose: { fontSize: 16, color: colors.primary, fontWeight: '600' },
+    modalBody: { padding: SPACING.horizontal, paddingTop: SPACING.lg },
+    editPhotoContainer: { alignItems: 'center', marginBottom: 24 },
+    editPhotoWrapper: {
+      width: 100,
+      height: 100,
+      borderRadius: 50,
+      marginBottom: 12,
+      overflow: 'hidden',
+    },
+    editPhoto: {
+      width: 100,
+      height: 100,
+      borderRadius: 50,
+      backgroundColor: colors.border,
+    },
+    photoLoadingOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    },
+    changePhotoBtn: {
+      paddingVertical: 6,
+      paddingHorizontal: 16,
+      borderRadius: 20,
+      backgroundColor: colors.badgeBackground,
+      borderWidth: 1,
+      borderColor: colors.borderDark,
+    },
+    changePhotoText: { color: colors.text, fontWeight: '600', fontSize: 13 },
+    inputLabel: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.textSecondary,
+      marginBottom: 8,
+    },
+    textInput: {
+      borderWidth: 1,
+      borderColor: colors.borderDark,
+      borderRadius: 8,
+      padding: 12,
+      fontSize: 16,
+      marginBottom: 20,
+      color: colors.text,
+      backgroundColor: colors.cardInput,
+    },
+    saveButton: {
+      backgroundColor: colors.primary,
+      padding: 16,
+      borderRadius: 8,
+      alignItems: 'center',
+      marginTop: 10,
+    },
+    disabledButton: { opacity: 0.6 },
+    saveButtonText: { color: colors.background, fontSize: 16, fontWeight: '700' },
+  });
+}

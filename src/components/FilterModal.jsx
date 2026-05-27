@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,8 @@ import {
   TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING } from '../utils/theme';
+import { useTheme } from '../contexts/ThemeContext';
+import { SPACING } from '../utils/theme';
 
 const SUBJECTS = ['Mathematics', 'Physics', 'Portuguese', 'History', 'Chemistry', 'Biology'];
 const CAMPUSES = ['FEUP', 'ISEP', 'UP Law', 'Colégio Dom Dinis', 'Other'];
@@ -21,6 +22,9 @@ export default function FilterModal({
   setFilters,
   onApply,
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const toggleCategory = (category) => {
     setFilters((prev) => ({
       ...prev,
@@ -119,6 +123,7 @@ export default function FilterModal({
               <TextInput
                 style={styles.priceInput}
                 placeholder="Min"
+                placeholderTextColor={colors.textMuted}
                 keyboardType="numeric"
                 value={filters.minPrice}
                 onChangeText={(val) => setFilters((prev) => ({ ...prev, minPrice: val }))}
@@ -127,6 +132,7 @@ export default function FilterModal({
               <TextInput
                 style={styles.priceInput}
                 placeholder="Max"
+                placeholderTextColor={colors.textMuted}
                 keyboardType="numeric"
                 value={filters.maxPrice}
                 onChangeText={(val) => setFilters((prev) => ({ ...prev, maxPrice: val }))}
@@ -145,106 +151,111 @@ export default function FilterModal({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: SPACING.horizontal,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  closeBtn: {
-    padding: 4,
-  },
-  closeIcon: {
-    fontSize: 20,
-    color: COLORS.text,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: COLORS.text,
-  },
-  clearText: {
-    fontSize: 16,
-    color: COLORS.primary,
-    fontWeight: '500',
-  },
-  content: {
-    padding: SPACING.horizontal,
-    paddingBottom: SPACING.xl,
-  },
-  section: {
-    marginBottom: SPACING.lg,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.text,
-    marginBottom: SPACING.sm,
-  },
-  chipsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: SPACING.sm,
-  },
-  chip: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    backgroundColor: '#F0F0F0',
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  chipActive: {
-    backgroundColor: '#E6F4EA',
-    borderColor: COLORS.primary,
-  },
-  chipText: {
-    fontSize: 14,
-    color: COLORS.text,
-  },
-  chipTextActive: {
-    color: COLORS.primary,
-    fontWeight: '600',
-  },
-  priceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-  },
-  priceInput: {
-    flex: 1,
-    height: 44,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    fontSize: 16,
-  },
-  priceSeparator: {
-    fontSize: 18,
-    color: COLORS.textMuted,
-  },
-  footer: {
-    padding: SPACING.horizontal,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-    paddingBottom: SPACING.lg,
-  },
-  applyBtn: {
-    backgroundColor: COLORS.primary,
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  applyBtnText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
+function createStyles(colors) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: SPACING.horizontal,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    closeBtn: {
+      padding: 4,
+    },
+    closeIcon: {
+      fontSize: 20,
+      color: colors.text,
+    },
+    title: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    clearText: {
+      fontSize: 16,
+      color: colors.primary,
+      fontWeight: '500',
+    },
+    content: {
+      padding: SPACING.horizontal,
+      paddingBottom: SPACING.xl,
+    },
+    section: {
+      marginBottom: SPACING.lg,
+    },
+    sectionTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.text,
+      marginBottom: SPACING.sm,
+    },
+    chipsContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: SPACING.sm,
+    },
+    chip: {
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      borderRadius: 20,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    chipActive: {
+      backgroundColor: colors.primarySoft,
+      borderColor: colors.primary,
+    },
+    chipText: {
+      fontSize: 14,
+      color: colors.text,
+    },
+    chipTextActive: {
+      color: colors.primary,
+      fontWeight: '600',
+    },
+    priceRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.sm,
+    },
+    priceInput: {
+      flex: 1,
+      height: 44,
+      backgroundColor: colors.surface,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      fontSize: 16,
+      color: colors.text,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    priceSeparator: {
+      fontSize: 18,
+      color: colors.textMuted,
+    },
+    footer: {
+      padding: SPACING.horizontal,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      paddingBottom: SPACING.lg,
+    },
+    applyBtn: {
+      backgroundColor: colors.primary,
+      paddingVertical: 14,
+      borderRadius: 12,
+      alignItems: 'center',
+    },
+    applyBtnText: {
+      color: '#FFF',
+      fontSize: 16,
+      fontWeight: '600',
+    },
+  });
+}

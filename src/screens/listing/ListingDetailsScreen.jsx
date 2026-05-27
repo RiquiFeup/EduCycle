@@ -1,9 +1,13 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions, Alert } from 'react-native';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions, Alert, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../utils/firebase';
-import { COLORS, SPACING, RADIUS } from '../../utils/theme';
+import { SPACING, RADIUS } from '../../utils/theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import { UserContext } from '../../contexts/UserContext';
+import { createPurchaseRequest } from '../../services/purchaseRequestService';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -18,13 +22,20 @@ const MODE_COLORS = {
   lend: '#1565C0',
 };
 
-export default function ListingDetailsScreen({ listing, navigate }) {
+export default function ListingDetailsScreen({ listing, navigate, currentUser: propCurrentUser }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const wishlistContext = useContext(UserContext) ?? {};
   const {
-    currentUser,
+    currentUser: contextCurrentUser,
     isWishlisted = () => false,
     toggleWishlist,
+    addToCart,
+    isInCart = () => false,
   } = wishlistContext;
+
+  const currentUser = contextCurrentUser || propCurrentUser;
 
   const type = listing?.mode || listing?.listingType?.toLowerCase();
   const badge = MODE_LABELS[type];
@@ -32,7 +43,9 @@ export default function ListingDetailsScreen({ listing, navigate }) {
 
   const [seller, setSeller] = useState(null);
   const [isSavingWishlist, setIsSavingWishlist] = useState(false);
+  const [isRequestingToBuy, setIsRequestingToBuy] = useState(false);
   const isSaved = Boolean(listing?.id && isWishlisted(listing.id));
+  const isAlreadyInCart = Boolean(listing?.id && isInCart(listing.id));
 
   useEffect(() => {
     const fetchSeller = async () => {
@@ -61,10 +74,7 @@ export default function ListingDetailsScreen({ listing, navigate }) {
     }
 
     if (!currentUser?.id || !toggleWishlist) {
-      Alert.alert(
-        'Login required',
-        'Log in to save listings to your wishlist.',
-      );
+      Alert.alert('Login required', 'Log in to save listings to your wishlist.');
       return;
     }
 
@@ -72,20 +82,55 @@ export default function ListingDetailsScreen({ listing, navigate }) {
       setIsSavingWishlist(true);
       await toggleWishlist(listing);
     } catch (error) {
-      Alert.alert(
-        'Wishlist',
-        error.message || 'Não foi possível atualizar a wishlist.',
-      );
+      Alert.alert('Wishlist', error.message || 'Não foi possível atualizar a wishlist.');
     } finally {
       setIsSavingWishlist(false);
     }
   };
 
+  const handleAddToCartPress = () => {
+    if (!listing?.id) {
+      Alert.alert('Carrinho', 'Este anúncio não pode ser adicionado ao carrinho.');
+      return;
+    }
+
+    if (!currentUser?.id || !addToCart) {
+      Alert.alert('Login required', 'Log in to add listings to your cart.');
+      return;
+    }
+
+    try {
+      addToCart(listing);
+      Alert.alert('Carrinho', 'Anúncio adicionado ao carrinho.');
+    } catch (error) {
+      Alert.alert('Carrinho', error.message || 'Não foi possível adicionar o anúncio ao carrinho.');
+    }
+  };
+
+  const handleRequestToBuyPress = async () => {
+    if (!currentUser?.id) {
+      Alert.alert('Login required', 'Log in to request to buy listings.');
+      return;
+    }
+
+    try {
+      setIsRequestingToBuy(true);
+      await createPurchaseRequest(currentUser.id, listing);
+      Alert.alert('Pedido Enviado', 'O teu pedido de compra foi enviado ao vendedor.');
+    } catch (error) {
+      Alert.alert('Pedido de Compra', error.message || 'Não foi possível enviar o pedido de compra.');
+    } finally {
+      setIsRequestingToBuy(false);
+    }
+  };
+
   return (
-    <View style={styles.mainContainer}>
+    <SafeAreaView style={styles.mainContainer}>
+      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigate('Home')}>
-          <Text style={styles.backButtonText}>← Voltar</Text>
+          <Ionicons name="arrow-back" size={24} color={colors.primary} />
+          <Text style={styles.backButtonText}>Voltar</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Detalhes do Produto</Text>
       </View>
@@ -122,7 +167,6 @@ export default function ListingDetailsScreen({ listing, navigate }) {
             <Text style={styles.institution}>{listing?.institution || listing?.campus}</Text>
           </View>
 
-          {/* Subject & ISBN (from development branch) */}
           {listing?.subject ? (
             <View style={styles.detailRow} testID="listing-subject">
               <Text style={styles.detailLabel}>Subject</Text>
@@ -139,17 +183,15 @@ export default function ListingDetailsScreen({ listing, navigate }) {
             </View>
           ) : null}
 
-          {/* Condition Display */}
           {listing?.condition ? (
             <View style={styles.detailRow} testID="listing-condition">
               <Text style={styles.detailLabel}>Condition</Text>
-              <View style={[styles.subjectBadge, { backgroundColor: '#F0F4F8' }]}>
-                <Text style={[styles.subjectBadgeText, { color: '#2D3748' }]}>{listing.condition}</Text>
+              <View style={[styles.subjectBadge, { backgroundColor: colors.surface }]}>
+                <Text style={[styles.subjectBadgeText, { color: colors.text }]}>{listing.condition}</Text>
               </View>
             </View>
           ) : null}
 
-          {/* Descrição (from func/create-listing-db branch) */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Descrição</Text>
             <Text style={styles.description}>
@@ -157,20 +199,23 @@ export default function ListingDetailsScreen({ listing, navigate }) {
             </Text>
           </View>
 
-          <TouchableOpacity 
-            style={styles.vendorCard} 
+          <TouchableOpacity
+            style={styles.vendorCard}
             onPress={() => navigate('PublicProfile', { sellerId: listing?.sellerId })}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               {displaySellerPhoto ? (
-                <Image source={{ uri: displaySellerPhoto }} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: COLORS.surface }} />
+                <Image source={{ uri: displaySellerPhoto }} style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: colors.surface }} />
               ) : (
-                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: COLORS.border }} />
+                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: colors.border }} />
               )}
-              
+
               <View>
                 <Text style={styles.vendorName}>{displaySellerName}</Text>
-                <Text style={styles.vendorSubtext}>Ver Perfil Público →</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <Text style={styles.vendorSubtext}>Ver Perfil Público</Text>
+                  <Ionicons name="chevron-forward" size={14} color={colors.textMuted} />
+                </View>
               </View>
             </View>
           </TouchableOpacity>
@@ -190,48 +235,97 @@ export default function ListingDetailsScreen({ listing, navigate }) {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionButton} onPress={() => navigate('Chat', { conversationId: 'c1' })}>
+          <TouchableOpacity
+            style={[
+              styles.wishlistButton,
+              isAlreadyInCart && styles.wishlistButtonActive,
+              { marginBottom: SPACING.sm },
+            ]}
+            onPress={handleAddToCartPress}
+            testID="listing-add-cart-button"
+          >
+            <Text style={[styles.wishlistButtonText, isAlreadyInCart && styles.wishlistButtonTextActive]}>
+              {isAlreadyInCart ? 'No carrinho' : 'Adicionar ao Carrinho'}
+            </Text>
+          </TouchableOpacity>
+
+          {type === 'sell' && (
+            <TouchableOpacity
+              style={[styles.actionButton, { marginBottom: SPACING.sm }]}
+              onPress={handleRequestToBuyPress}
+              disabled={isRequestingToBuy}
+              testID="listing-request-buy-button"
+            >
+              <Text style={styles.actionButtonText}>
+                {isRequestingToBuy ? 'A enviar pedido...' : 'Pedir para Comprar'}
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => {
+              if (!currentUser?.id) {
+                Alert.alert('Login required', 'Log in to send messages.');
+                return;
+              }
+
+              if (!listing?.sellerId) {
+                Alert.alert('Mensagem', 'Este anúncio não tem vendedor associado.');
+                return;
+              }
+
+              if (listing.sellerId === currentUser.id) {
+                Alert.alert('Mensagem', 'Não podes enviar mensagem a ti próprio.');
+                return;
+              }
+
+              navigate('Chat', { recipientId: listing.sellerId });
+            }}
+          >
             <Text style={styles.actionButtonText}>Enviar Mensagem</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  mainContainer: { flex: 1, backgroundColor: COLORS.background },
-  header: { height: 60, backgroundColor: COLORS.background, borderBottomWidth: 1, borderBottomColor: COLORS.borderSoft, flexDirection: 'row', alignItems: 'center', paddingHorizontal: SPACING.md, paddingTop: 10 },
-  backButton: { paddingRight: 15 },
-  backButtonText: { color: COLORS.primary, fontSize: 16, fontWeight: '600' },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: COLORS.text, flex: 1, textAlign: 'center', marginRight: 60 },
-  container: { flex: 1 },
-  imageContainer: { width: '100%', height: SCREEN_WIDTH * 0.8, backgroundColor: COLORS.surface },
-  image: { width: '100%', height: '100%' },
-  imagePlaceholder: { flex: 1, backgroundColor: '#E8EDF0' },
-  content: { padding: SPACING.lg },
-  badge: { alignSelf: 'flex-start', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 4, marginBottom: SPACING.sm },
-  badgeText: { color: COLORS.background, fontSize: 12, fontWeight: '700' },
-  title: { fontSize: 24, fontWeight: '700', color: COLORS.text, marginBottom: SPACING.sm },
-  price: { fontSize: 22, fontWeight: '800', color: COLORS.primary, marginBottom: SPACING.md },
-  institutionRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: SPACING.lg },
-  locationDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#E53E3E' },
-  institution: { fontSize: 14, color: COLORS.textSecondary, fontWeight: '500' },
-  section: { marginTop: SPACING.md, marginBottom: SPACING.lg },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: COLORS.text, marginBottom: SPACING.sm },
-  description: { fontSize: 16, color: COLORS.textSecondary, lineHeight: 24 },
-  vendorCard: { backgroundColor: COLORS.surface, padding: SPACING.md, borderRadius: RADIUS.panel, marginBottom: SPACING.xl, borderWidth: 1, borderColor: COLORS.border },
-  vendorName: { fontSize: 16, fontWeight: '700', color: COLORS.text },
-  vendorSubtext: { fontSize: 14, color: COLORS.textMuted, marginTop: 4 },
-  detailRow: { flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm, gap: SPACING.sm },
-  detailLabel: { fontSize: 14, fontWeight: '600', color: COLORS.textSecondary, minWidth: 60 },
-  detailValue: { fontSize: 14, color: COLORS.text, fontWeight: '500' },
-  subjectBadge: { backgroundColor: COLORS.primarySoft, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3 },
-  subjectBadgeText: { fontSize: 13, fontWeight: '600', color: COLORS.primary },
-  wishlistButton: { backgroundColor: COLORS.surface, paddingVertical: 16, borderRadius: RADIUS.button, alignItems: 'center', marginBottom: SPACING.sm, borderWidth: 1, borderColor: COLORS.primaryBorder },
-  wishlistButtonActive: { backgroundColor: COLORS.primarySoft },
-  wishlistButtonText: { color: COLORS.primary, fontSize: 16, fontWeight: '700' },
-  wishlistButtonTextActive: { color: COLORS.text },
-  actionButton: { backgroundColor: COLORS.primary, paddingVertical: 16, borderRadius: RADIUS.button, alignItems: 'center' },
-  actionButtonText: { color: COLORS.background, fontSize: 16, fontWeight: '700' },
-});
+function createStyles(colors) {
+  return StyleSheet.create({
+    mainContainer: { flex: 1, backgroundColor: colors.background },
+    header: { height: 60, backgroundColor: colors.background, borderBottomWidth: 1, borderBottomColor: colors.borderSoft, flexDirection: 'row', alignItems: 'center', paddingHorizontal: SPACING.md },
+    backButton: { paddingRight: 15, flexDirection: 'row', alignItems: 'center', gap: 4 },
+    backButtonText: { color: colors.primary, fontSize: 16, fontWeight: '600' },
+    headerTitle: { fontSize: 18, fontWeight: '700', color: colors.text, flex: 1, textAlign: 'center', marginRight: 60 },
+    container: { flex: 1 },
+    imageContainer: { width: '100%', height: SCREEN_WIDTH * 0.8, backgroundColor: colors.surface },
+    image: { width: '100%', height: '100%' },
+    imagePlaceholder: { flex: 1, backgroundColor: colors.borderDark },
+    content: { padding: SPACING.lg },
+    badge: { alignSelf: 'flex-start', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 4, marginBottom: SPACING.sm },
+    badgeText: { color: '#FFFFFF', fontSize: 12, fontWeight: '700' },
+    title: { fontSize: 24, fontWeight: '700', color: colors.text, marginBottom: SPACING.sm },
+    price: { fontSize: 22, fontWeight: '800', color: colors.primary, marginBottom: SPACING.md },
+    institutionRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: SPACING.lg },
+    locationDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#E53E3E' },
+    institution: { fontSize: 14, color: colors.textSecondary, fontWeight: '500' },
+    section: { marginTop: SPACING.md, marginBottom: SPACING.lg },
+    sectionTitle: { fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: SPACING.sm },
+    description: { fontSize: 16, color: colors.textSecondary, lineHeight: 24 },
+    vendorCard: { backgroundColor: colors.surface, padding: SPACING.md, borderRadius: RADIUS.panel, marginBottom: SPACING.xl, borderWidth: 1, borderColor: colors.border },
+    vendorName: { fontSize: 16, fontWeight: '700', color: colors.text },
+    vendorSubtext: { fontSize: 14, color: colors.textMuted, marginTop: 4 },
+    detailRow: { flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm, gap: SPACING.sm },
+    detailLabel: { fontSize: 14, fontWeight: '600', color: colors.textSecondary, minWidth: 60 },
+    detailValue: { fontSize: 14, color: colors.text, fontWeight: '500' },
+    subjectBadge: { backgroundColor: colors.primarySoft, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3 },
+    subjectBadgeText: { fontSize: 13, fontWeight: '600', color: colors.primary },
+    wishlistButton: { backgroundColor: colors.surface, paddingVertical: 16, borderRadius: RADIUS.button, alignItems: 'center', marginBottom: SPACING.sm, borderWidth: 1, borderColor: colors.primaryBorder },
+    wishlistButtonActive: { backgroundColor: colors.primarySoft },
+    wishlistButtonText: { color: colors.primary, fontSize: 16, fontWeight: '700' },
+    wishlistButtonTextActive: { color: colors.text },
+    actionButton: { backgroundColor: colors.primary, paddingVertical: 16, borderRadius: RADIUS.button, alignItems: 'center' },
+    actionButtonText: { color: colors.background, fontSize: 16, fontWeight: '700' },
+  });
+}

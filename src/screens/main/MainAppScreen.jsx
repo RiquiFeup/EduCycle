@@ -5,10 +5,10 @@ import {
   Pressable,
   StyleSheet,
   StatusBar,
-  Platform,
   PanResponder,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import NewListingScreen from '../listing/NewListingScreen.jsx';
 import ListingDetailsScreen from '../listing/ListingDetailsScreen.jsx';
 import HomeScreen from './HomeScreen.jsx';
@@ -17,8 +17,10 @@ import PrivateProfileScreen from '../profile/PrivateProfileScreen';
 import PublicProfileScreen from '../profile/PublicProfileScreen';
 import InboxScreen from '../chat/InboxScreen';
 import ChatScreen from '../chat/ChatScreen';
+import ShoppingCartScreen from './ShoppingCartScreen';
 import { UserProvider } from '../../contexts/UserContext.jsx';
-import { COLORS, SPACING, RADIUS } from '../../utils/theme.js';
+import { useTheme } from '../../contexts/ThemeContext';
+import { SPACING, RADIUS } from '../../utils/theme.js';
 
 function PlaceholderTabScreen({
   title,
@@ -27,12 +29,15 @@ function PlaceholderTabScreen({
   primaryActionLabel,
   secondaryActionLabel,
 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <SafeAreaView
       style={styles.placeholderSafeArea}
       testID={`placeholder-${title.toLowerCase()}-screen`}
     >
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+      <StatusBar barStyle={colors.text === '#DFF0E8' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
       <View style={styles.placeholderContainer}>
         <View style={styles.placeholderBadge}>
           <Text style={styles.placeholderBadgeText}>{badge}</Text>
@@ -56,17 +61,20 @@ function PlaceholderTabScreen({
 }
 
 const TABS = [
-  { key: 'Home', label: 'Home', icon: '⌂' },
-  { key: 'Saved', label: 'Wishlist', icon: '♡' },
-  { key: 'Sell', label: 'Sell', icon: '+' },
-  { key: 'Messages', label: 'Inbox', icon: '✉' },
-  { key: 'Profile', label: 'Profile', icon: '◉' },
+  { key: 'Home', label: 'Home', icon: 'home-outline', iconActive: 'home' },
+  { key: 'Saved', label: 'Wishlist', icon: 'heart-outline', iconActive: 'heart' },
+  { key: 'Sell', label: 'Sell', icon: 'add-circle-outline', iconActive: 'add-circle' },
+  { key: 'Messages', label: 'Inbox', icon: 'mail-outline', iconActive: 'mail' },
+  { key: 'Profile', label: 'Profile', icon: 'person-outline', iconActive: 'person' },
 ];
 
-// Screens that are considered root-level tabs and should not be pushed to history
 const ROOT_TABS = new Set(['Home', 'Saved', 'Sell', 'Messages', 'Profile']);
 
 export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const insets = useSafeAreaInsets();
+
   const [activeScreen, setActiveScreen] = useState('Home');
   const [screenParams, setScreenParams] = useState({});
   const [screenHistory, setScreenHistory] = useState([]);
@@ -76,8 +84,8 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
   const goBack = () => {
     setScreenHistory((prev) => {
       if (prev.length === 0) return prev;
+      const previous = prev[prev.length - 1];
       const newHistory = prev.slice(0, -1);
-      const previous = newHistory[newHistory.length - 1] ?? { screen: 'Home', params: {} };
       setActiveScreen(previous.screen);
       setScreenParams(previous.params);
       return newHistory;
@@ -120,6 +128,13 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
       return;
     }
 
+    if (screen === 'ShoppingCart') {
+      setScreenHistory((prev) => [...prev, { screen: activeScreen, params: screenParams }]);
+      setActiveScreen('ShoppingCart');
+      setScreenParams(params);
+      return;
+    }
+
     setActiveScreen(screen);
     setScreenParams(params);
     if (!ROOT_TABS.has(screen)) {
@@ -129,13 +144,10 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
     }
   };
 
-  // Swipe-right-to-go-back gesture
   const swipeRef = useRef(null);
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, gestureState) => {
-        // Only capture horizontal swipes starting from the left edge area
-        // and moving significantly to the right
         return (
           gestureState.dx > 20 &&
           Math.abs(gestureState.dy) < 80 &&
@@ -150,8 +162,6 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
     }),
   ).current;
 
-  // Keep swipeRef in sync with the latest goBack so the PanResponder closure
-  // doesn't capture a stale version of screenHistory.
   swipeRef.current = goBack;
 
   const renderCurrentScreen = () => {
@@ -171,13 +181,15 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
         );
 
       case 'Messages':
-        return <InboxScreen navigate={navigate} />;
+        return <InboxScreen navigate={navigate} currentUser={user} />;
 
       case 'Chat':
         return (
           <ChatScreen
             conversationId={screenParams?.conversationId}
+            recipientId={screenParams?.recipientId}
             navigate={navigate}
+            currentUser={user}
           />
         );
 
@@ -190,21 +202,25 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
             isPreview={screenParams?.isPreview}
             sellerId={screenParams?.sellerId}
             navigate={navigate}
+            currentUser={user}
           />
         );
 
       case 'ListingDetails':
         return (
-          <ListingDetailsScreen 
-            listing={screenParams?.listing} 
-            navigate={navigate} 
+          <ListingDetailsScreen
+            listing={screenParams?.listing}
+            navigate={navigate}
+            currentUser={user}
           />
         );
 
+      case 'ShoppingCart':
+        return <ShoppingCartScreen navigate={navigate} />;
+
       case 'Home':
       default:
-        return <HomeScreen navigate={navigate} />; 
-      
+        return <HomeScreen navigate={navigate} />;
     }
   };
 
@@ -228,7 +244,7 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
       >
         <View style={styles.screenContainer}>{renderCurrentScreen()}</View>
 
-        <View style={styles.tabBar} testID="main-tab-bar">
+        <View style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 12) }]} testID="main-tab-bar">
           {TABS.map((tab) => {
             const isActive = selectedTabKey === tab.key;
 
@@ -243,9 +259,11 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
                 ]}
                 onPress={() => navigate(tab.key)}
               >
-                <Text style={[styles.tabIcon, isActive && styles.tabIconActive]}>
-                  {tab.icon}
-                </Text>
+                <Ionicons
+                  name={isActive ? tab.iconActive : tab.icon}
+                  size={22}
+                  color={isActive ? colors.primary : colors.textMuted}
+                />
                 <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
                   {tab.label}
                 </Text>
@@ -258,116 +276,108 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
   );
 }
 
-const styles = StyleSheet.create({
-  appContainer: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  screenContainer: {
-    flex: 1,
-  },
-  tabBar: {
-    flexDirection: 'row',
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-    backgroundColor: COLORS.surface,
-    paddingTop: 10,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 12,
-    paddingHorizontal: SPACING.sm,
-  },
-  tabItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: RADIUS.button,
-    minHeight: 52,
-    gap: 4,
-  },
-  tabItemActive: {
-    backgroundColor: COLORS.primarySoft,
-  },
-  tabItemPressed: {
-    opacity: 0.85,
-  },
-  tabIcon: {
-    fontSize: 18,
-    color: COLORS.textMuted,
-    fontWeight: '700',
-  },
-  tabIconActive: {
-    color: COLORS.primary,
-  },
-  tabLabel: {
-    fontSize: 12,
-    color: COLORS.textMuted,
-    fontWeight: '600',
-  },
-  tabLabelActive: {
-    color: COLORS.primary,
-  },
-  placeholderSafeArea: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-  },
-  placeholderContainer: {
-    flex: 1,
-    paddingHorizontal: SPACING.lg,
-    justifyContent: 'center',
-  },
-  placeholderBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: COLORS.primarySoft,
-    borderRadius: 999,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    marginBottom: SPACING.md,
-  },
-  placeholderBadgeText: {
-    color: COLORS.primary,
-    fontWeight: '700',
-    fontSize: 12,
-  },
-  placeholderTitle: {
-    fontSize: 30,
-    fontWeight: '800',
-    color: COLORS.text,
-    letterSpacing: -0.7,
-    marginBottom: 12,
-  },
-  placeholderDescription: {
-    fontSize: 15,
-    lineHeight: 24,
-    color: COLORS.textSecondary,
-  },
-  placeholderActions: {
-    marginTop: SPACING.xl,
-    gap: SPACING.sm,
-  },
-  primaryAction: {
-    minHeight: 50,
-    backgroundColor: COLORS.primary,
-    borderRadius: RADIUS.button,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  primaryActionText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 15,
-  },
-  secondaryAction: {
-    minHeight: 50,
-    backgroundColor: COLORS.surface,
-    borderRadius: RADIUS.button,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.borderDark,
-  },
-  secondaryActionText: {
-    color: COLORS.text,
-    fontWeight: '600',
-    fontSize: 14,
-  },
-});
+function createStyles(colors) {
+  return StyleSheet.create({
+    appContainer: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    screenContainer: {
+      flex: 1,
+    },
+    tabBar: {
+      flexDirection: 'row',
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      backgroundColor: colors.surface,
+      paddingTop: 10,
+      paddingHorizontal: SPACING.sm,
+    },
+    tabItem: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: RADIUS.button,
+      minHeight: 52,
+      gap: 4,
+    },
+    tabItemActive: {
+      backgroundColor: colors.primarySoft,
+    },
+    tabItemPressed: {
+      opacity: 0.85,
+    },
+    tabLabel: {
+      fontSize: 12,
+      color: colors.textMuted,
+      fontWeight: '600',
+    },
+    tabLabelActive: {
+      color: colors.primary,
+    },
+    placeholderSafeArea: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    placeholderContainer: {
+      flex: 1,
+      paddingHorizontal: SPACING.lg,
+      justifyContent: 'center',
+    },
+    placeholderBadge: {
+      alignSelf: 'flex-start',
+      backgroundColor: colors.primarySoft,
+      borderRadius: 999,
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      marginBottom: SPACING.md,
+    },
+    placeholderBadgeText: {
+      color: colors.primary,
+      fontWeight: '700',
+      fontSize: 12,
+    },
+    placeholderTitle: {
+      fontSize: 30,
+      fontWeight: '800',
+      color: colors.text,
+      letterSpacing: -0.7,
+      marginBottom: 12,
+    },
+    placeholderDescription: {
+      fontSize: 15,
+      lineHeight: 24,
+      color: colors.textSecondary,
+    },
+    placeholderActions: {
+      marginTop: SPACING.xl,
+      gap: SPACING.sm,
+    },
+    primaryAction: {
+      minHeight: 50,
+      backgroundColor: colors.primary,
+      borderRadius: RADIUS.button,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    primaryActionText: {
+      color: '#FFFFFF',
+      fontWeight: '700',
+      fontSize: 15,
+    },
+    secondaryAction: {
+      minHeight: 50,
+      backgroundColor: colors.surface,
+      borderRadius: RADIUS.button,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: colors.borderDark,
+    },
+    secondaryActionText: {
+      color: colors.text,
+      fontWeight: '600',
+      fontSize: 14,
+    },
+  });
+}

@@ -4,9 +4,8 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Platform,
-  StatusBar,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { UserProvider } from '../../contexts/UserContext';
 import HomeScreen from '../main/HomeScreen';
@@ -34,16 +33,19 @@ export default function DevProfileFlow() {
           <SafeAreaView style={styles.devMenuContainer}>
             <Text style={styles.devMenuTitle}>Dev Directory</Text>
             
-            <TouchableOpacity style={styles.devButton} onPress={() => navigate('Home')}>
-              <Text style={styles.devButtonText}>🏠 Go to Home Screen</Text>
+            <TouchableOpacity style={[styles.devButton, { flexDirection: 'row', gap: 8 }]} onPress={() => navigate('Home')}>
+              <Ionicons name="home-outline" size={18} color="#FFF" />
+              <Text style={styles.devButtonText}>Go to Home Screen</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.devButton} onPress={() => navigate('PublicProfile')}>
-              <Text style={styles.devButtonText}>👤 Go to Public Profile (Seller View)</Text>
+            <TouchableOpacity style={[styles.devButton, { flexDirection: 'row', gap: 8 }]} onPress={() => navigate('PublicProfile')}>
+              <Ionicons name="person-outline" size={18} color="#FFF" />
+              <Text style={styles.devButtonText}>Go to Public Profile (Seller View)</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.devButton} onPress={() => navigate('PrivateProfile')}>
-              <Text style={styles.devButtonText}>⚙️ Go to Private Profile</Text>
+            <TouchableOpacity style={[styles.devButton, { flexDirection: 'row', gap: 8 }]} onPress={() => navigate('PrivateProfile')}>
+              <Ionicons name="settings-outline" size={18} color="#FFF" />
+              <Text style={styles.devButtonText}>Go to Private Profile</Text>
             </TouchableOpacity>
           </SafeAreaView>
         );
@@ -60,7 +62,8 @@ export default function DevProfileFlow() {
             style={styles.floatingBackBtn} 
             onPress={() => navigate('Menu')}
           >
-            <Text style={styles.floatingBackText}>← Dev Menu</Text>
+            <Ionicons name="arrow-back" size={14} color="#FFF" />
+            <Text style={styles.floatingBackText}> Dev Menu</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -74,7 +77,6 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#F5F5F5',
     justifyContent: 'center',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   devMenuTitle: {
     fontSize: 24,
@@ -108,6 +110,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   floatingBackText: {
     color: '#FFF',
