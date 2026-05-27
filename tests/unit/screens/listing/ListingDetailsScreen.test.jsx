@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, screen } from '@testing-library/react-native';
+import { render, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 import ListingDetailsScreen from '../../../../src/screens/listing/ListingDetailsScreen';
 import { UserContext } from '../../../../src/contexts/UserContext';
@@ -156,7 +156,7 @@ describe('ListingDetailsScreen - Testes UAT e Renderização Visual', () => {
       Alert.alert.mockRestore();
     });
 
-    it('adiciona um anúncio disponível ao carrinho', () => {
+    it('adiciona um anúncio disponível ao carrinho', async () => {
       const addToCart = jest.fn();
       renderWithUserContext(
         <ListingDetailsScreen listing={baseListing} navigate={jest.fn()} />,
@@ -166,7 +166,9 @@ describe('ListingDetailsScreen - Testes UAT e Renderização Visual', () => {
       fireEvent.press(screen.getByTestId('listing-add-cart-button'));
 
       expect(addToCart).toHaveBeenCalledWith(baseListing);
-      expect(Alert.alert).toHaveBeenCalledWith('Carrinho', 'Anúncio adicionado ao carrinho.');
+      await waitFor(() => {
+        expect(Alert.alert).toHaveBeenCalledWith('Carrinho', 'Anúncio adicionado ao carrinho.');
+      });
     });
 
     it('impede duplicados quando o mesmo anúncio já está no carrinho', () => {
