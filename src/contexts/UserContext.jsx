@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import {
@@ -10,6 +11,12 @@ import {
   removeListingFromWishlist,
   saveListingToWishlist,
 } from '../services/wishlistService';
+import {
+  getCartListings,
+  normalizeListingForCart,
+  removeListingFromCart,
+  saveListingToCart,
+} from '../services/cartService';
 
 export const UserContext = createContext();
 
@@ -26,35 +33,6 @@ const DEFAULT_USER = {
   reviewsCount: 14,
   joinedDate: 'Sep 2024',
   totalListings: 5,
-};
-
-const cleanValue = (value, fallback = null) => (value === undefined ? fallback : value);
-
-const normalizeListingForCart = (listing) => {
-  if (!listing?.id) {
-    throw new Error('Anúncio inválido.');
-  }
-
-  return {
-    id: String(listing.id),
-    listingId: String(listing.id),
-    title: cleanValue(listing.title, 'Anúncio sem título'),
-    price: cleanValue(listing.price),
-    mode: cleanValue(listing.mode ?? listing.listingType?.toLowerCase?.(), 'sell'),
-    institution: cleanValue(listing.institution ?? listing.campus, ''),
-    campus: cleanValue(listing.campus ?? listing.institution, ''),
-    subject: cleanValue(listing.subject),
-    isbn: cleanValue(listing.isbn),
-    image: cleanValue(listing.image),
-    imageUrls: Array.isArray(listing.imageUrls) ? listing.imageUrls : [],
-    description: cleanValue(listing.description, ''),
-    sellerId: cleanValue(listing.sellerId),
-    sellerName: cleanValue(listing.sellerName),
-    sellerPhoto: cleanValue(listing.sellerPhoto),
-    condition: cleanValue(listing.condition),
-    status: cleanValue(listing.status, 'active'),
-    addedAt: new Date().toISOString(),
-  };
 };
 
 const isListingAvailableForCart = (listing) => {
@@ -74,6 +52,8 @@ export const UserProvider = ({ children, initialUser, onUserUpdate, onLogout }) 
   const [wishlistListings, setWishlistListings] = useState([]);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [cartListings, setCartListings] = useState([]);
+  const [cartLoading, setCartLoading] = useState(false);
+  const pendingCartListingIds = useRef(new Set());
 
   useEffect(() => {
     setCurrentUser({
@@ -160,12 +140,41 @@ export const UserProvider = ({ children, initialUser, onUserUpdate, onLogout }) 
     return true;
   }, [isWishlisted, removeFromWishlist, saveToWishlist]);
 
+  const refreshCart = useCallback(async () => {
+    if (!currentUser?.id) {
+      setCartListings([]);
+      return [];
+    }
+
+    setCartLoading(true);
+
+    try {
+      const savedListings = await getCartListings(currentUser.id);
+      setCartListings(savedListings);
+      return savedListings;
+    } catch (error) {
+      console.warn('Carrinho indisponível. A aplicação continua sem bloquear:', error?.message || error);
+      return [];
+    } finally {
+      setCartLoading(false);
+    }
+  }, [currentUser?.id]);
+
+  useEffect(() => {
+    if (!initialUser?.id) {
+      setCartListings([]);
+      return;
+    }
+
+    refreshCart();
+  }, [initialUser?.id, refreshCart]);
+
   const isInCart = useCallback(
     (listingId) => cartListings.some((listing) => listing.id === String(listingId)),
     [cartListings],
   );
 
-  const addToCart = useCallback((listing) => {
+  const addToCart = useCallback(async (listing) => {
     if (!currentUser?.id) {
       throw new Error('Tens de iniciar sessão para adicionar anúncios ao carrinho.');
     }
@@ -176,17 +185,28 @@ export const UserProvider = ({ children, initialUser, onUserUpdate, onLogout }) 
 
     const cartListing = normalizeListingForCart(listing);
 
-    if (isInCart(cartListing.id)) {
+    if (isInCart(cartListing.id) || pendingCartListingIds.current.has(cartListing.id)) {
       throw new Error('Este anúncio já está no teu carrinho.');
     }
 
-    setCartListings((prev) => [cartListing, ...prev]);
-    return cartListing;
+    pendingCartListingIds.current.add(cartListing.id);
+
+    try {
+      const savedListing = await saveListingToCart(currentUser.id, cartListing);
+      setCartListings((prev) => [
+        savedListing,
+        ...prev.filter((item) => item.id !== savedListing.id),
+      ]);
+      return savedListing;
+    } finally {
+      pendingCartListingIds.current.delete(cartListing.id);
+    }
   }, [currentUser?.id, isInCart]);
 
-  const removeFromCart = useCallback((listingId) => {
+  const removeFromCart = useCallback(async (listingId) => {
+    await removeListingFromCart(currentUser?.id, listingId);
     setCartListings((prev) => prev.filter((listing) => listing.id !== String(listingId)));
-  }, []);
+  }, [currentUser?.id]);
 
   const contextValue = useMemo(
     () => ({
@@ -201,6 +221,8 @@ export const UserProvider = ({ children, initialUser, onUserUpdate, onLogout }) 
       removeFromWishlist,
       toggleWishlist,
       cartListings,
+      cartLoading,
+      refreshCart,
       addToCart,
       removeFromCart,
       isInCart,
@@ -217,6 +239,8 @@ export const UserProvider = ({ children, initialUser, onUserUpdate, onLogout }) 
       removeFromWishlist,
       toggleWishlist,
       cartListings,
+      cartLoading,
+      refreshCart,
       addToCart,
       removeFromCart,
       isInCart,

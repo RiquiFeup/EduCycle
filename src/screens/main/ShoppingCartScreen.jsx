@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, ScrollView, Image } from 'react-native';
+import { Alert, View, Text, StyleSheet, TouchableOpacity, StatusBar, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { SPACING, RADIUS } from '../../utils/theme';
@@ -10,6 +10,14 @@ export default function ShoppingCartScreen({ navigate }) {
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { cartListings = [], removeFromCart = () => {} } = useContext(UserContext) ?? {};
+
+  const handleRemoveFromCart = async (listingId) => {
+    try {
+      await removeFromCart(listingId);
+    } catch (error) {
+      Alert.alert('Carrinho', error.message || 'Não foi possível remover o anúncio do carrinho.');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -55,7 +63,7 @@ export default function ShoppingCartScreen({ navigate }) {
 
               <TouchableOpacity
                 style={styles.removeButton}
-                onPress={() => removeFromCart(listing.id)}
+                onPress={() => handleRemoveFromCart(listing.id)}
                 testID={`cart-remove-${listing.id}`}
               >
                 <Text style={styles.removeButtonText}>Remover</Text>
