@@ -369,8 +369,4 @@ The team successfully implemented major UI/UX improvements, most notably the ful
 | **Chat Component Robustness** | Photos in chat had rendering issues. | Image rendering in chat was patched, but requires further testing for different aspect ratios. |
 
 ---
----
 
-### Final Release
-
-_Final release notes and retrospective to be added._
