@@ -10,7 +10,7 @@ At the end of Sprint 0, the team received feedback during the Sprint Review sess
 
 | #   | Feedback                                                                | Action Taken in Sprint 1                                                                                                                                                                                                                                                  |
 | --- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | **PBIs must be in the Product Backlog (PBL), not in the README**        | All Product Backlog Items were moved exclusively to the GitHub Projects board. The README now references the board instead of duplicating its content.                                                                                                                    |
+| 1   | **PBIs must be in the Product Backlog (PBL)**        | All Product Backlog Items were moved exclusively to the GitHub Projects board. The README now references the board instead of duplicating its content.                                                                                                                    |
 | 2   | **Missing names in associations (Domain Model)**                        | Role names and multiplicity labels were added to all associations in the Domain Model diagram.                                                                                                                                                                            |
 | 3   | **Missing text / description in the Architecture section**              | Explanatory text was added to the Logical and Physical Architecture sections, describing the rationale behind the technology choices and the responsibilities of each layer.                                                                                              |
 | 4   | **PBIs must be well specified** — acceptance criteria were insufficient | Each PBI was reworked with clear, testable acceptance criteria following the Given/When/Then format, and linked to the corresponding feature branch and pull request.                                                                                                     |
@@ -211,3 +211,74 @@ This release significantly expands the listing and discovery experience. Users c
   - **Phase 2 — Build & Deploy:** triggers an EAS Android APK build only on pushes to `main`, using the `EXPO_TOKEN` secret.
   - _Commits:_ `08c4445`, `55e11d1`
 - Reorganised test directory from `__tests__/` to `tests/unit/` and `tests/acceptance/` for cleaner separation (`af07024`).
+
+---
+
+## [Sprint 3] – 2026-05-27
+
+### Value Added to End-Users
+
+This release introduces major usability upgrades, new purchasing features, and a modernised visual identity. Users can now:
+
+- **Toggle Dark Mode:** Enjoy a comfortable viewing experience at night with a full dark mode theme implemented across the app.
+- **Manage a Shopping Cart:** Add items to a shopping cart, review them, and easily remove items before making a decision.
+- **Request Purchases:** Initiate a direct request to buy items, streamlining the transaction process.
+- **Select Subjects via Dropdown:** Easily categorize new listings with a simplified and intuitive dropdown menu for subjects.
+- **Chat Enhancements:** Use a more robust chat system with fixed photo support for better communication between buyers and sellers.
+- **Improved UI & Navigation:** Navigate an app with polished iconography (using Ionicons) and perfectly aligned screens that respect modern device safe areas (no more overlapping with phone system buttons).
+
+---
+
+### Added
+
+#### Features & User Experience
+
+- **Dark Mode Integration**
+  - Implemented a complete Light and Dark theme system utilizing `useTheme()`.
+  - Wrapped app content in a Theme Provider to ensure consistent coloring.
+  - _Commits:_ `3a56377`, `b03cb22`, `97af583`, `c798150` (PR #149)
+
+- **Shopping Cart System**
+  - Added the ability to add, view, and remove items from a shopping cart.
+  - Built the dedicated Shopping Cart page.
+  - _Commits:_ `1558a07`, `bc5919b`, `780e4e9` (PR #150, #153, #154)
+
+- **Purchase Requests**
+  - Implemented the "Request to Buy" (pedido de compra) flow.
+  - _Commits:_ `b7f535b`, `0b16dfd` (PR #162)
+
+- **Enhanced New Listing Subject Selection**
+  - Replaced the text input for subjects with a simplified Dropdown menu on the New Listings page.
+  - _Commits:_ `cb019ac` (PR #159)
+
+- **Chat Improvements**
+  - Implemented a purely chat-focused function with additional features.
+  - _Commits:_ `a71625e`, `4d0976d` (PR #156, #157)
+
+#### UI/UX & Navigation
+
+- **Iconography Overhaul**
+  - Replaced old emojis and text arrows with professional `Ionicons` throughout the application.
+  - _Commits:_ `0199e6a`, `9c3a0cd`, `5943a6f` (PR #151)
+
+- **Safe Area & Layout Consistency**
+  - Added `SafeAreaProvider` and implemented proper safe area insets globally.
+  - _Commits:_ `1c0c266`, `fd56245`
+
+---
+
+### Fixed
+
+- Fixed Navbar rendering behind OS phone functions (`92af3df`, PR #161).
+- Fixed the swipe-back navigation gesture (`7fb47e9`, PR #152).
+- Fixed broken photos inside the Chat screen (`d33c826`).
+- Fixed CI pipeline execution errors and unhandled exceptions (`d315b0c`, `c14de5b`, `c163e8b`).
+- Updated Node.js to version 20 to restore EAS CLI compatibility in the pipeline (`988a382`).
+
+---
+
+### Tests
+
+- Added unit and acceptance tests for the Shopping Cart feature (`0afa9a2`).
+- Swapped `--forceExit` for `--detectOpenHandles` in coverage scripts for better test environment stability (`ff7a1ff`).
+- Updated existing tests to pass with the new Dark Mode wrapping and Ionicons (`363373d`, `76ae757`, `3070fb2`, `c6428fe`).

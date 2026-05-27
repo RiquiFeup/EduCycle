@@ -19,41 +19,45 @@ As part of the software engineering course and in alignment with the Faculty's g
 
 ---
 
-## How AI Was Used
+## Sprint 2: AI Usage
 
 ### 1. Code Generation — Boilerplate and Scaffolding
-
 AI tools were used to generate initial boilerplate code for screens, components and service functions. Examples include:
-
 - Generating the initial structure of screen components (e.g. `NewListingScreen`, `ProfileScreen`) following the established component pattern.
 - Scaffolding Firebase service functions (e.g. CRUD operations for Firestore listings) from a described interface.
 - Generating initial versions of React hook wrappers and context providers.
 
 All AI-generated code was reviewed, tested, and integrated by the team. No AI-generated output was merged without human inspection and contextual adaptation.
 
----
-
 ### 2. Test Generation — Unit and Acceptance Tests
-
 AI tools assisted in writing tests across two testing layers:
-
 - **Unit tests (Jest + React Native Testing Library):** AI-generated test cases for validation logic (e.g. condition validation, ISBN format checks) and service functions, which were then reviewed for correctness against the actual implementation.
 - **Acceptance tests (Maestro):** AI-generated YAML flow scripts for end-to-end scenarios such as login, listing creation, wishlist interaction, and back navigation gestures.
 
-The team retained full responsibility for defining the acceptance criteria (Given/When/Then) and validating that generated tests actually reflected the expected behaviour.
-
----
-
 ### 3. Architecture and Integration Clarification
-
 When the team faced uncertainties around architecture or integration patterns, AI tools were used as a first point of reference:
-
 - Clarifying React Navigation stack configuration and gesture handler setup.
 - Understanding Firebase Firestore data model trade-offs (flat documents vs. subcollections).
 - Explaining Expo EAS Build profiles and CI/CD integration patterns.
 - Reviewing ESLint configuration conflicts and peer dependency resolution strategies.
 
-In all cases, AI responses were cross-referenced with official documentation before implementation decisions were made.
+---
+
+## Sprint 3: AI Usage
+
+### 1. Code Generation — Boilerplate and Scaffolding
+During Sprint 3, AI tools provided support in expanding existing features and building new flows:
+- **Dark Mode Implementation:** Assisted in refactoring components to consume the `useTheme()` context and structuring the light/dark color palettes.
+- **Shopping Cart & Chat:** Scaffolding the initial UI and state management logic for the Shopping Cart screen, as well as extending the Chat functionalities.
+- **UI & Icons Transition:** Helped with quick refactors to replace emoji and text arrows with `Ionicons` components across multiple screens.
+
+### 2. Test Generation — Unit and Acceptance Tests
+- **Test Maintenance:** AI was used to identify missing assertions and fix failing tests after UI changes (e.g., changes to Safe Area handling, new Ionicons, and Dark Mode wrapping).
+- **New Coverage:** Helped generate initial test suites for the Shopping Cart operations (add/remove) and Dropdown Subject selection.
+
+### 3. Architecture, UI/UX and Debugging
+- **SafeArea & UI Positioning:** AI provided solutions to fix bottom safe area insets and navbar positioning issues (e.g., navbar going behind phone OS functions).
+- **Pipeline Debugging:** Assisted in understanding and resolving CI pipeline errors, specifically adapting the test coverage scripts (swapping `--forceExit` for `--detectOpenHandles`) and updating Node.js versions for EAS CLI compatibility.
 
 ---
 

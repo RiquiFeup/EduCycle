@@ -333,8 +333,42 @@ Retrospective includes suggestions for improvement and a strategy including veri
 
 ### Sprint 3
 
-_Sprint 3 plan and retrospective to be added._
+#### Scrum Board
 
+<p align="center">
+  <img src="docs/imgs/Sprint3_ScrumBoard.png" alt="Sprint 3 Scrum Board" width="900"/>
+</p>
+
+<p align="center">
+  <img src="docs/imgs/Sprint3_ScrumBoard_end.png" alt="Sprint 3 Scrum Board" width="900"/>
+</p>
+
+#### Sprint 2 Review — Feedback Addressed
+
+During the Sprint 2 Review, the teaching staff and team identified the following issues that were committed to and addressed during Sprint 3:
+
+| # | Feedback Received | Action Taken |
+|---|---|---|
+| 1 | **Wishlist photos missing** | Updated queries to ensure wishlist properly fetches and renders listing images. |
+| 2 | **Top bar height incorrect** | Applied global `SafeAreaProvider` and fixed safe area insets to align top and bottom bars properly (`1c0c266`, `fd56245`). |
+| 3 | **Back button route wrong** | Fixed swipe-back navigation and routing behavior (`7fb47e9`). |
+| 4 | **UI Responsiveness & Consistency** | Complete UI overhaul replacing emojis with `Ionicons` and fixing the Navbar so it is no longer hidden behind phone OS functions (`92af3df`, `5943a6f`). |
+| 5 | **Subject Selection Dropdown** | Replaced the free-text subject field in new listings with a standardized Dropdown selector (`cb019ac`). |
+
+#### Sprint Retrospective
+
+**What went well**
+The team successfully implemented major UI/UX improvements, most notably the full Dark Mode system and replacing temporary text/emojis with a professional `Ionicons` set. The Shopping Cart and Request Purchase flows were completed on time, adding significant business value. We also resolved persistent UI padding issues with the Navbar and Safe Area views across different screen sizes.
+
+**Areas for Improvement & Action Plan**
+
+| Suggestion for Improvement | Strategy / Action Point | Verifiable Outcome |
+|---|---|---|
+| **Test Coverage Script Stability** | Jest was hanging or hiding open handles with `--forceExit`. | Swapped to `--detectOpenHandles` and fixed test leaks. Tests close cleanly. |
+| **Pipeline Reliability** | EAS builds failed due to Node version deprecation. | Pinned the pipeline to Node.js 20. Future-proof action configurations. |
+| **Chat Component Robustness** | Photos in chat had rendering issues. | Image rendering in chat was patched, but requires further testing for different aspect ratios. |
+
+---
 ---
 
 ### Final Release

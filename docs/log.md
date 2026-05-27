@@ -1,6 +1,10 @@
-# Bug & Fix Log — Sprint 2
+# Bug & Fix Log
 
-This document records the bugs and infrastructure issues encountered during **Sprint 2** of EduCycle, how they were identified, and how they were resolved. Entries are derived from the git commit history between the `sprint-1` tag and the current `HEAD` of `development`.
+This document records the bugs and infrastructure issues encountered during the sprints of EduCycle, how they were identified, and how they were resolved.
+
+## Bug & Fix Log — Sprint 2
+
+This section records issues encountered during **Sprint 2**. Entries are derived from the git commit history between the `sprint-1` tag and the current `HEAD` of `development`.
 
 ---
 
@@ -162,3 +166,137 @@ Updated the `HomeScreen` tests to match the new empty state text ("No results fo
 | Added ESLint code quality step to CI pipeline | `08c4445` | Part of deployment pipeline PR #126 |
 | Reorganised test folders to `tests/unit/` and `tests/acceptance/` | `af07024` | Cleaner separation of test types |
 | Configured EAS Build in CI for Android APK generation | `55e11d1` (PR #126) | Build step only triggers on `main` pushes |
+
+
+---
+
+## Bug & Fix Log — Sprint 3
+
+This section records issues encountered during **Sprint 3**. Entries are derived from the git commit history between the `sprint-2` tag and the current `HEAD` of `development`.
+
+---
+
+### Summary Table (Sprint 3)
+
+| # | Bug / Issue | Commit(s) | Status |
+|---|---|---|---|
+| 1 | EAS CLI pipeline compatibility failing | `988a382` | ✅ Fixed |
+| 2 | Swipe back functionality broken | `7fb47e9` | ✅ Fixed |
+| 3 | Bottom safe area insets misaligned | `fd56245` | ✅ Fixed |
+| 4 | Pipeline error preventing test execution | `d315b0c`, `c14de5b`, `c163e8b` | ✅ Fixed |
+| 5 | Chat photo rendering issue | `d33c826` | ✅ Fixed |
+| 6 | Navbar positioned behind OS phone functions | `92af3df` | ✅ Fixed |
+| 7 | Global Safe Area handling issues across screens | `1c0c266` | ✅ Fixed |
+| 8 | Jest test coverage script hanging/masking errors | `ff7a1ff` | ✅ Fixed |
+
+---
+
+### Detailed Entries (Sprint 3)
+
+---
+
+#### Bug 1 — EAS CLI pipeline compatibility failing
+
+**Identified in:** `chore/sprint-retrospective` / Pipeline  
+**Commits:** `988a382`
+
+**Description:**  
+The CI/CD pipeline started failing during the EAS CLI execution because the environment was using an older Node.js version that was no longer compatible with the latest EAS tooling requirements.
+
+**Resolution:**  
+Updated the Node.js version to 20 in the CI pipeline configuration to ensure EAS CLI compatibility, allowing automated builds to pass successfully.
+
+---
+
+#### Bug 2 — Swipe back functionality broken
+
+**Identified in:** `fix/swipeback` branch (PR #152)  
+**Commits:** `7fb47e9`
+
+**Description:**  
+The native swipe-right back navigation gesture, which was implemented previously, stopped working correctly on certain screens or stack transitions after recent UI updates.
+
+**Resolution:**  
+Fixed the navigation stack configurations to properly restore and handle the swipe-back gesture across the app's screens.
+
+---
+
+#### Bug 3 — Bottom safe area insets misaligned
+
+**Identified in:** `feat/shopping-cart` / UI adjustments  
+**Commits:** `fd56245`
+
+**Description:**  
+Content at the bottom of the screens was overlapping with device bezels or navigation bars on devices without physical home buttons.
+
+**Resolution:**  
+Fixed the bottom safe area insets to ensure content respects the safe boundaries of modern smartphone screens.
+
+---
+
+#### Bug 4 — Pipeline error preventing test execution
+
+**Identified in:** `development` / Pipeline runs  
+**Commits:** `d315b0c`, `c14de5b`, `c163e8b`
+
+**Description:**  
+An unhandled error in the CI pipeline was causing GitHub Actions to fail, blocking the validation of new pull requests.
+
+**Resolution:**  
+Multiple iterations were made to correct the pipeline execution commands and environment setup, eventually restoring the CI pipeline to a green state.
+
+---
+
+#### Bug 5 — Chat photo rendering issue
+
+**Identified in:** `feat/Chat`  
+**Commits:** `d33c826`
+
+**Description:**  
+Photos sent or received in the chat screen were not displaying correctly, either due to incorrect URI handling or layout constraints.
+
+**Resolution:**  
+Fixed the image rendering component within the chat screen, ensuring photos are properly sized and displayed.
+
+---
+
+#### Bug 6 — Navbar positioned behind OS phone functions
+
+**Identified in:** `ui/navbar` (PR #161)  
+**Commits:** `92af3df`
+
+**Description:**  
+The app's bottom navigation bar was being rendered behind the OS-level phone navigation elements (e.g., the Android home indicator/buttons), making it unresponsive and hard to use.
+
+**Resolution:**  
+Adjusted the Navbar layout to add proper padding and positioning, ensuring it remains accessible above system UI elements.
+
+---
+
+#### Bug 7 — Global Safe Area handling issues across screens
+
+**Identified in:** Global UI review  
+**Commits:** `1c0c266`
+
+**Description:**  
+Various screens had inconsistent padding and margins around the edges, leading to content overlapping with status bars or notches on different devices.
+
+**Resolution:**  
+Added `SafeAreaProvider` at the root and applied consistent safe area handling across all screens to standardize the layout.
+
+---
+
+#### Bug 8 — Jest test coverage script hanging
+
+**Identified in:** Pipeline / Test runner  
+**Commits:** `ff7a1ff`
+
+**Description:**  
+The `test:coverage` script was using `--forceExit`, which forced Jest to close without reporting open handles, sometimes masking unresolved promises or causing silent hangs in certain CI environments.
+
+**Resolution:**  
+Swapped `--forceExit` for `--detectOpenHandles` in the `package.json` test script to better diagnose memory leaks and ensure the test suite shuts down cleanly.
+
+---
+
+
