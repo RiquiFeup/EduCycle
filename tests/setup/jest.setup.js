@@ -66,6 +66,14 @@ jest.mock('firebase/storage', () => ({
   getDownloadURL: jest.fn(() => Promise.resolve('https://mock.url/profile.jpg')),
 }));
 
+jest.mock('@expo/vector-icons', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const MockIcon = ({ testID, style, name }) =>
+    React.createElement(View, { testID, style, accessibilityLabel: name });
+  return new Proxy({}, { get: () => MockIcon });
+});
+
 jest.mock('expo-image-picker', () => ({
   requestCameraPermissionsAsync: jest.fn(() => Promise.resolve({ granted: true, status: 'granted' })),
   requestMediaLibraryPermissionsAsync: jest.fn(() => Promise.resolve({ granted: true, status: 'granted' })),
@@ -89,6 +97,22 @@ jest.mock('../../src/utils/firebase', () => ({
   auth: { currentUser: { uid: 'mock-user-id', getIdToken: jest.fn(() => Promise.resolve('mock-id-token')) } },
   storage: { app: { options: { storageBucket: 'mock-bucket.appspot.com' } } },
 }));
+
+jest.mock('react-native-safe-area-context', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const insets = { top: 0, bottom: 0, left: 0, right: 0 };
+  const frame = { x: 0, y: 0, width: 390, height: 844 };
+  return {
+    SafeAreaProvider: ({ children }) => React.createElement(React.Fragment, null, children),
+    SafeAreaView: ({ children, style, testID, edges }) =>
+      React.createElement(View, { style, testID }, children),
+    useSafeAreaInsets: () => insets,
+    SafeAreaConsumer: ({ children }) => children(insets),
+    SafeAreaInsetsContext: { Consumer: ({ children }) => children(insets) },
+    initialWindowMetrics: { insets, frame },
+  };
+});
 
 // Mock do ThemeContext useTheme hook
 const LIGHT_COLORS = {

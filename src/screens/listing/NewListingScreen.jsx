@@ -1,5 +1,6 @@
 import React, { useState, useContext, useMemo } from 'react';
-import { ScrollView, Text } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 import createStyles from './styles';
 
@@ -192,9 +193,10 @@ export default function NewListingScreen({ onPublish }) {
       />
 
       {published && (
-        <Text testID="msg-success" style={styles.success}>
-          <Text testID="success-icon">🎉</Text> Listing published successfully!
-        </Text>
+        <View testID="msg-success" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 16, gap: 6 }}>
+          <Ionicons name="checkmark-circle-outline" size={18} color={colors.primary} />
+          <Text style={[styles.success, { marginTop: 0 }]}>Listing published successfully!</Text>
+        </View>
       )}
     </ScrollView>
   );

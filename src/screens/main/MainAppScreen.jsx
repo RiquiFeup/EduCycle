@@ -5,10 +5,10 @@ import {
   Pressable,
   StyleSheet,
   StatusBar,
-  Platform,
   PanResponder,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import NewListingScreen from '../listing/NewListingScreen.jsx';
 import ListingDetailsScreen from '../listing/ListingDetailsScreen.jsx';
 import HomeScreen from './HomeScreen.jsx';
@@ -61,11 +61,11 @@ function PlaceholderTabScreen({
 }
 
 const TABS = [
-  { key: 'Home', label: 'Home', icon: '⌂' },
-  { key: 'Saved', label: 'Wishlist', icon: '♡' },
-  { key: 'Sell', label: 'Sell', icon: '+' },
-  { key: 'Messages', label: 'Inbox', icon: '✉' },
-  { key: 'Profile', label: 'Profile', icon: '◉' },
+  { key: 'Home', label: 'Home', icon: 'home-outline', iconActive: 'home' },
+  { key: 'Saved', label: 'Wishlist', icon: 'heart-outline', iconActive: 'heart' },
+  { key: 'Sell', label: 'Sell', icon: 'add-circle-outline', iconActive: 'add-circle' },
+  { key: 'Messages', label: 'Inbox', icon: 'mail-outline', iconActive: 'mail' },
+  { key: 'Profile', label: 'Profile', icon: 'person-outline', iconActive: 'person' },
 ];
 
 const ROOT_TABS = new Set(['Home', 'Saved', 'Sell', 'Messages', 'Profile']);
@@ -73,6 +73,7 @@ const ROOT_TABS = new Set(['Home', 'Saved', 'Sell', 'Messages', 'Profile']);
 export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+  const insets = useSafeAreaInsets();
 
   const [activeScreen, setActiveScreen] = useState('Home');
   const [screenParams, setScreenParams] = useState({});
@@ -243,7 +244,7 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
       >
         <View style={styles.screenContainer}>{renderCurrentScreen()}</View>
 
-        <SafeAreaView edges={['bottom']} style={styles.tabBar} testID="main-tab-bar">
+        <View style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 12) }]} testID="main-tab-bar">
           {TABS.map((tab) => {
             const isActive = selectedTabKey === tab.key;
 
@@ -258,16 +259,18 @@ export default function MainAppScreen({ user, onUserUpdate, onLogout }) {
                 ]}
                 onPress={() => navigate(tab.key)}
               >
-                <Text style={[styles.tabIcon, isActive && styles.tabIconActive]}>
-                  {tab.icon}
-                </Text>
+                <Ionicons
+                  name={isActive ? tab.iconActive : tab.icon}
+                  size={22}
+                  color={isActive ? colors.primary : colors.textMuted}
+                />
                 <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
                   {tab.label}
                 </Text>
               </Pressable>
             );
           })}
-        </SafeAreaView>
+        </View>
       </View>
     </UserProvider>
   );
@@ -288,7 +291,6 @@ function createStyles(colors) {
       borderTopColor: colors.border,
       backgroundColor: colors.surface,
       paddingTop: 10,
-      paddingBottom: 12,
       paddingHorizontal: SPACING.sm,
     },
     tabItem: {
@@ -305,14 +307,6 @@ function createStyles(colors) {
     tabItemPressed: {
       opacity: 0.85,
     },
-    tabIcon: {
-      fontSize: 18,
-      color: colors.textMuted,
-      fontWeight: '700',
-    },
-    tabIconActive: {
-      color: colors.primary,
-    },
     tabLabel: {
       fontSize: 12,
       color: colors.textMuted,
@@ -324,7 +318,6 @@ function createStyles(colors) {
     placeholderSafeArea: {
       flex: 1,
       backgroundColor: colors.background,
-      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
     placeholderContainer: {
       flex: 1,

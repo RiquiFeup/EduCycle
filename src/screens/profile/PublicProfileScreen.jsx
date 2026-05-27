@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   StatusBar,
-  Platform,
   TouchableOpacity,
   Image,
   ScrollView,
@@ -15,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../utils/firebase';
 
+import { Ionicons } from '@expo/vector-icons';
 import ListingCard from '../../components/ListingCard';
 import CommunityBadge from '../../components/CommunityBadge';
 import SectionHeader from '../../components/SectionHeader';
@@ -126,7 +126,10 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate, cur
 
       {isPreview ? (
         <View style={[styles.header, styles.previewHeader]}>
-          <Text style={styles.previewTitle}>👁️ Preview Mode</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Ionicons name="eye-outline" size={16} color={colors.text} />
+            <Text style={styles.previewTitle}>Preview Mode</Text>
+          </View>
           <TouchableOpacity
             style={styles.exitPreviewBtn}
             onPress={() => navigate('PrivateProfile')}
@@ -137,7 +140,7 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate, cur
       ) : (
         <View style={styles.header}>
           <TouchableOpacity style={styles.backBtn} onPress={() => navigate('Home')}>
-            <Text style={styles.backIcon}>←</Text>
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Seller Profile</Text>
           <View style={styles.placeholder} />
@@ -187,14 +190,20 @@ export default function PublicProfileScreen({ isPreview, sellerId, navigate, cur
                   navigate('Chat', { recipientId: sellerId });
                 }}
               >
-                <Text style={styles.primaryButtonText}>💬 Message</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Ionicons name="chatbubble-outline" size={15} color={colors.background} />
+                  <Text style={styles.primaryButtonText}>Message</Text>
+                </View>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={[styles.actionButton, styles.secondaryButton]}
                 onPress={() => Alert.alert('Email', `Email ${displayedUser.email} from your mail app later.`)}
               >
-                <Text style={styles.secondaryButtonText}>✉️ Email</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Ionicons name="mail-outline" size={15} color={colors.primary} />
+                  <Text style={styles.secondaryButtonText}>Email</Text>
+                </View>
               </TouchableOpacity>
             </View>
           ) : null}
@@ -234,7 +243,6 @@ function createStyles(colors) {
     safeArea: {
       flex: 1,
       backgroundColor: colors.background,
-      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
     stateContainer: {
       flex: 1,
@@ -272,7 +280,6 @@ function createStyles(colors) {
       borderBottomColor: colors.border,
     },
     backBtn: { padding: 4 },
-    backIcon: { fontSize: 24, color: colors.text },
     headerTitle: { fontSize: 17, fontWeight: '700', color: colors.text },
     placeholder: { width: 32 },
     previewHeader: {

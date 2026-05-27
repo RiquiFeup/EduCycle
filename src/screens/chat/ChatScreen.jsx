@@ -14,6 +14,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { SPACING, RADIUS } from '../../utils/theme';
 import { CONVERSATIONS, MESSAGES } from '../../data/conversations';
@@ -298,7 +299,7 @@ export default function ChatScreen({ conversationId, recipientId, navigate, curr
           onPress={() => navigate('Messages')}
           testID="chat-back-button"
         >
-          <Text style={styles.backIcon}>←</Text>
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -321,7 +322,7 @@ export default function ChatScreen({ conversationId, recipientId, navigate, curr
           testID="chat-delete-button"
           accessibilityLabel="Delete chat"
         >
-          <Text style={styles.headerActionText}>⌫</Text>
+          <Ionicons name="trash-outline" size={22} color={colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -348,7 +349,7 @@ export default function ChatScreen({ conversationId, recipientId, navigate, curr
             }
             ListEmptyComponent={
               <View style={styles.emptyChat}>
-                <Text style={styles.emptyChatIcon}>👋</Text>
+                <Ionicons name="hand-left-outline" size={48} color={colors.textMuted} style={{ marginBottom: 12 }} />
                 <Text style={styles.emptyChatText}>
                   Say hello to {displayOtherUser.name}!
                 </Text>
@@ -390,7 +391,6 @@ function createStyles(colors) {
     safeArea: {
       flex: 1,
       backgroundColor: colors.background,
-      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
     flex: {
       flex: 1,
@@ -408,10 +408,6 @@ function createStyles(colors) {
     backBtn: {
       padding: 4,
       width: 36,
-    },
-    backIcon: {
-      fontSize: 24,
-      color: colors.text,
     },
     headerCenter: {
       flex: 1,
@@ -450,11 +446,6 @@ function createStyles(colors) {
     },
     headerActionDisabled: {
       opacity: 0.5,
-    },
-    headerActionText: {
-      fontSize: 18,
-      color: colors.danger || colors.text,
-      fontWeight: '700',
     },
     messageList: {
       paddingHorizontal: SPACING.horizontal,
@@ -563,10 +554,6 @@ function createStyles(colors) {
       alignItems: 'center',
       justifyContent: 'center',
       paddingTop: 60,
-    },
-    emptyChatIcon: {
-      fontSize: 48,
-      marginBottom: 12,
     },
     emptyChatText: {
       fontSize: 16,

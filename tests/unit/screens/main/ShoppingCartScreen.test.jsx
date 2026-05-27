@@ -6,7 +6,7 @@ import { UserContext } from '../../../../src/contexts/UserContext';
 
 describe('ShoppingCartScreen Tests', () => {
   it('renders correctly with empty state', () => {
-    const { getByText } = render(
+    const { getByText, getByTestId } = render(
       <ThemeProvider>
         <ShoppingCartScreen navigate={jest.fn()} />
       </ThemeProvider>
@@ -15,7 +15,7 @@ describe('ShoppingCartScreen Tests', () => {
     expect(getByText('Carrinho')).toBeTruthy();
     expect(getByText('O teu carrinho está vazio')).toBeTruthy();
     expect(getByText('Adiciona itens para os comprares mais tarde.')).toBeTruthy();
-    expect(getByText('🛒')).toBeTruthy();
+    expect(getByTestId('cart-empty-icon')).toBeTruthy();
   });
 
   it('navigates back to Home when the back button is pressed', () => {
@@ -26,7 +26,7 @@ describe('ShoppingCartScreen Tests', () => {
       </ThemeProvider>
     );
 
-    const backButton = getByText('← Voltar');
+    const backButton = getByText('Voltar');
     fireEvent.press(backButton);
 
     expect(mockNavigate).toHaveBeenCalledWith('Home');

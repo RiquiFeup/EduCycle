@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
-  Platform,
   ActivityIndicator,
   ScrollView,
 } from 'react-native';
@@ -20,6 +19,7 @@ import DropdownField from '../listing/components/DropdownField';
 import ListingCard from '../../components/ListingCard';
 import SectionHeader from '../../components/SectionHeader';
 import FilterModal from '../../components/FilterModal';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { SPACING } from '../../utils/theme';
 import { PAGE_SIZE } from '../../data/listings';
@@ -161,7 +161,7 @@ export default function HomeScreen({ navigate }) {
     if (!hasMore && listings.length > 0 && !queryText.trim()) {
       return (
         <View style={styles.endFooter}>
-          <Text style={styles.endText}>You've seen all listings 🎉</Text>
+          <Text style={styles.endText}>You've seen all listings</Text>
         </View>
       );
     }
@@ -188,15 +188,15 @@ export default function HomeScreen({ navigate }) {
       <View style={styles.header}>
         <Text style={styles.logo}>EduCycle</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-          <TouchableOpacity 
-            style={styles.notifBtn} 
+          <TouchableOpacity
+            style={styles.notifBtn}
             testID="home-cart-button"
             onPress={() => navigate('ShoppingCart')}
           >
-            <Text style={styles.notifIcon}>🛒</Text>
+            <Ionicons name="cart-outline" size={22} color={colors.text} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.notifBtn} testID="home-notifications-button">
-            <Text style={styles.notifIcon}>🔔</Text>
+            <Ionicons name="notifications-outline" size={22} color={colors.text} />
             <View style={styles.notifBadge}>
               <Text style={styles.notifBadgeText}>2</Text>
             </View>
@@ -262,6 +262,7 @@ export default function HomeScreen({ navigate }) {
 
                 <TouchableOpacity
                   onPress={toggleSortDirection}
+                  testID="home-sort-toggle"
                   style={{
                     paddingHorizontal: 16,
                     paddingVertical: 8,
@@ -274,9 +275,7 @@ export default function HomeScreen({ navigate }) {
                     marginLeft: 4
                   }}
                 >
-                  <Text style={{ fontSize: 16, color: colors.text, fontWeight: 'bold' }}>
-                    {sortDirection === 'asc' ? '↑' : '↓'}
-                  </Text>
+                  <Ionicons name={sortDirection === 'asc' ? 'arrow-up' : 'arrow-down'} size={16} color={colors.text} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -302,7 +301,7 @@ export default function HomeScreen({ navigate }) {
         )}
         ListEmptyComponent={
           <View style={styles.empty} testID="empty-state">
-            <Text style={styles.emptyIcon}>📭</Text>
+            <Ionicons name="file-tray-outline" size={40} color={colors.textMuted} style={{ marginBottom: 12 }} />
             <Text style={styles.emptyTitle} testID="empty-state-text">
               {queryText.trim() || Object.values(filters).some(Boolean)
                 ? `No results found for your filters`
@@ -330,13 +329,12 @@ export default function HomeScreen({ navigate }) {
 
 function createStyles(colors) {
   return StyleSheet.create({
-    safeArea: { flex: 1, backgroundColor: colors.background, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
+    safeArea: { flex: 1, backgroundColor: colors.background },
     stateContainer: { flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' },
     stateText: { marginTop: SPACING.md, color: colors.textMuted, fontSize: 15 },
     header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SPACING.horizontal, paddingVertical: 12, backgroundColor: colors.background, borderBottomWidth: 1, borderBottomColor: colors.border },
     logo: { fontSize: 22, fontWeight: '800', color: colors.primary, letterSpacing: -0.5 },
     notifBtn: { position: 'relative', padding: 4 },
-    notifIcon: { fontSize: 22 },
     notifBadge: { position: 'absolute', top: 0, right: 0, backgroundColor: colors.danger, borderRadius: 8, width: 16, height: 16, alignItems: 'center', justifyContent: 'center' },
     notifBadgeText: { color: '#FFF', fontSize: 9, fontWeight: '700' },
     scrollContent: { paddingBottom: SPACING.xl },
@@ -344,7 +342,6 @@ function createStyles(colors) {
     row: { flexDirection: 'row', paddingHorizontal: SPACING.horizontal, gap: 12, marginBottom: 0 },
     emptySlot: { flex: 1 },
     empty: { alignItems: 'center', paddingTop: 48, paddingHorizontal: SPACING.lg },
-    emptyIcon: { fontSize: 40, marginBottom: 12 },
     emptyTitle: { color: colors.text, fontSize: 16, fontWeight: '600', textAlign: 'center', marginBottom: 6 },
     emptyHint: { color: colors.textMuted, fontSize: 13, textAlign: 'center' },
     loadingFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: SPACING.md, gap: SPACING.sm },

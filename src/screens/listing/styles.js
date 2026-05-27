@@ -16,7 +16,6 @@ export default function createStyles(colors) {
                           borderRadius: 12, height: 160, alignItems: 'center',
                           justifyContent: 'center', backgroundColor: GRAY_BG, marginBottom: 4 },
     photoAreaFilled:    { borderStyle: 'solid', backgroundColor: colors.primarySoft },
-    photoIcon:          { fontSize: 32, marginBottom: 8 },
     photoLabel:         { fontSize: 14, color: HINT },
 
     thumbnailContainer: { flexDirection: 'row', marginBottom: 4, height: 160 },

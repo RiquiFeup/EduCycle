@@ -22,7 +22,7 @@ describe('PublicProfileScreen Tests', () => {
       expect(screen.getByTestId('public-profile-screen')).toBeTruthy();
     }, { timeout: 5000 });
 
-    expect(screen.getByText('👁️ Preview Mode')).toBeTruthy();
+    expect(screen.getByText('Preview Mode')).toBeTruthy();
     expect(screen.getByText('João Silva')).toBeTruthy();
   });
 

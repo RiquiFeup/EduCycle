@@ -88,7 +88,7 @@ describe('ListingDetailsScreen - Testes UAT e Renderização Visual', () => {
       expect(screen.getByText('Sofia Martins')).toBeTruthy();
 
       // Simula o clique para ver o perfil
-      fireEvent.press(screen.getByText('Ver Perfil Público →'));
+      fireEvent.press(screen.getByText('Ver Perfil Público'));
 
       // Confirma que a navegação enviou o ID da Sofia na "mochila"
       expect(mockNavigate).toHaveBeenCalledWith('PublicProfile', { sellerId: 'seller-1' });
@@ -113,7 +113,7 @@ describe('ListingDetailsScreen - Testes UAT e Renderização Visual', () => {
       // Confirma que a rede de segurança (fallback) atuou
       expect(screen.getByText('Vendedor Anónimo')).toBeTruthy();
 
-      fireEvent.press(screen.getByText('Ver Perfil Público →'));
+      fireEvent.press(screen.getByText('Ver Perfil Público'));
 
       // Confirma que não enviou ID definido
       expect(mockNavigate).toHaveBeenCalledWith('PublicProfile', { sellerId: undefined });
@@ -142,7 +142,7 @@ describe('ListingDetailsScreen - Testes UAT e Renderização Visual', () => {
       const mockNavigate = jest.fn();
       render(<ListingDetailsScreen listing={baseListing} navigate={mockNavigate} />);
 
-      fireEvent.press(screen.getByText('← Voltar'));
+      fireEvent.press(screen.getByText('Voltar'));
       expect(mockNavigate).toHaveBeenCalledWith('Home');
     });
   });

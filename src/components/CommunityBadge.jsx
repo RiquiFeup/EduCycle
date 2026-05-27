@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 
 export default function CommunityBadge({ name }) {
@@ -8,13 +9,21 @@ export default function CommunityBadge({ name }) {
 
   return (
     <View style={styles.badge}>
-      <Text style={styles.text}>📍 {name}</Text>
+      <View style={styles.badgeContent}>
+        <Ionicons name="location-outline" size={12} color={colors.textSecondary} />
+        <Text style={styles.text}>{name}</Text>
+      </View>
     </View>
   );
 }
 
 function createStyles(colors) {
   return StyleSheet.create({
+    badgeContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
     badge: {
       backgroundColor: colors.badgeBackground,
       paddingVertical: 4,

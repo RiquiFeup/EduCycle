@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint src/ tests/",
-    "test:coverage": "jest --coverage --runInBand --forceExit",
+    "test:coverage": "jest --coverage --runInBand --detectOpenHandles",
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
@@ -15,8 +15,9 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
-    "expo": "~54.0.12",
-    "expo-image-picker": "~17.0.0",
+    "expo": "~54.0.34",
+    "expo-file-system": "~19.0.22",
+    "expo-image-picker": "~17.0.11",
     "expo-status-bar": "~3.0.0",
     "firebase": "^11.10.0",
     "react": "19.1.0",

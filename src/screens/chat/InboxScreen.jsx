@@ -7,11 +7,11 @@ import {
   Image,
   StyleSheet,
   StatusBar,
-  Platform,
   ActivityIndicator,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { SPACING } from '../../utils/theme';
 import { CONVERSATIONS } from '../../data/conversations';
@@ -178,7 +178,7 @@ export default function InboxScreen({ navigate, currentUser }) {
         testID={`conversation-delete-${item.id}`}
         accessibilityLabel="Delete chat"
       >
-        <Text style={styles.deleteButtonText}>⌫</Text>
+        <Ionicons name="trash-outline" size={18} color={colors.danger || colors.text} />
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -208,7 +208,7 @@ export default function InboxScreen({ navigate, currentUser }) {
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           ListEmptyComponent={
             <View style={styles.emptyContainer} testID="inbox-empty-state">
-              <Text style={styles.emptyIcon}>💬</Text>
+              <Ionicons name="chatbubble-outline" size={48} color={colors.textMuted} style={{ marginBottom: SPACING.md }} />
               <Text style={styles.emptyTitle}>No messages yet</Text>
               <Text style={styles.emptyDescription}>
                 When you contact a seller or receive a message, it will appear here.
@@ -226,7 +226,6 @@ function createStyles(colors) {
     safeArea: {
       flex: 1,
       backgroundColor: colors.background,
-      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
     header: {
       flexDirection: 'row',
@@ -295,11 +294,6 @@ function createStyles(colors) {
       borderWidth: 1,
       borderColor: colors.border,
     },
-    deleteButtonText: {
-      color: colors.danger || colors.text,
-      fontSize: 16,
-      fontWeight: '700',
-    },
     conversationHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -365,10 +359,6 @@ function createStyles(colors) {
       justifyContent: 'center',
       paddingHorizontal: SPACING.lg,
       paddingTop: 80,
-    },
-    emptyIcon: {
-      fontSize: 48,
-      marginBottom: SPACING.md,
     },
     emptyTitle: {
       fontSize: 20,
