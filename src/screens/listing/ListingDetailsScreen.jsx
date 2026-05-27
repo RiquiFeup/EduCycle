@@ -5,6 +5,7 @@ import { db } from '../../utils/firebase';
 import { SPACING, RADIUS } from '../../utils/theme';
 import { useTheme } from '../../contexts/ThemeContext';
 import { UserContext } from '../../contexts/UserContext';
+import { createPurchaseRequest } from '../../services/purchaseRequestService';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -40,6 +41,7 @@ export default function ListingDetailsScreen({ listing, navigate, currentUser: p
 
   const [seller, setSeller] = useState(null);
   const [isSavingWishlist, setIsSavingWishlist] = useState(false);
+  const [isRequestingToBuy, setIsRequestingToBuy] = useState(false);
   const isSaved = Boolean(listing?.id && isWishlisted(listing.id));
   const isAlreadyInCart = Boolean(listing?.id && isInCart(listing.id));
 
@@ -100,6 +102,23 @@ export default function ListingDetailsScreen({ listing, navigate, currentUser: p
       Alert.alert('Carrinho', 'Anúncio adicionado ao carrinho.');
     } catch (error) {
       Alert.alert('Carrinho', error.message || 'Não foi possível adicionar o anúncio ao carrinho.');
+    }
+  };
+
+  const handleRequestToBuyPress = async () => {
+    if (!currentUser?.id) {
+      Alert.alert('Login required', 'Log in to request to buy listings.');
+      return;
+    }
+
+    try {
+      setIsRequestingToBuy(true);
+      await createPurchaseRequest(currentUser.id, listing);
+      Alert.alert('Pedido Enviado', 'O teu pedido de compra foi enviado ao vendedor.');
+    } catch (error) {
+      Alert.alert('Pedido de Compra', error.message || 'Não foi possível enviar o pedido de compra.');
+    } finally {
+      setIsRequestingToBuy(false);
     }
   };
 
@@ -222,6 +241,19 @@ export default function ListingDetailsScreen({ listing, navigate, currentUser: p
               {isAlreadyInCart ? 'No carrinho' : 'Adicionar ao Carrinho'}
             </Text>
           </TouchableOpacity>
+
+          {type === 'sell' && (
+            <TouchableOpacity
+              style={[styles.actionButton, { marginBottom: SPACING.sm }]}
+              onPress={handleRequestToBuyPress}
+              disabled={isRequestingToBuy}
+              testID="listing-request-buy-button"
+            >
+              <Text style={styles.actionButtonText}>
+                {isRequestingToBuy ? 'A enviar pedido...' : 'Pedir para Comprar'}
+              </Text>
+            </TouchableOpacity>
+          )}
 
           <TouchableOpacity
             style={styles.actionButton}
