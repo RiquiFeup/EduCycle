@@ -88,7 +88,7 @@ export default function ListingDetailsScreen({ listing, navigate, currentUser: p
     }
   };
 
-  const handleAddToCartPress = () => {
+  const handleAddToCartPress = async () => {
     if (!listing?.id) {
       Alert.alert('Carrinho', 'Este anúncio não pode ser adicionado ao carrinho.');
       return;
@@ -100,7 +100,7 @@ export default function ListingDetailsScreen({ listing, navigate, currentUser: p
     }
 
     try {
-      addToCart(listing);
+      await addToCart(listing);
       Alert.alert('Carrinho', 'Anúncio adicionado ao carrinho.');
     } catch (error) {
       Alert.alert('Carrinho', error.message || 'Não foi possível adicionar o anúncio ao carrinho.');
