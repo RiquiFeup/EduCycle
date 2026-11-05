@@ -1,133 +1,217 @@
 <div align="center">
   <h1>EduCycle</h1>
-  <p>Peer-to-peer academic marketplace — buy, sell, trade and lend educational materials.</p>
+  <p><strong>Your campus. Your materials. Circular.</strong></p>
+  <p>A student marketplace giving school and university materials a second life.</p>
 
-  [![React Native](https://img.shields.io/badge/React_Native-0.81.5-61DAFB?logo=react&logoColor=white)](https://reactnative.dev/)
-  [![Expo](https://img.shields.io/badge/Expo-54-000020?logo=expo&logoColor=white)](https://expo.dev/)
-  [![Firebase](https://img.shields.io/badge/Firebase-11-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/)
-  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-  [![GitHub stars](https://img.shields.io/github/stars/RiquiFeup/EduCycle?style=social)](https://github.com/RiquiFeup/EduCycle)
+  <p>
+    <img src="https://img.shields.io/badge/React_Native-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React Native">
+    <img src="https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white" alt="Expo">
+    <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase">
+    <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="License: MIT"></a>
+  </p>
 
-  <!-- TODO: add images/logo.png -->
-  <!-- TODO: add images/screenshot.png -->
+  <p>
+    <img src="docs/imgs/mockups/WelcomePage.png" alt="EduCycle welcome screen mockup" width="230">
+    <img src="docs/imgs/mockups/ItemPage.png" alt="Academic material listing mockup" width="230">
+    <img src="docs/imgs/mockups/ChatPage.png" alt="Student chat and swap proposal mockup" width="230">
+  </p>
+  <p><em>Original interface mockups: welcome, item details and direct messaging.</em></p>
+
+  <p>
+    <a href="#about-the-project">About</a> ·
+    <a href="#interface-gallery">Interface gallery</a> ·
+    <a href="#getting-started">Getting started</a> ·
+    <a href="#architecture-and-design">Architecture</a> ·
+    <a href="docs/development-report.md">Development report</a>
+  </p>
 </div>
 
----
+## About the Project
 
-## About The Project
+**EduCycle** is a mobile application developed for **Engenharia de Software (ES)** at **FEUP**. It helps students, families and educators discover and reuse school and academic materials, organised around the academic journey.
 
-**EduCycle** is a mobile-first peer-to-peer marketplace built exclusively for students, families, and educators. It enables users to buy, sell, trade, and lend used school and academic materials — organised by education level, discipline, and institution.
+The product vision is simple: make educational materials **more affordable, accessible and sustainable**. Instead of leaving textbooks and supplies unused after a semester, students can find them a new home through a marketplace built for their needs.
 
-Unlike general second-hand platforms, EduCycle is designed around the academic journey:
-
-- Listings are categorised by **school level** (Básica, Secundária, Faculdade).
-- Private **community spaces** can be created and joined via invite code for specific schools.
-- **Escrow-backed payments** (card, MB Way, Multibanco) protect both parties until delivery is confirmed.
-- **Direct messaging** between buyers and sellers is built in for negotiation and coordination.
-
-The app is built with React Native and Expo for cross-platform support (Android & iOS), backed by Firebase for real-time data and authentication.
-
----
+This repository presents the team's **React Native + Expo** implementation, backed by **Firebase Authentication and Firestore**, together with the original mockups, architecture diagrams and course documentation.
 
 ## Features
 
-| Feature | Description |
-|---|---|
-| **SELL** | List individual items or packs with photos, condition rating and price |
-| **TRADE** | Propose item-for-item trades with no monetary exchange |
-| **LEND** | Make items available for a defined loan period |
-| **SCHOOL LEVELS** | Browse by Básica (1st–9th), Secundária (10th–12th), or Faculdade |
-| **ORGANISATIONS** | Private community spaces for specific schools via invite code |
-| **CHAT** | Direct messaging between buyer and seller |
-| **WISHLIST** | Save items and receive alerts when matching listings appear |
-| **PACKS & DISCOUNTS** | Bundle multiple items or apply percentage discounts |
-| **FILTERS & SEARCH** | Search by title, ISBN, author, subject; filter by level, condition, price, location |
-| **PAYMENTS & ESCROW** | Secure payments held in escrow until delivery confirmation |
-| **RATINGS & REVIEWS** | Rate and review after each completed transaction |
-| **SHIPPING** | Pre-paid shipping label generation and native delivery tracking |
+- **Accounts and profiles:** email registration, sign-in and editable user profiles.
+- **Listing creation:** add photos, describe an item and specify its condition and academic category.
+- **Discovery:** browse listings, search, filter and sort the feed.
+- **Wishlist:** save listings to revisit later.
+- **Direct messaging:** communicate with other users about materials and purchase arrangements.
+- **Shopping cart and purchase requests:** collect items and initiate a purchase request.
+- **Light and dark themes:** switch the application's appearance.
 
----
+The broader product vision includes selling, swapping and lending materials, institution communities, payments and shipping integrations. The [development report](docs/development-report.md) records that scope and the team's sprint work.
+
+## Interface Gallery
+
+These are the **original UI mockups** created during the design phase. They illustrate the intended flows and may differ from the implemented screens.
+
+### Welcome and Authentication
+
+<p align="center">
+  <img src="docs/imgs/mockups/WelcomePage.png" alt="Welcome page mockup" width="230">
+  <img src="docs/imgs/mockups/LoginPage.png" alt="Login page mockup" width="230">
+  <img src="docs/imgs/mockups/CreateAccountPage.png" alt="Create account page mockup" width="230">
+</p>
+
+### Browsing and Discovery
+
+<p align="center">
+  <img src="docs/imgs/mockups/HomePage.png" alt="Home feed and search filters mockup" width="520">
+  <img src="docs/imgs/mockups/ItemPage.png" alt="Item details mockup showing condition, price and seller" width="230">
+</p>
+
+### Listings and Shopping
+
+<p align="center">
+  <img src="docs/imgs/mockups/ListingPage.png" alt="New listing form mockup" width="250">
+  <img src="docs/imgs/mockups/ShoppingCartPage.png" alt="Shopping cart mockup" width="250">
+</p>
+
+### Community and Chat
+
+<p align="center">
+  <img src="docs/imgs/mockups/HubPage.png" alt="Faculty community hubs mockup" width="250">
+  <img src="docs/imgs/mockups/ChatPage.png" alt="Direct messaging and swap proposal mockup" width="250">
+</p>
+
+### Profiles
+
+<p align="center">
+  <img src="docs/imgs/mockups/EditProfilePage.png" alt="Edit profile mockup" width="250">
+  <img src="docs/imgs/mockups/ProfileViewPage.png" alt="Profile view and published listings mockup" width="250">
+</p>
 
 ## Built With
 
-[![React Native](https://img.shields.io/badge/React_Native-61DAFB?logo=react&logoColor=white&style=for-the-badge)](https://reactnative.dev/)
-[![Expo](https://img.shields.io/badge/Expo-000020?logo=expo&logoColor=white&style=for-the-badge)](https://expo.dev/)
-[![Firebase](https://img.shields.io/badge/Firebase-FFCA28?logo=firebase&logoColor=black&style=for-the-badge)](https://firebase.google.com/)
-[![Jest](https://img.shields.io/badge/Jest-C21325?logo=jest&logoColor=white&style=for-the-badge)](https://jestjs.io/)
-[![ESLint](https://img.shields.io/badge/ESLint-4B32C3?logo=eslint&logoColor=white&style=for-the-badge)](https://eslint.org/)
-
----
+| Technology | Role |
+|---|---|
+| **React Native + React** | Mobile interface and component architecture |
+| **Expo** | Development tooling and platform builds |
+| **Firebase Authentication** | User accounts and sign-in |
+| **Cloud Firestore** | Application data |
+| **Jest + React Native Testing Library** | Unit and component tests |
+| **Maestro** | Acceptance test flows |
+| **ESLint** | Static code analysis |
+| **GitHub Actions + EAS** | Test pipeline and Android build workflow |
 
 ## Getting Started
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (LTS recommended)
-- [Expo CLI](https://docs.expo.dev/get-started/installation/) — `npm install -g expo-cli`
-- For Android: [Android Studio](https://developer.android.com/studio) with an emulator or a physical device
-- For iOS: Xcode (macOS only)
+- Node.js and npm; the repository's CI uses **Node.js 20**.
+- Expo Go on a physical device, an Android development environment, or Xcode on macOS for iOS development.
+- Access to the Firebase project configured in `src/utils/firebase.js`, or your own Firebase project configuration.
 
 ### Installation
 
-```bash
-# Clone the repo
+```sh
 git clone https://github.com/RiquiFeup/EduCycle.git
 cd EduCycle
-
-# Install dependencies
-npm install
+npm ci --legacy-peer-deps
+npm start
 ```
 
-### Running the App
+The Expo CLI is included with the project; no global Expo CLI installation is needed.
 
-```bash
-# Start Expo dev server (scan QR with Expo Go app)
-npm start
+### Run on a Platform
 
-# Run on Android emulator / device
+```sh
+# Android emulator or connected device
 npm run android
 
-# Run on iOS simulator (macOS only)
+# iOS simulator (macOS with Xcode)
 npm run ios
 
-# Run in web browser
+# Web development server
 npm run web
 ```
 
----
-
 ## Testing
 
-```bash
-# Run unit tests
+```sh
+# Unit and component tests
 npm test
 
-# Run tests with coverage report
+# Coverage report
 npm run test:coverage
 
-# Run end-to-end acceptance tests (requires Maestro)
-npm run e2e
-
-# Lint source files
+# Lint source files and tests
 npm run lint
+
+# Acceptance flows (requires Maestro and a running app)
+npm run e2e
 ```
 
----
+## Architecture and Design
+
+The diagrams below preserve the team's original design documentation. Some planned components and integrations extend beyond the current implementation.
+
+### Domain Model
+
+The domain model describes the relationships between users, listings, organisations, conversations and transactions.
+
+<p align="center">
+  <a href="docs/imgs/Domain.png"><img src="docs/imgs/Domain.png" alt="EduCycle domain model" width="850"></a>
+</p>
+
+### Logical Architecture
+
+<p align="center">
+  <a href="docs/imgs/Logical.drawio.png"><img src="docs/imgs/Logical.drawio.png" alt="Original EduCycle logical architecture diagram" width="850"></a>
+</p>
+
+### Physical Architecture
+
+<p align="center">
+  <a href="docs/imgs/Physical.drawio.png"><img src="docs/imgs/Physical.drawio.png" alt="Original EduCycle physical architecture diagram" width="850"></a>
+</p>
+
+### Project Structure
+
+```text
+EduCycle/
+├── App.js                   # Application entry and navigation
+├── assets/                  # App icons and splash assets
+├── src/
+│   ├── components/          # Reusable interface elements
+│   ├── contexts/            # User and theme state
+│   ├── data/                # Sample listing and conversation data
+│   ├── screens/             # Authentication, listings, chat and profiles
+│   ├── services/            # Authentication and application data operations
+│   └── utils/               # Firebase setup, validation, sorting and theme
+├── tests/                   # Automated tests and acceptance flows
+├── docs/
+│   ├── imgs/                # Mockups, diagrams and sprint boards
+│   ├── development-report.md
+│   └── report_survey_results.md
+└── .github/workflows/       # CI and Android build pipeline
+```
+
+## Development Documentation
+
+- [Full development report](docs/development-report.md): product vision, requirements, mockups, sprint boards and retrospectives.
+- [User survey and backlog prioritisation](docs/report_survey_results.md).
+- [Development guidelines](DEVELOPMENT_GUIDELINES.md).
+- [Changelog](CHANGELOG.MD).
+- [Original course repository](https://github.com/LEIC-ES-2025-26-2LEIC02/T3).
+
+## Team
+
+Developed for **LEIC-ES · FEUP · 2025/2026**, group **T3**.
+
+- Afonso Cabral
+- Artur Ferro
+- Guilherme Nunes
+- Henrique Pereira
+- João Leppanen
 
 ## License
 
-Distributed under the MIT License. See [LICENSE](./LICENSE) for details.
-
----
-
-## Contact
+Distributed under the **MIT License**. See [LICENSE](LICENSE) for details.
 
 GitHub: [@RiquiFeup](https://github.com/RiquiFeup)
-
----
-
-[react-native-shield]: https://img.shields.io/badge/React_Native-0.81.5-61DAFB?logo=react&logoColor=white
-[expo-shield]: https://img.shields.io/badge/Expo-54-000020?logo=expo&logoColor=white
-[firebase-shield]: https://img.shields.io/badge/Firebase-11-FFCA28?logo=firebase&logoColor=black
-[license-shield]: https://img.shields.io/badge/License-MIT-yellow.svg
-[stars-shield]: https://img.shields.io/github/stars/RiquiFeup/EduCycle?style=social
